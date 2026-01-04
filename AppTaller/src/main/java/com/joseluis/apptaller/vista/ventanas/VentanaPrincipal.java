@@ -8,6 +8,10 @@ import com.joseluis.apptaller.vista.dialogos.DialogPresupuesto;
 import java.awt.CardLayout;
 import java.awt.Image;
 import javax.swing.UIManager;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import mdlaf.MaterialLookAndFeel;
+import mdlaf.themes.MaterialLiteTheme;
 
 /**
  *
@@ -187,7 +191,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         panelTitulo.setBackground(new java.awt.Color(33, 150, 243));
 
-        etqLogo.setIcon(new javax.swing.ImageIcon("/home/joseluis/NetBeansProjects/APPTaller/src/main/resources/images/logo_apptaller_titulo.png")); // NOI18N
+        etqLogo.setIcon(new javax.swing.ImageIcon("/mnt/0FEC087D0FEC087D/ProyectoDAM/Proyecto-DAM-Taller/AppTaller/src/main/resources/images/logo_apptaller_small.png")); // NOI18N
 
         etqTitulo.setFont(new java.awt.Font("Roboto", 1, 48)); // NOI18N
         etqTitulo.setForeground(new java.awt.Color(255, 255, 255));
@@ -198,8 +202,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         panelTituloLayout.setHorizontalGroup(
             panelTituloLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelTituloLayout.createSequentialGroup()
-                .addComponent(etqLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(276, 276, 276)
+                .addComponent(etqLogo)
+                .addGap(191, 191, 191)
                 .addComponent(etqTitulo)
                 .addGap(0, 483, Short.MAX_VALUE))
         );
@@ -207,7 +211,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             panelTituloLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(etqLogo, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelTituloLayout.createSequentialGroup()
-                .addContainerGap(25, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(etqTitulo)
                 .addGap(22, 22, 22))
         );
@@ -1333,7 +1337,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
          */
         // Aplica el Look and Feel de Material Design
         try {
-            UIManager.setLookAndFeel(new mdlaf.MaterialLookAndFeel(new mdlaf.themes.MaterialOceanicTheme()));
+            UIManager.setLookAndFeel(new mdlaf.MaterialLookAndFeel(new mdlaf.themes.MaterialLiteTheme()));
         } catch (javax.swing.UnsupportedLookAndFeelException e) {
             e.printStackTrace();
         }

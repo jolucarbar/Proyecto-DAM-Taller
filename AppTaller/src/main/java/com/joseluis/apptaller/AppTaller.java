@@ -4,6 +4,8 @@
 
 package com.joseluis.apptaller;
 
+import com.joseluis.apptaller.vista.ventanas.VentanaLogin;
+
 /**
  *
  * @author joseluis
@@ -11,6 +13,7 @@ package com.joseluis.apptaller;
 public class AppTaller {
 
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        VentanaLogin login = new VentanaLogin();
+        login.setVisible(true);
     }
 }
