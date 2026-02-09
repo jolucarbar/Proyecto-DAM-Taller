@@ -1,6 +1,10 @@
 
 package com.joseluis.apptaller.modelo.vo;
 
+/**
+ * Representa a un empleado o administrador que puede iniciar sesión en el sistema.
+ */
+
 import java.time.LocalDateTime;
 
 public class UsuarioVO {

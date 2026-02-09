@@ -1,5 +1,9 @@
 package com.joseluis.apptaller.modelo.dao;
 
+/**
+ * Esta clase implementa las operaciones CRUD (Crear, Leer, Actualizar, Borrar) para la tabla clientes.
+ */
+
 import com.joseluis.apptaller.modelo.vo.ClienteVO;
 import com.joseluis.apptaller.persistencia.Conexion;
 import java.sql.Connection;

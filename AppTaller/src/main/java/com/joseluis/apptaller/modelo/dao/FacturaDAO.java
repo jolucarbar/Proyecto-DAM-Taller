@@ -1,8 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package com.joseluis.apptaller.modelo.dao;
+
+/**
+ * Esta clase implementa las operaciones para gestionar la creación de facturas, asignarlas a un 
+ * cliente y calcular totales.
+ */
 
 /**
  *

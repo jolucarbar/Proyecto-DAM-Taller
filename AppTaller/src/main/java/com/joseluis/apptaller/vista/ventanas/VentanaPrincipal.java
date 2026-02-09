@@ -25,7 +25,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     public VentanaPrincipal() {
         initComponents();
         setTitle("APP MI TALLER");
-        setSize(1200, 800);
+        setSize(1200, 850);
         //setIconImage("images/logo_apptaller_titulo.ico");
         setLocationRelativeTo(null);
         lstAyuda.setFixedCellHeight(35);
@@ -187,7 +187,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         jEditorPane1 = new javax.swing.JEditorPane();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-        setSize(new java.awt.Dimension(1200, 800));
+        setPreferredSize(new java.awt.Dimension(1395, 900));
+        setSize(new java.awt.Dimension(1200, 850));
 
         panelTitulo.setBackground(new java.awt.Color(33, 150, 243));
 

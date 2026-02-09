@@ -1,5 +1,9 @@
 package com.joseluis.apptaller.modelo.dao;
 
+/**
+ * Esta clase se encarga de controlar quién entra en la aplicación y registrar cuándo lo hace.
+ */
+
 import com.joseluis.apptaller.modelo.vo.UsuarioVO;
 import com.joseluis.apptaller.persistencia.Conexion;
 import java.sql.Connection;

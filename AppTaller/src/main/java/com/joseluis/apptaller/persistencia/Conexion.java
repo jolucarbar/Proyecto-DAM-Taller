@@ -1,6 +1,11 @@
 package com.joseluis.apptaller.persistencia;
 
 /**
+ * Implementa el patrón de diseño Singleton para gestionar de forma centralizada y 
+ * eficiente el acceso al servidor de base de datos MySQL.
+ */
+
+/**
  *
  * @author Jose Luis Cárdenas Barroso
  */
