@@ -1,111 +1,61 @@
-
 package com.joseluis.apptaller.modelo.vo;
 
-/**
- * Contiene los datos técnicos del coche
- */
-
-/**
- *
- * @author joseluis
- */
 public class VehiculoVO {
-    
-    private String matricula; // Clave primaria
+    // Usamos los nombres alineados con tu BD (respetando camelCase)
+    private String bastidor;   // Antes numeroChasis (PK en BD)
+    private String matricula;  // (Unique en BD)
     private String marca;
     private String modelo;
-    private int anio;
+    private int anioFabricacion; // Antes anio
     private String color;
-    private String numeroChasis;
-    private String dniCliente; // Relación con ClienteVO
+    private String dniPropietario; // Antes dniCliente (mapea a propietario_actual_dni)
     private boolean activo;
 
+    // --- Constructor Vacío ---
     public VehiculoVO() {
-    }
-    
-    public VehiculoVO(boolean activo) {
-        this.activo = activo;
+        this.activo = true;
     }
 
-    public VehiculoVO(String matricula, String marca, String modelo, int anio, String color, String numeroChasis, String dniCliente) {
+    // --- Constructor Completo ---
+    public VehiculoVO(String bastidor, String matricula, String marca, String modelo, 
+                      int anioFabricacion, String color, String dniPropietario) {
+        this.bastidor = bastidor;
         this.matricula = matricula;
         this.marca = marca;
         this.modelo = modelo;
-        this.anio = anio;
+        this.anioFabricacion = anioFabricacion;
         this.color = color;
-        this.numeroChasis = numeroChasis;
-        this.dniCliente = dniCliente;
+        this.dniPropietario = dniPropietario;
+        this.activo = true;
     }
 
-    public String getMatricula() {
-        return matricula;
-    }
+    // --- Getters y Setters (Actualizados) ---
+    public String getBastidor() { return bastidor; }
+    public void setBastidor(String bastidor) { this.bastidor = bastidor; }
 
-    public void setMatricula(String matricula) {
-        this.matricula = matricula;
-    }
+    public String getMatricula() { return matricula; }
+    public void setMatricula(String matricula) { this.matricula = matricula; }
 
-    public String getMarca() {
-        return marca;
-    }
+    public String getMarca() { return marca; }
+    public void setMarca(String marca) { this.marca = marca; }
 
-    public void setMarca(String marca) {
-        this.marca = marca;
-    }
+    public String getModelo() { return modelo; }
+    public void setModelo(String modelo) { this.modelo = modelo; }
 
-    public String getModelo() {
-        return modelo;
-    }
+    public int getAnioFabricacion() { return anioFabricacion; }
+    public void setAnioFabricacion(int anioFabricacion) { this.anioFabricacion = anioFabricacion; }
 
-    public void setModelo(String modelo) {
-        this.modelo = modelo;
-    }
+    public String getColor() { return color; }
+    public void setColor(String color) { this.color = color; }
 
-    public int getAnio() {
-        return anio;
-    }
+    public String getDniPropietario() { return dniPropietario; }
+    public void setDniPropietario(String dniPropietario) { this.dniPropietario = dniPropietario; }
 
-    public void setAnio(int anio) {
-        this.anio = anio;
-    }
-
-    public String getColor() {
-        return color;
-    }
-
-    public void setColor(String color) {
-        this.color = color;
-    }
-
-    public String getNumeroChasis() {
-        return numeroChasis;
-    }
-
-    public void setNumeroChasis(String numeroChasis) {
-        this.numeroChasis = numeroChasis;
-    }
-
-    public String getDniCliente() {
-        return dniCliente;
-    }
-
-    public void setDniCliente(String dniCliente) {
-        this.dniCliente = dniCliente;
-    }
-
-    public boolean isActivo() {
-        return activo;
-    }
-
-    public void setActivo(boolean activo) {
-        this.activo = activo;
-    }
+    public boolean isActivo() { return activo; }
+    public void setActivo(boolean activo) { this.activo = activo; }
 
     @Override
     public String toString() {
-        return "VehiculoVO{" + "matricula=" + matricula + ", marca=" + marca + ", modelo=" + modelo + ", anio=" + anio + ", color=" + color + ", numeroChasis=" + numeroChasis + ", dniCliente=" + dniCliente + ", activo=" + activo + '}';
+        return matricula + " (" + marca + " " + modelo + ")";
     }
-    
-    
-    
 }
