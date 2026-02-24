@@ -1,6 +1,11 @@
 
 package com.joseluis.apptaller.vista.ventanas;
 
+import com.joseluis.apptaller.modelo.dao.FacturaDAO;
+import com.joseluis.apptaller.modelo.vo.FacturaVO;
+import javax.swing.table.DefaultTableModel;
+import java.util.List;
+import javax.swing.JOptionPane;
 import com.joseluis.apptaller.vista.dialogos.DialogDetallesReparacion;
 import com.joseluis.apptaller.vista.dialogos.DialogHistorialCliente;
 import com.joseluis.apptaller.vista.dialogos.DialogNuevaReparacion;
@@ -19,6 +24,10 @@ import mdlaf.themes.MaterialLiteTheme;
  */
 public class VentanaPrincipal extends javax.swing.JFrame {
 
+    // ATRIBUTOS PARA EL MÓDULO DE FACTURAS
+    private FacturaDAO facturaDAO;
+    private DefaultTableModel modeloFacturas;
+    
     /**
      * Creates new form VentanaPrincipal
      */
@@ -31,6 +40,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         lstAyuda.setFixedCellHeight(35);
         
         iniciarReloj();
+        initPanelFacturas();
     }
 
     /**
@@ -161,11 +171,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         etqGestionFacturas = new javax.swing.JLabel();
         txtBuscarFacturas = new javax.swing.JTextField();
         btnBuscarFacturas = new javax.swing.JButton();
-        btnNuevoFacturas = new javax.swing.JButton();
+        btnNuevaFactura = new javax.swing.JButton();
         btnInformeFacturas = new javax.swing.JButton();
         btnEliminarFacturas = new javax.swing.JButton();
         jScrollPaneFacturas = new javax.swing.JScrollPane();
-        tblFacturas = new javax.swing.JTable();
+        tablaFacturas = new javax.swing.JTable();
         panelEmpleados = new javax.swing.JPanel();
         panelHerramientasEmpleados = new javax.swing.JPanel();
         etqGestionEmpleados = new javax.swing.JLabel();
@@ -460,7 +470,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         jScrollPane3.setBorder(null);
 
-        jTextArea1.setBackground(new java.awt.Color(255, 255, 255));
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jTextArea1.setText("atehdzyhsxtumgfvoh.jb..\ncfjycg ,fivoñ-pj\nchm hif,hi.o-hipKnLug ");
@@ -1036,11 +1045,16 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         btnBuscarFacturas.setText("Buscar");
         panelHerramientasFacturas.add(btnBuscarFacturas);
 
-        btnNuevoFacturas.setBackground(new java.awt.Color(33, 150, 243));
-        btnNuevoFacturas.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnNuevoFacturas.setForeground(new java.awt.Color(255, 255, 255));
-        btnNuevoFacturas.setText("Nuevo");
-        panelHerramientasFacturas.add(btnNuevoFacturas);
+        btnNuevaFactura.setBackground(new java.awt.Color(33, 150, 243));
+        btnNuevaFactura.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnNuevaFactura.setForeground(new java.awt.Color(255, 255, 255));
+        btnNuevaFactura.setText("Nuevo");
+        btnNuevaFactura.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnNuevaFacturaActionPerformed(evt);
+            }
+        });
+        panelHerramientasFacturas.add(btnNuevaFactura);
 
         btnInformeFacturas.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         btnInformeFacturas.setText("Informe");
@@ -1054,7 +1068,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         panelFacturas.add(panelHerramientasFacturas, java.awt.BorderLayout.PAGE_START);
 
-        tblFacturas.setModel(new javax.swing.table.DefaultTableModel(
+        tablaFacturas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
                 {null, null, null, null, null, null},
@@ -1065,9 +1079,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 "Nº Factura", "Fecha", "Cliente", "Base imponible", "IVA", "Total (€)"
             }
         ));
-        jScrollPaneFacturas.setViewportView(tblFacturas);
+        jScrollPaneFacturas.setViewportView(tablaFacturas);
 
-        panelFacturas.add(jScrollPaneFacturas, java.awt.BorderLayout.CENTER);
+        panelFacturas.add(jScrollPaneFacturas, java.awt.BorderLayout.PAGE_END);
 
         panelPrincipal.add(panelFacturas, "cardFacturas");
 
@@ -1275,6 +1289,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         cardLayout.show(panelPrincipal, "cardFacturas");
         
         etqTitulo.setText("APP MI TALLER - FACTURAS");
+        
+        // 3. Refrescar datos al entrar en la pestaña
+        cargarTablaFacturas();
     }//GEN-LAST:event_btnFacturasActionPerformed
 
     private void btnAyudaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAyudaActionPerformed
@@ -1326,6 +1343,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         DialogHistorialCliente historialCliente = new DialogHistorialCliente(this, true);
         historialCliente.setVisible(true);
     }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void btnNuevaFacturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaFacturaActionPerformed
+        JOptionPane.showMessageDialog(this, "Crear Factura: Próximamente...");
+    }//GEN-LAST:event_btnNuevaFacturaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1380,9 +1401,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnInformeProveedores;
     private javax.swing.JButton btnInformeVehiculo;
     private javax.swing.JButton btnInicio;
+    private javax.swing.JButton btnNuevaFactura;
     private javax.swing.JButton btnNuevo;
     private javax.swing.JButton btnNuevoEmpleado;
-    private javax.swing.JButton btnNuevoFacturas;
     private javax.swing.JButton btnNuevoPresupuestos;
     private javax.swing.JButton btnNuevoProductos;
     private javax.swing.JButton btnNuevoProveedores;
@@ -1482,9 +1503,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel panelStock;
     private javax.swing.JPanel panelTitulo;
     private javax.swing.JPanel panelVehiculos;
+    private javax.swing.JTable tablaFacturas;
     private javax.swing.JTable tblClientes;
     private javax.swing.JTable tblClientes1;
-    private javax.swing.JTable tblFacturas;
     private javax.swing.JTable tblPresupuestos;
     private javax.swing.JTable tblProductos;
     private javax.swing.JTable tblProveedores;
@@ -1509,5 +1530,65 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             etqReloj.setText(fecha.toUpperCase()); 
         }
     }).start();
+    }
+
+    /**
+     * Configura el modelo de la tabla de facturas y las columnas.
+     */
+    private void initPanelFacturas() {
+        // 1. Instanciamos el DAO
+        facturaDAO = new FacturaDAO();
+
+        // 2. Configuramos el modelo de la tabla (Celdas no editables)
+        modeloFacturas = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
+        // 3. Definimos las columnas
+        String[] columnas = {"ID", "Nº Factura", "Fecha", "Cliente", "Vehículo", "Total", "Estado"};
+        modeloFacturas.setColumnIdentifiers(columnas);
+
+        // 4. Asignamos el modelo a la tabla visual 
+        tablaFacturas.setModel(modeloFacturas);
+        
+        // 5. Ajustes estéticos (Opcional)
+        tablaFacturas.setRowHeight(30);
+        
+        // 6. Ocultar la columna ID (índice 0) visualmente pero mantener el dato
+        tablaFacturas.getColumnModel().getColumn(0).setMinWidth(0);
+        tablaFacturas.getColumnModel().getColumn(0).setMaxWidth(0);
+        tablaFacturas.getColumnModel().getColumn(0).setWidth(0);
+        
+        // 7. Cargar los datos iniciales
+        cargarTablaFacturas();
+    }
+
+    /**
+     * Consulta la base de datos y rellena la tabla de facturas.
+     */
+    private void cargarTablaFacturas() {
+        // Limpiamos filas antiguas
+        modeloFacturas.setRowCount(0);
+
+        // Obtenemos la lista de la BD
+        List<FacturaVO> lista = facturaDAO.listar();
+
+        // Rellenamos la tabla
+        for (FacturaVO f : lista) {
+            Object[] fila = new Object[7];
+            fila[0] = f.getIdFactura();
+            fila[1] = f.getNumeroFactura();
+            fila[2] = f.getFechaEmision();
+            fila[3] = f.getClienteDni();
+            fila[4] = f.getVehiculoBastidor();
+            // Formateo sencillo de moneda
+            fila[5] = String.format("%.2f €", f.getTotalCobrado());
+            fila[6] = f.getEstado();
+            
+            modeloFacturas.addRow(fila);
+        }
     }
 }
