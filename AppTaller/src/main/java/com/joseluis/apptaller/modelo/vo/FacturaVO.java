@@ -12,18 +12,18 @@ public class FacturaVO {
     private int idFactura;
     private String numeroFactura;
     private int idReparacion;
-    private int idPresupuesto; // Añadido
+    private int idPresupuesto; 
     private String clienteDni;
     private String vehiculoBastidor;
     private LocalDate fechaEmision;
-    private LocalDate fechaVencimiento; // Añadido
-    private double baseImponible; // Añadido
-    private double iva; // Añadido
+    private LocalDate fechaVencimiento; 
+    private double baseImponible; 
+    private double iva; 
     private double totalCobrado;
-    private String metodoPago; // Añadido
+    private String metodoPago; 
     private String estado;
-    private String observaciones; // Añadido
-    private int usuarioEmisor; // Añadido
+    private String observaciones; 
+    private int usuarioEmisor; 
 
     // Constructor vacío requerido para el DAO
     public FacturaVO() {

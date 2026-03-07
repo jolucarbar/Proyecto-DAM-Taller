@@ -40,7 +40,7 @@ public class FacturaDAO {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = Conexion.getInstancia().getConnection(); // Uso del Singleton [cite: 340, 692]
+            conn = Conexion.getInstancia().getConnection(); // Uso del Singleton 
             stmt = conn.prepareStatement(SQL_INSERT);
 
             stmt.setString(1, factura.getNumeroFactura());
@@ -77,7 +77,7 @@ public class FacturaDAO {
 
     /**
      * Genera un listado de todas las facturas registradas.
-     * Útil para alimentar el tblFacturas del panel principal[cite: 1067].
+     * Útil para alimentar el tblFacturas del panel principal
      */
     public List<FacturaVO> listar() {
         Connection conn = null;
@@ -118,7 +118,7 @@ public class FacturaDAO {
         return f;
     }
 
-    // Métodos auxiliares para el cierre de recursos siguiendo tu estándar [cite: 458, 459]
+    // Métodos auxiliares para el cierre de recursos
     private void close(PreparedStatement stmt) { close(stmt, null); }
     private void close(PreparedStatement stmt, ResultSet rs) {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}

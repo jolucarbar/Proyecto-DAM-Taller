@@ -52,7 +52,7 @@ public class UsuarioDAO {
                     usuario.setUltimoAcceso(ts.toLocalDateTime());
                 }
 
-                // Tarea extra: Actualizar su última conexión
+                // Actualizar su última conexión
                 registrarAcceso(usuario.getIdUsuario());
             }
 

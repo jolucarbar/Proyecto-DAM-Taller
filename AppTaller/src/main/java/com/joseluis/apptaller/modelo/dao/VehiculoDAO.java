@@ -8,7 +8,6 @@ import java.util.List;
 
 public class VehiculoDAO {
 
-    // Consultas adaptadas a tu estructura DESCRIBE vehiculos
     private final String SQL_INSERT = "INSERT INTO vehiculos (bastidor, matricula, marca, modelo, anio_fabricacion, color, propietario_actual_dni, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
     private final String SQL_SELECT_ALL = "SELECT * FROM vehiculos WHERE activo = 1";
     // Aunque bastidor es PK, mantenemos búsqueda por matrícula que es lo habitual en talleres
@@ -22,13 +21,13 @@ public class VehiculoDAO {
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement stmt = conn.prepareStatement(SQL_INSERT)) {
             
-            stmt.setString(1, v.getBastidor());        // <--- AHORA SÍ COINCIDE
+            stmt.setString(1, v.getBastidor());        
             stmt.setString(2, v.getMatricula());
             stmt.setString(3, v.getMarca());
             stmt.setString(4, v.getModelo());
-            stmt.setInt(5, v.getAnioFabricacion());    // <--- AHORA SÍ COINCIDE
+            stmt.setInt(5, v.getAnioFabricacion());    
             stmt.setString(6, v.getColor());
-            stmt.setString(7, v.getDniPropietario());  // <--- AHORA SÍ COINCIDE
+            stmt.setString(7, v.getDniPropietario());  
             stmt.setBoolean(8, v.isActivo());
             
             return stmt.executeUpdate() > 0;
@@ -82,7 +81,7 @@ public class VehiculoDAO {
     private VehiculoVO mapearVehiculo(ResultSet rs) throws SQLException {
         VehiculoVO v = new VehiculoVO();
         
-        // --- AQUÍ ESTABA EL ERROR, AHORA ESTÁ CORREGIDO ---
+       
         v.setBastidor(rs.getString("bastidor"));              // Columna BD -> Método VO
         v.setMatricula(rs.getString("matricula"));
         v.setMarca(rs.getString("marca"));
@@ -91,7 +90,7 @@ public class VehiculoDAO {
         v.setColor(rs.getString("color"));
         v.setDniPropietario(rs.getString("propietario_actual_dni")); // Columna BD -> Método VO
         
-        // Verificamos si la columna activo existe (si tu tabla no la tiene, dará false por defecto)
+        // Verificamos si la columna activo existe 
         try {
             v.setActivo(rs.getBoolean("activo"));
         } catch (SQLException ex) {

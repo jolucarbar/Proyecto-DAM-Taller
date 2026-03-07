@@ -2,7 +2,7 @@
 package com.joseluis.apptaller.controlador;
 
 /**
- * Clase que conecta la interfaz gráfica con al base de datos.
+ * Clase que conecta la interfaz gráfica con la base de datos.
  */
 
 /**

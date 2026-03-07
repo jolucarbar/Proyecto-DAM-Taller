@@ -1,14 +1,14 @@
 package com.joseluis.apptaller.modelo.vo;
 
 public class VehiculoVO {
-    // Usamos los nombres alineados con tu BD (respetando camelCase)
-    private String bastidor;   // Antes numeroChasis (PK en BD)
-    private String matricula;  // (Unique en BD)
+    
+    private String bastidor;   
+    private String matricula;  
     private String marca;
     private String modelo;
-    private int anioFabricacion; // Antes anio
+    private int anioFabricacion; 
     private String color;
-    private String dniPropietario; // Antes dniCliente (mapea a propietario_actual_dni)
+    private String dniPropietario; 
     private boolean activo;
 
     // --- Constructor Vacío ---
@@ -29,7 +29,7 @@ public class VehiculoVO {
         this.activo = true;
     }
 
-    // --- Getters y Setters (Actualizados) ---
+    // --- Getters y Setters  ---
     public String getBastidor() { return bastidor; }
     public void setBastidor(String bastidor) { this.bastidor = bastidor; }
 
