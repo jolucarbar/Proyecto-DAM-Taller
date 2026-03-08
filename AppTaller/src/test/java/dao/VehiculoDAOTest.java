@@ -52,19 +52,41 @@ public class VehiculoDAOTest {
      * y evitar conflictos de Clave Primaria en ejecuciones repetidas.
      */
     private void limpiarDatosDePrueba() {
-        try (Connection conn = Conexion.getInstancia().getConnection()) {
-            // Borramos primero el vehículo para no romper FK
+        try (Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection()) {
+            
+            // PASO 0: Desactivamos temporalmente la comprobación de FK (sólo para Testing)
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+            }
+
+            // PASO 1: Borrar las reparaciones asociadas al vehículo de prueba
+            String sqlReparaciones = "DELETE FROM reparaciones WHERE vehiculo_bastidor = ?";
+            try (PreparedStatement stmtR = conn.prepareStatement(sqlReparaciones)) {
+                stmtR.setString(1, BASTIDOR_TEST);
+                stmtR.executeUpdate();
+            }
+
+            // PASO 2: Borramos el vehículo de prueba
             String sqlVehiculo = "DELETE FROM vehiculos WHERE bastidor = ? OR matricula = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sqlVehiculo)) {
-                stmt.setString(1, BASTIDOR_TEST);
-                stmt.setString(2, MATRICULA_TEST);
-                stmt.executeUpdate();
+            try (PreparedStatement stmtV = conn.prepareStatement(sqlVehiculo)) {
+                stmtV.setString(1, BASTIDOR_TEST);
+                stmtV.setString(2, MATRICULA_TEST);
+                stmtV.executeUpdate();
             }
             
-            // Opcional: Borrar el cliente también si quieres un test 100% limpio
-            // Pero como lo reutilizamos, no es estrictamente necesario aquí.
+            // PASO 3: Borramos el cliente de prueba asociado para dejar la BD 100% limpia
+            String sqlCliente = "DELETE FROM clientes WHERE dni_cif = '12345678Z'"; 
+            try (PreparedStatement stmtC = conn.prepareStatement(sqlCliente)) {
+                stmtC.executeUpdate();
+            }
+
+            // PASO 4: Volvemos a activar la seguridad referencial 
+            try (java.sql.Statement stmt = conn.createStatement()) {
+                stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+            }
+
         } catch (Exception e) {
-            System.err.println("Error limpiando datos de prueba: " + e.getMessage());
+            System.err.println("Error crítico limpiando datos en VehiculoDAOTest: " + e.getMessage());
         }
     }
 

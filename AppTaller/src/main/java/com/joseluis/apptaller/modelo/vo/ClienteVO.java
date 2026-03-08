@@ -18,6 +18,7 @@ public class ClienteVO {
     private boolean activo;
 
     public ClienteVO() {
+        this.activo = true; // Todo cliente nuevo nace activo por defecto
     }
 
     public ClienteVO(String dni, String nombre, String telefono, String email) {

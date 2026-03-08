@@ -1,6 +1,8 @@
 
 package com.joseluis.apptaller.vista.ventanas;
 
+import com.joseluis.apptaller.modelo.dao.ClienteDAO;
+import com.joseluis.apptaller.controlador.ControladorClientes;
 import com.joseluis.apptaller.modelo.dao.FacturaDAO;
 import com.joseluis.apptaller.modelo.vo.FacturaVO;
 import javax.swing.table.DefaultTableModel;
@@ -41,6 +43,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         
         iniciarReloj();
         initPanelFacturas();
+        
+        ClienteDAO clienteDAO = new ClienteDAO();
+        ControladorClientes ctrlClientes = new ControladorClientes(this, clienteDAO);
+        
     }
 
     /**
@@ -92,11 +98,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         panelHerramientas = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         txtBuscar = new javax.swing.JTextField();
-        btnBuscar = new javax.swing.JButton();
-        btnNuevo = new javax.swing.JButton();
-        btnInforme = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
-        btnEliminar = new javax.swing.JButton();
+        btnBuscarCliente = new javax.swing.JButton();
+        btnNuevoCliente = new javax.swing.JButton();
+        btnInformeCliente = new javax.swing.JButton();
+        btnHistorialCliente = new javax.swing.JButton();
+        btnEliminarCliente = new javax.swing.JButton();
         jScrollPaneClientes = new javax.swing.JScrollPane();
         tblClientes = new javax.swing.JTable();
         panelVehiculos = new javax.swing.JPanel();
@@ -504,42 +510,46 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         txtBuscar.setBorder(javax.swing.BorderFactory.createMatteBorder(0, 0, 2, 0, new java.awt.Color(33, 150, 243)));
         panelHerramientas.add(txtBuscar);
 
-        btnBuscar.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnBuscar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
-        btnBuscar.setText("Buscar");
-        btnBuscar.setFocusPainted(false);
-        panelHerramientas.add(btnBuscar);
+        btnBuscarCliente.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnBuscarCliente.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
+        btnBuscarCliente.setText("Buscar");
+        btnBuscarCliente.setFocusPainted(false);
+        panelHerramientas.add(btnBuscarCliente);
 
-        btnNuevo.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnNuevo.setForeground(new java.awt.Color(255, 255, 255));
-        btnNuevo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
-        btnNuevo.setText("Nuevo");
-        btnNuevo.setFocusPainted(false);
-        panelHerramientas.add(btnNuevo);
-
-        btnInforme.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnInforme.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
-        btnInforme.setText("Informe");
-        btnInforme.setFocusPainted(false);
-        panelHerramientas.add(btnInforme);
-
-        jButton5.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jButton5.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
-        jButton5.setText("Historial");
-        jButton5.addActionListener(new java.awt.event.ActionListener() {
+        btnNuevoCliente.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnNuevoCliente.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
+        btnNuevoCliente.setText("Nuevo");
+        btnNuevoCliente.setFocusPainted(false);
+        btnNuevoCliente.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton5ActionPerformed(evt);
+                btnNuevoClienteActionPerformed(evt);
             }
         });
-        panelHerramientas.add(jButton5);
+        panelHerramientas.add(btnNuevoCliente);
 
-        btnEliminar.setBackground(new java.awt.Color(229, 57, 53));
-        btnEliminar.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnEliminar.setForeground(new java.awt.Color(255, 255, 255));
-        btnEliminar.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
-        btnEliminar.setText("Eliminar");
-        btnEliminar.setFocusPainted(false);
-        panelHerramientas.add(btnEliminar);
+        btnInformeCliente.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnInformeCliente.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
+        btnInformeCliente.setText("Informe");
+        btnInformeCliente.setFocusPainted(false);
+        panelHerramientas.add(btnInformeCliente);
+
+        btnHistorialCliente.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        btnHistorialCliente.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
+        btnHistorialCliente.setText("Historial");
+        btnHistorialCliente.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHistorialClienteActionPerformed(evt);
+            }
+        });
+        panelHerramientas.add(btnHistorialCliente);
+
+        btnEliminarCliente.setBackground(new java.awt.Color(229, 57, 53));
+        btnEliminarCliente.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnEliminarCliente.setForeground(new java.awt.Color(255, 255, 255));
+        btnEliminarCliente.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
+        btnEliminarCliente.setText("Eliminar");
+        btnEliminarCliente.setFocusPainted(false);
+        panelHerramientas.add(btnEliminarCliente);
 
         panelClientes.add(panelHerramientas, java.awt.BorderLayout.PAGE_START);
 
@@ -1339,14 +1349,19 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         detallesReparacion.setVisible(true);
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        DialogHistorialCliente historialCliente = new DialogHistorialCliente(this, true);
-        historialCliente.setVisible(true);
-    }//GEN-LAST:event_jButton5ActionPerformed
+    private void btnHistorialClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistorialClienteActionPerformed
+        // Este evento se creó para probar que se abía el diálogo.
+        // Lo dejamos vacío intencionadamente. 
+        // El ControladorClientes se encarga de escuchar este botón.
+    }//GEN-LAST:event_btnHistorialClienteActionPerformed
 
     private void btnNuevaFacturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaFacturaActionPerformed
         JOptionPane.showMessageDialog(this, "Crear Factura: Próximamente...");
     }//GEN-LAST:event_btnNuevaFacturaActionPerformed
+
+    private void btnNuevoClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoClienteActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnNuevoClienteActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1376,7 +1391,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAyuda;
-    private javax.swing.JButton btnBuscar;
+    private javax.swing.JButton btnBuscarCliente;
     private javax.swing.JButton btnBuscarEmpleado;
     private javax.swing.JButton btnBuscarFacturas;
     private javax.swing.JButton btnBuscarPresupuestos;
@@ -1384,7 +1399,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnBuscarProveedores;
     private javax.swing.JButton btnBuscarVehiculo;
     private javax.swing.JButton btnClientes;
-    private javax.swing.JButton btnEliminar;
+    private javax.swing.JButton btnEliminarCliente;
     private javax.swing.JButton btnEliminarEmpleado;
     private javax.swing.JButton btnEliminarFacturas;
     private javax.swing.JButton btnEliminarPresupuestos;
@@ -1393,7 +1408,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnEliminarVehiculo;
     private javax.swing.JButton btnEmpleados;
     private javax.swing.JButton btnFacturas;
-    private javax.swing.JButton btnInforme;
+    private javax.swing.JButton btnHistorialCliente;
+    private javax.swing.JButton btnInformeCliente;
     private javax.swing.JButton btnInformeEmpleado;
     private javax.swing.JButton btnInformeFacturas;
     private javax.swing.JButton btnInformePresupuestos;
@@ -1402,7 +1418,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnInformeVehiculo;
     private javax.swing.JButton btnInicio;
     private javax.swing.JButton btnNuevaFactura;
-    private javax.swing.JButton btnNuevo;
+    private javax.swing.JButton btnNuevoCliente;
     private javax.swing.JButton btnNuevoEmpleado;
     private javax.swing.JButton btnNuevoPresupuestos;
     private javax.swing.JButton btnNuevoProductos;
@@ -1430,7 +1446,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JLabel jLabel1;
@@ -1590,5 +1605,27 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             
             modeloFacturas.addRow(fila);
         }
+    }
+    
+    // ====================================
+    // Métodos para que ControladorClientes 
+    // pueda manejar los botones y a la
+    // tabla del panel Clientes
+    //======================================
+    
+    public javax.swing.JTable getTblClientes() {
+        return tblClientes;
+    }
+
+    public javax.swing.JButton getBtnNuevoCliente() {
+        return btnNuevoCliente;
+    }
+
+    public javax.swing.JButton getBtnEliminarCliente() {
+        return btnEliminarCliente;
+    }
+    
+    public javax.swing.JButton getBtnHistorialCliente() {
+        return btnHistorialCliente; 
     }
 }

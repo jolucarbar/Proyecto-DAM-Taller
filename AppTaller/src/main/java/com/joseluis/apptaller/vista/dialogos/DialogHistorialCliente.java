@@ -2,12 +2,19 @@
 package com.joseluis.apptaller.vista.dialogos;
 
 import javax.swing.UIManager;
+import com.joseluis.apptaller.modelo.vo.ClienteVO;
+import com.joseluis.apptaller.modelo.vo.VehiculoVO;
+import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author joseluis
  */
 public class DialogHistorialCliente extends javax.swing.JDialog {
+    // Añadimos la variable para guardar el cliente
+    private ClienteVO cliente;
 
     /**
      * Creates new form DialogHistorialCliente
@@ -16,6 +23,18 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         setLocationRelativeTo(this);
+    }
+    
+    // Creamos un constructor sobrecargado que reciba al cliente
+    public DialogHistorialCliente(java.awt.Frame parent, boolean modal, com.joseluis.apptaller.modelo.vo.ClienteVO cliente) {
+        super(parent, modal);
+        this.cliente = cliente; // Guardamos el cliente
+        initComponents();
+        setLocationRelativeTo(this);
+        
+        // Llamamos a los métodos que rellenan los datos
+        cargarDatosPersonales();
+        cargarVehiculos();
     }
 
     /**
@@ -28,18 +47,18 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
     private void initComponents() {
 
         jPanel2 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
+        lblIcono = new javax.swing.JLabel();
+        lblNombre = new javax.swing.JLabel();
+        lblDni = new javax.swing.JLabel();
+        lblTlf = new javax.swing.JLabel();
+        lblMail = new javax.swing.JLabel();
+        lblDNI = new javax.swing.JLabel();
+        lblTelefono = new javax.swing.JLabel();
+        lblEmail = new javax.swing.JLabel();
         jTabbedPane2 = new javax.swing.JTabbedPane();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
-        jPanel5 = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        tablaVehiculosCliente = new javax.swing.JTable();
         jPanel4 = new javax.swing.JPanel();
         jPanel6 = new javax.swing.JPanel();
         jButton3 = new javax.swing.JButton();
@@ -53,26 +72,30 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
         jScrollPane3 = new javax.swing.JScrollPane();
         jTable3 = new javax.swing.JTable();
         jPanel7 = new javax.swing.JPanel();
-        jButton5 = new javax.swing.JButton();
         jButton6 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Ficha Histórica del Cliente");
         setModal(true);
 
-        jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_cliente_128.png"))); // NOI18N
+        lblIcono.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_cliente_128.png"))); // NOI18N
 
-        jLabel1.setFont(new java.awt.Font("Roboto", 1, 18)); // NOI18N
-        jLabel1.setText("JUAN PÉREZ GARCÍA");
+        lblNombre.setFont(new java.awt.Font("Roboto", 1, 18)); // NOI18N
 
-        jLabel3.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jLabel3.setText("DNI: 11222333-A");
+        lblDni.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        lblDni.setText("DNI: ");
 
-        jLabel4.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jLabel4.setText("Teléfono: 666555444");
+        lblTlf.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        lblTlf.setText("Teléfono: ");
 
-        jLabel5.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jLabel5.setText("Email: jua.perez@mail.es");
+        lblMail.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        lblMail.setText("Email: ");
+
+        lblDNI.setText("jLabel1");
+
+        lblTelefono.setText("jLabel1");
+
+        lblEmail.setText("jLabel1");
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -80,30 +103,42 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel2)
+                .addComponent(lblIcono)
                 .addGap(76, 76, 76)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel1)
-                    .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addComponent(jLabel3)
-                        .addComponent(jLabel4)
-                        .addComponent(jLabel5)))
-                .addContainerGap(216, Short.MAX_VALUE))
+                    .addComponent(lblNombre)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblDni)
+                            .addComponent(lblTlf)
+                            .addComponent(lblMail))
+                        .addGap(30, 30, 30)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblEmail)
+                            .addComponent(lblTelefono)
+                            .addComponent(lblDNI))))
+                .addContainerGap(272, Short.MAX_VALUE))
         );
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(39, 39, 39)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel2)
+                    .addComponent(lblIcono)
                     .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addComponent(jLabel1)
+                        .addComponent(lblNombre)
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel3)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblDni)
+                            .addComponent(lblDNI))
                         .addGap(18, 18, 18)
-                        .addComponent(jLabel4)
-                        .addGap(19, 19, 19)
-                        .addComponent(jLabel5)))
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblTlf)
+                            .addComponent(lblTelefono))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(lblMail)
+                            .addComponent(lblEmail))))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
@@ -113,7 +148,7 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
 
         jScrollPane1.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tablaVehiculosCliente.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {"1234-BBB", "Ford", "Fiesta", "2015", "13/08/2024"},
                 {null, null, null, null, null},
@@ -124,38 +159,9 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
                 "Matrícula", "Marca", "Modelo", "Año", "Última visita"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tablaVehiculosCliente);
 
         jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
-
-        jButton1.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jButton1.setText("Ver Ficha Técnica");
-
-        jButton2.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jButton2.setText("Editar Vehículo");
-
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(55, 55, 55)
-                .addComponent(jButton1)
-                .addGap(57, 57, 57)
-                .addComponent(jButton2)
-                .addContainerGap(260, Short.MAX_VALUE))
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addGap(28, 28, 28)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
-                .addContainerGap(45, Short.MAX_VALUE))
-        );
-
-        jPanel3.add(jPanel5, java.awt.BorderLayout.PAGE_START);
 
         jTabbedPane2.addTab("Vehículos", jPanel3);
 
@@ -255,10 +261,6 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
 
         jPanel7.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
 
-        jButton5.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jButton5.setText("Editar Datos Cliente");
-        jPanel7.add(jButton5);
-
         jButton6.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
         jButton6.setText("Cerrar");
         jPanel7.add(jButton6);
@@ -302,24 +304,15 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
     private javax.swing.JButton jButton8;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
@@ -327,8 +320,46 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTable jTable2;
     private javax.swing.JTable jTable3;
+    private javax.swing.JLabel lblDNI;
+    private javax.swing.JLabel lblDni;
+    private javax.swing.JLabel lblEmail;
+    private javax.swing.JLabel lblIcono;
+    private javax.swing.JLabel lblMail;
+    private javax.swing.JLabel lblNombre;
+    private javax.swing.JLabel lblTelefono;
+    private javax.swing.JLabel lblTlf;
+    private javax.swing.JTable tablaVehiculosCliente;
     // End of variables declaration//GEN-END:variables
+
+    private void cargarDatosPersonales() {
+        // Sustituimos los textos por defecto por los del cliente real
+        lblNombre.setText(cliente.getNombre().toUpperCase());
+        lblDNI.setText(cliente.getDni());
+        lblTelefono.setText(cliente.getTelefono());
+        lblEmail.setText(cliente.getEmail());
+    }
+    
+
+    private void cargarVehiculos() {
+        // Usamos el VehiculoDAO que ya tengo creado para buscar los coches de este DNI
+        VehiculoDAO vehiculoDAO = new VehiculoDAO();
+        List<VehiculoVO> vehiculos = vehiculoDAO.listarPorCliente(cliente.getDni());
+        
+        // Accedemos al modelo del jTable (la de vehículos)
+        DefaultTableModel modelo = (DefaultTableModel) tablaVehiculosCliente.getModel();
+        modelo.setRowCount(0); // Limpiamos las filas de prueba
+
+        // Rellenamos con datos reales
+        for (com.joseluis.apptaller.modelo.vo.VehiculoVO v : vehiculos) {
+            Object[] fila = new Object[5];
+            fila[0] = v.getMatricula();
+            fila[1] = v.getMarca();
+            fila[2] = v.getModelo();
+            fila[3] = v.getAnioFabricacion();
+            fila[4] = "Pendiente..."; // La última visita la calcularemos en la Fase de Reparaciones
+            modelo.addRow(fila);
+        }
+    }
 }

@@ -18,7 +18,7 @@ USE apptaller_db;
 -- =====================================================================
 
 -- Tabla de Usuarios (Autenticación y control de acceso)
-CREATE TABLE Usuarios (
+CREATE TABLE usuarios (
     id_usuario INT AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE Usuarios (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de Empleados (Datos personales y profesionales)
-CREATE TABLE Empleados (
+CREATE TABLE empleados (
     id_empleado INT AUTO_INCREMENT PRIMARY KEY,
     usuario_id INT UNIQUE COMMENT 'FK opcional a Usuarios. NULL si no tiene acceso al sistema',
     dni VARCHAR(10) UNIQUE NOT NULL,
@@ -48,7 +48,7 @@ CREATE TABLE Empleados (
     activo BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
     INDEX idx_dni (dni),
     INDEX idx_activo (activo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -59,7 +59,7 @@ CREATE TABLE Empleados (
 -- =====================================================================
 
 -- Tabla de Clientes
-CREATE TABLE Clientes (
+CREATE TABLE clientes (
     dni VARCHAR(10) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     direccion VARCHAR(255),
@@ -76,7 +76,7 @@ CREATE TABLE Clientes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de Vehículos
-CREATE TABLE Vehiculos (
+CREATE TABLE vehiculos (
     bastidor VARCHAR(50) PRIMARY KEY,
     matricula VARCHAR(10) NOT NULL UNIQUE,
     marca VARCHAR(50),
@@ -89,14 +89,14 @@ CREATE TABLE Vehiculos (
     kilometraje_actual INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (propietario_actual_dni) REFERENCES Clientes(dni) ON DELETE SET NULL,
+    FOREIGN KEY (propietario_actual_dni) REFERENCES clientes(dni) ON DELETE SET NULL,
     INDEX idx_matricula (matricula),
     INDEX idx_propietario (propietario_actual_dni),
     INDEX idx_marca_modelo (marca, modelo)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de Historial_Propiedad (Relación M:N histórica)
-CREATE TABLE Historial_Propiedad (
+CREATE TABLE historial_propiedad (
     id_registro INT AUTO_INCREMENT PRIMARY KEY,
     vehiculo_bastidor VARCHAR(50) NOT NULL,
     cliente_dni VARCHAR(10) NOT NULL,
@@ -105,8 +105,8 @@ CREATE TABLE Historial_Propiedad (
     precio_compra DECIMAL(10, 2),
     observaciones TEXT,
     
-    FOREIGN KEY (vehiculo_bastidor) REFERENCES Vehiculos(bastidor) ON DELETE CASCADE,
-    FOREIGN KEY (cliente_dni) REFERENCES Clientes(dni) ON DELETE CASCADE,
+    FOREIGN KEY (vehiculo_bastidor) REFERENCES vehiculos(bastidor) ON DELETE CASCADE,
+    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni) ON DELETE CASCADE,
     INDEX idx_vehiculo (vehiculo_bastidor),
     INDEX idx_cliente (cliente_dni),
     INDEX idx_fecha_inicio (fecha_inicio)
@@ -118,7 +118,7 @@ CREATE TABLE Historial_Propiedad (
 -- =====================================================================
 
 -- Tabla de Proveedores
-CREATE TABLE Proveedores (
+CREATE TABLE proveedores (
     cif VARCHAR(10) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     direccion VARCHAR(255),
@@ -133,7 +133,7 @@ CREATE TABLE Proveedores (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de Productos (Suministros y piezas)
-CREATE TABLE Productos (
+CREATE TABLE productos (
     id_producto VARCHAR(50) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT,
@@ -148,7 +148,7 @@ CREATE TABLE Productos (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (proveedor_cif) REFERENCES Proveedores(cif) ON DELETE SET NULL,
+    FOREIGN KEY (proveedor_cif) REFERENCES proveedores(cif) ON DELETE SET NULL,
     INDEX idx_nombre (nombre),
     INDEX idx_categoria (categoria),
     INDEX idx_stock_bajo (cantidad_stock),
@@ -159,7 +159,7 @@ CREATE TABLE Productos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de Movimientos_Stock (Auditoría de cambios en inventario)
-CREATE TABLE Movimientos_Stock (
+CREATE TABLE movimientos_stock (
     id_movimiento INT AUTO_INCREMENT PRIMARY KEY,
     id_producto VARCHAR(50) NOT NULL,
     tipo_movimiento ENUM('ENTRADA', 'SALIDA', 'AJUSTE', 'DEVOLUCION') NOT NULL,
@@ -170,8 +170,8 @@ CREATE TABLE Movimientos_Stock (
     usuario_id INT,
     fecha_movimiento DATETIME DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_id) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL,
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
     INDEX idx_producto (id_producto),
     INDEX idx_fecha (fecha_movimiento),
     INDEX idx_tipo (tipo_movimiento)
@@ -183,7 +183,7 @@ CREATE TABLE Movimientos_Stock (
 -- =====================================================================
 
 -- Tabla de Presupuestos
-CREATE TABLE Presupuestos (
+CREATE TABLE presupuestos (
     id_presupuesto INT AUTO_INCREMENT PRIMARY KEY,
     vehiculo_bastidor VARCHAR(50) NOT NULL,
     cliente_dni VARCHAR(10) NOT NULL,
@@ -198,9 +198,9 @@ CREATE TABLE Presupuestos (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (vehiculo_bastidor) REFERENCES Vehiculos(bastidor),
-    FOREIGN KEY (cliente_dni) REFERENCES Clientes(dni),
-    FOREIGN KEY (usuario_creador) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL,
+    FOREIGN KEY (vehiculo_bastidor) REFERENCES vehiculos(bastidor),
+    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni),
+    FOREIGN KEY (usuario_creador) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
     INDEX idx_cliente (cliente_dni),
     INDEX idx_vehiculo (vehiculo_bastidor),
     INDEX idx_estado (estado),
@@ -210,7 +210,7 @@ CREATE TABLE Presupuestos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla Detalle_Mano_Obra (Líneas de trabajo del presupuesto)
-CREATE TABLE Detalle_Mano_Obra (
+CREATE TABLE detalle_mano_obra (
     id_detalle INT AUTO_INCREMENT PRIMARY KEY,
     id_presupuesto INT NOT NULL,
     descripcion_trabajo VARCHAR(255) NOT NULL,
@@ -218,7 +218,7 @@ CREATE TABLE Detalle_Mano_Obra (
     tarifa_por_hora DECIMAL(10, 2) NOT NULL,
     subtotal DECIMAL(10, 2) GENERATED ALWAYS AS (tiempo_empleado_horas * tarifa_por_hora) STORED,
     
-    FOREIGN KEY (id_presupuesto) REFERENCES Presupuestos(id_presupuesto) ON DELETE CASCADE,
+    FOREIGN KEY (id_presupuesto) REFERENCES presupuestos(id_presupuesto) ON DELETE CASCADE,
     INDEX idx_presupuesto (id_presupuesto),
     
     CONSTRAINT chk_tiempo_positivo CHECK (tiempo_empleado_horas > 0),
@@ -226,7 +226,7 @@ CREATE TABLE Detalle_Mano_Obra (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla Detalle_Productos (Productos usados en el presupuesto)
-CREATE TABLE Detalle_Productos (
+CREATE TABLE detalle_productos (
     id_presupuesto INT NOT NULL,
     id_producto VARCHAR(50) NOT NULL,
     cantidad_usada INT NOT NULL,
@@ -237,8 +237,8 @@ CREATE TABLE Detalle_Productos (
     ) STORED,
     
     PRIMARY KEY (id_presupuesto, id_producto),
-    FOREIGN KEY (id_presupuesto) REFERENCES Presupuestos(id_presupuesto) ON DELETE CASCADE,
-    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
+    FOREIGN KEY (id_presupuesto) REFERENCES presupuestos(id_presupuesto) ON DELETE CASCADE,
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
     
     CONSTRAINT chk_cantidad_positiva CHECK (cantidad_usada > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -248,7 +248,7 @@ CREATE TABLE Detalle_Productos (
 -- =====================================================================
 
 -- Tabla de Reparaciones (Órdenes de trabajo)
-CREATE TABLE Reparaciones (
+CREATE TABLE reparaciones (
     id_reparacion INT AUTO_INCREMENT PRIMARY KEY,
     vehiculo_bastidor VARCHAR(50) NOT NULL,
     cliente_dni VARCHAR(10) NOT NULL,
@@ -286,12 +286,12 @@ CREATE TABLE Reparaciones (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (vehiculo_bastidor) REFERENCES Vehiculos(bastidor),
-    FOREIGN KEY (cliente_dni) REFERENCES Clientes(dni),
-    FOREIGN KEY (empleado_asignado_id) REFERENCES Empleados(id_empleado),
-    FOREIGN KEY (id_presupuesto) REFERENCES Presupuestos(id_presupuesto) ON DELETE SET NULL,
-    FOREIGN KEY (usuario_recepcion) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL,
-    FOREIGN KEY (usuario_entrega) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL,
+    FOREIGN KEY (vehiculo_bastidor) REFERENCES vehiculos(bastidor),
+    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni),
+    FOREIGN KEY (empleado_asignado_id) REFERENCES empleados(id_empleado),
+    FOREIGN KEY (id_presupuesto) REFERENCES presupuestos(id_presupuesto) ON DELETE SET NULL,
+    FOREIGN KEY (usuario_recepcion) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
+    FOREIGN KEY (usuario_entrega) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
     
     INDEX idx_vehiculo (vehiculo_bastidor),
     INDEX idx_cliente (cliente_dni),
@@ -307,7 +307,7 @@ CREATE TABLE Reparaciones (
 
 -- Tabla de Reparacion_Detalle_Mano_Obra (Trabajo real realizado en la reparación)
 -- Puede diferir del presupuesto si hubo cambios durante la reparación
-CREATE TABLE Reparacion_Detalle_Mano_Obra (
+CREATE TABLE reparacion_detalle_mano_obra (
     id_detalle INT AUTO_INCREMENT PRIMARY KEY,
     id_reparacion INT NOT NULL,
     empleado_id INT NOT NULL COMMENT 'Mecánico que realizó este trabajo específico',
@@ -318,8 +318,8 @@ CREATE TABLE Reparacion_Detalle_Mano_Obra (
     tarifa_por_hora DECIMAL(10, 2) NOT NULL,
     subtotal DECIMAL(10, 2) GENERATED ALWAYS AS (tiempo_empleado_horas * tarifa_por_hora) STORED,
     
-    FOREIGN KEY (id_reparacion) REFERENCES Reparaciones(id_reparacion) ON DELETE CASCADE,
-    FOREIGN KEY (empleado_id) REFERENCES Empleados(id_empleado),
+    FOREIGN KEY (id_reparacion) REFERENCES reparaciones(id_reparacion) ON DELETE CASCADE,
+    FOREIGN KEY (empleado_id) REFERENCES empleados(id_empleado),
     INDEX idx_reparacion (id_reparacion),
     INDEX idx_empleado (empleado_id),
     
@@ -327,7 +327,7 @@ CREATE TABLE Reparacion_Detalle_Mano_Obra (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Tabla de Reparacion_Detalle_Productos (Productos realmente usados)
-CREATE TABLE Reparacion_Detalle_Productos (
+CREATE TABLE reparacion_detalle_productos (
     id_reparacion INT NOT NULL,
     id_producto VARCHAR(50) NOT NULL,
     cantidad_usada INT NOT NULL,
@@ -339,8 +339,8 @@ CREATE TABLE Reparacion_Detalle_Productos (
     fecha_aplicacion DATETIME DEFAULT CURRENT_TIMESTAMP,
     
     PRIMARY KEY (id_reparacion, id_producto),
-    FOREIGN KEY (id_reparacion) REFERENCES Reparaciones(id_reparacion) ON DELETE CASCADE,
-    FOREIGN KEY (id_producto) REFERENCES Productos(id_producto),
+    FOREIGN KEY (id_reparacion) REFERENCES reparaciones(id_reparacion) ON DELETE CASCADE,
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto),
     
     CONSTRAINT chk_cantidad_real_positiva CHECK (cantidad_usada > 0)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -350,7 +350,7 @@ CREATE TABLE Reparacion_Detalle_Productos (
 -- =====================================================================
 
 -- Tabla de Facturas (Modificada para vincular con Reparaciones)
-CREATE TABLE Facturas (
+CREATE TABLE facturas (
     id_factura INT AUTO_INCREMENT PRIMARY KEY,
     numero_factura VARCHAR(20) NOT NULL UNIQUE COMMENT 'Formato: FACT-YYYY-NNNN',
     
@@ -386,12 +386,12 @@ CREATE TABLE Facturas (
     usuario_anulacion INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (id_reparacion) REFERENCES Reparaciones(id_reparacion),
-    FOREIGN KEY (id_presupuesto) REFERENCES Presupuestos(id_presupuesto) ON DELETE SET NULL,
-    FOREIGN KEY (cliente_dni) REFERENCES Clientes(dni),
-    FOREIGN KEY (vehiculo_bastidor) REFERENCES Vehiculos(bastidor),
-    FOREIGN KEY (usuario_emisor) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL,
-    FOREIGN KEY (usuario_anulacion) REFERENCES Usuarios(id_usuario) ON DELETE SET NULL,
+    FOREIGN KEY (id_reparacion) REFERENCES reparaciones(id_reparacion),
+    FOREIGN KEY (id_presupuesto) REFERENCES presupuestos(id_presupuesto) ON DELETE SET NULL,
+    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni),
+    FOREIGN KEY (vehiculo_bastidor) REFERENCES vehiculos(bastidor),
+    FOREIGN KEY (usuario_emisor) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
+    FOREIGN KEY (usuario_anulacion) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
     
     INDEX idx_numero_factura (numero_factura),
     INDEX idx_cliente (cliente_dni),
@@ -411,16 +411,16 @@ CREATE TABLE Facturas (
 DELIMITER //
 
 CREATE TRIGGER after_reparacion_producto_insert
-AFTER INSERT ON Reparacion_Detalle_Productos
+AFTER INSERT ON reparacion_detalle_productos
 FOR EACH ROW
 BEGIN
     -- Descontar stock
-    UPDATE Productos 
+    UPDATE productos 
     SET cantidad_stock = cantidad_stock - NEW.cantidad_usada
     WHERE id_producto = NEW.id_producto;
     
     -- Registrar movimiento
-    INSERT INTO Movimientos_Stock (
+    INSERT INTO movimientos_stock (
         id_producto, 
         tipo_movimiento, 
         cantidad, 
@@ -435,17 +435,17 @@ BEGIN
         cantidad_stock + NEW.cantidad_usada,
         cantidad_stock,
         CONCAT('Usado en reparación #', NEW.id_reparacion)
-    FROM Productos
+    FROM productos
     WHERE id_producto = NEW.id_producto;
 END//
 
 -- Trigger: Actualizar kilometraje del vehículo al finalizar reparación
 CREATE TRIGGER after_reparacion_finalizada
-AFTER UPDATE ON Reparaciones
+AFTER UPDATE ON reparaciones
 FOR EACH ROW
 BEGIN
     IF NEW.estado = 'ENTREGADA' AND OLD.estado != 'ENTREGADA' THEN
-        UPDATE Vehiculos
+        UPDATE vehiculos
         SET kilometraje_actual = NEW.kilometraje_entrada
         WHERE bastidor = NEW.vehiculo_bastidor
         AND (kilometraje_actual IS NULL OR NEW.kilometraje_entrada > kilometraje_actual);
@@ -454,7 +454,7 @@ END//
 
 -- Trigger: Validar que una factura solo se puede anular si no tiene más de 30 días
 CREATE TRIGGER before_factura_anular
-BEFORE UPDATE ON Facturas
+BEFORE UPDATE ON facturas
 FOR EACH ROW
 BEGIN
     IF NEW.estado = 'ANULADA' AND OLD.estado != 'ANULADA' THEN
@@ -491,10 +491,10 @@ SELECT
     r.prioridad,
     r.diagnostico,
     DATEDIFF(NOW(), r.fecha_entrada) AS dias_en_taller
-FROM Reparaciones r
-INNER JOIN Vehiculos v ON r.vehiculo_bastidor = v.bastidor
-INNER JOIN Clientes c ON r.cliente_dni = c.dni
-INNER JOIN Empleados e ON r.empleado_asignado_id = e.id_empleado
+FROM reparaciones r
+INNER JOIN vehiculos v ON r.vehiculo_bastidor = v.bastidor
+INNER JOIN clientes c ON r.cliente_dni = c.dni
+INNER JOIN empleados e ON r.empleado_asignado_id = e.id_empleado
 WHERE r.estado IN ('EN_COLA', 'EN_PROCESO', 'PAUSADA', 'FINALIZADA')
 ORDER BY r.prioridad DESC, r.fecha_entrada ASC;
 
@@ -510,8 +510,8 @@ SELECT
     pr.nombre AS proveedor,
     pr.telefono AS telefono_proveedor,
     pr.email AS email_proveedor
-FROM Productos p
-LEFT JOIN Proveedores pr ON p.proveedor_cif = pr.cif
+FROM productos p
+LEFT JOIN proveedores pr ON p.proveedor_cif = pr.cif
 WHERE p.cantidad_stock <= p.stock_minimo
 AND p.activo = TRUE
 ORDER BY (p.stock_minimo - p.cantidad_stock) DESC;
@@ -526,7 +526,7 @@ SELECT
     SUM(total_cobrado) AS total_facturado,
     SUM(CASE WHEN estado = 'PAGADA' THEN total_cobrado ELSE 0 END) AS total_cobrado,
     SUM(CASE WHEN estado = 'PENDIENTE' THEN total_cobrado ELSE 0 END) AS total_pendiente
-FROM Facturas
+FROM facturas
 WHERE estado != 'ANULADA'
 GROUP BY DATE_FORMAT(fecha_emision, '%Y-%m')
 ORDER BY mes DESC;
@@ -542,9 +542,9 @@ SELECT
     r.diagnostico AS descripcion,
     COALESCE(f.total_cobrado, 0) AS importe,
     r.estado
-FROM Vehiculos v
-LEFT JOIN Reparaciones r ON v.bastidor = r.vehiculo_bastidor
-LEFT JOIN Facturas f ON r.id_reparacion = f.id_reparacion
+FROM vehiculos v
+LEFT JOIN reparaciones r ON v.bastidor = r.vehiculo_bastidor
+LEFT JOIN facturas f ON r.id_reparacion = f.id_reparacion
 UNION ALL
 SELECT 
     v.bastidor,
@@ -555,9 +555,9 @@ SELECT
     CONCAT('Nuevo propietario: ', c.nombre) AS descripcion,
     hp.precio_compra AS importe,
     'Completado' AS estado
-FROM Vehiculos v
-LEFT JOIN Historial_Propiedad hp ON v.bastidor = hp.vehiculo_bastidor
-LEFT JOIN Clientes c ON hp.cliente_dni = c.dni
+FROM vehiculos v
+LEFT JOIN historial_propiedad hp ON v.bastidor = hp.vehiculo_bastidor
+LEFT JOIN clientes c ON hp.cliente_dni = c.dni
 ORDER BY fecha DESC;
 
 
@@ -567,11 +567,11 @@ ORDER BY fecha DESC;
 
 -- Usuario administrador por defecto (contraseña: admin123 - CAMBIAR EN PRODUCCIÓN)
 -- Hash BCrypt de "admin123": $2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy
-INSERT INTO Usuarios (username, password_hash, rol) VALUES
+INSERT INTO usuarios (username, password_hash, rol) VALUES
 ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'Administrador');
 
 -- Empleado de ejemplo vinculado al usuario admin
-INSERT INTO Empleados (usuario_id, dni, nombre, apellidos, telefono, email, cargo, fecha_alta) VALUES
+INSERT INTO empleados (usuario_id, dni, nombre, apellidos, telefono, email, cargo, fecha_alta) VALUES
 (1, '12345678Z', 'José Luis', 'Cárdenas Barroso', '666777888', 'admin@apptaller.com', 'Jefe de Taller', CURDATE());
 
 -- =====================================================================

@@ -17,7 +17,8 @@ public class VentanaLogin extends javax.swing.JFrame {
     public VentanaLogin() {
         initComponents();
         setLocationRelativeTo(null);
-        
+        // Convierte el botón 'btnAcceder' en el botón por defecto al pulsar Intro
+        this.getRootPane().setDefaultButton(btnAcceder);
     }
 
     /**
@@ -144,7 +145,7 @@ public class VentanaLogin extends javax.swing.JFrame {
         if (usuarioLogueado != null) {
             // A. Login Correcto
             // Opcional: Mostrar mensaje de bienvenida
-            // javax.swing.JOptionPane.showMessageDialog(this, "Bienvenido " + usuarioLogueado.getUsername());
+            javax.swing.JOptionPane.showMessageDialog(this, "Bienvenido " + usuarioLogueado.getUsername());
 
             // Abrir la ventana principal
             VentanaPrincipal principal = new VentanaPrincipal();
