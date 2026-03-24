@@ -100,23 +100,18 @@ public class ControladorClientes implements ActionListener {
     }
 
     private void abrirDialogoNuevoCliente() {
-        System.out.println(">>> CTRL: Abriendo modal visual..."); // Chivato 3
         // 1. Abrimos el modal visual
         DialogNuevoCliente dialog = new DialogNuevoCliente(vista, true);
         dialog.setVisible(true); // La aplicación se "pausa" aquí hasta que el usuario cierra la ventana
-        
-        System.out.println(">>> CTRL: Modal cerrado. ¿Se pulsó guardar?: " + dialog.isGuardado()); // Chivato 4
-        
+                
         // 2. Cuando el diálogo se cierra, comprobamos si el usuario pulsó el botón "Guardar"
         if (dialog.isGuardado()) {
             
             // 3. Le pedimos al diálogo los datos que ha introducido el usuario
             ClienteVO nuevoCliente = dialog.getCliente();
-            System.out.println(">>> CTRL: Enviando cliente al DAO. DNI: " + nuevoCliente.getDni()); // Chivato 5
             
             // 4. Se los pasamos al DAO para que haga el INSERT en MySQL
             if (modeloDAO.insertar(nuevoCliente)) {
-                System.out.println(">>> CTRL: ¡Inserción en MySQL exitosa!"); // Chivato 6
                 JOptionPane.showMessageDialog(vista, "Cliente guardado con éxito.");
                 cargarClientes(); // Recargamos la tabla visual para que aparezca el nuevo registro
             } else {
@@ -158,8 +153,7 @@ public class ControladorClientes implements ActionListener {
             
             if (clienteAEditar != null) {
                 // 3. Abrimos el diálogo usando el constructor sobrecargado 
-                com.joseluis.apptaller.vista.dialogos.DialogNuevoCliente dialog = 
-                        new com.joseluis.apptaller.vista.dialogos.DialogNuevoCliente(vista, true, clienteAEditar);
+                DialogNuevoCliente dialog = new DialogNuevoCliente(vista, true, clienteAEditar);
                 dialog.setVisible(true);
                 
                 // 4. Al cerrar, comprobamos si pulsó guardar

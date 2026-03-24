@@ -5,6 +5,8 @@ import com.joseluis.apptaller.modelo.dao.ClienteDAO;
 import com.joseluis.apptaller.controlador.ControladorClientes;
 import com.joseluis.apptaller.modelo.dao.FacturaDAO;
 import com.joseluis.apptaller.modelo.vo.FacturaVO;
+import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
+import com.joseluis.apptaller.controlador.ControladorVehiculos;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -44,8 +46,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         iniciarReloj();
         initPanelFacturas();
         
+        // --- CONTROLADOR DE CLIENTES ---
         ClienteDAO clienteDAO = new ClienteDAO();
         ControladorClientes ctrlClientes = new ControladorClientes(this, clienteDAO);
+        
+        // --- CONTROLADOR DE VEHÍCULOS ---
+        VehiculoDAO vehiculoDAO = new VehiculoDAO();
+        ControladorVehiculos ctrlVehiculos = new ControladorVehiculos(this, vehiculoDAO);
         
     }
 
@@ -1628,4 +1635,28 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     public javax.swing.JButton getBtnHistorialCliente() {
         return btnHistorialCliente; 
     }
+    
+    
+    // ======================================
+    // Métodos para  que ControladorVehiculos
+    // pueda manejar los botones y a la
+    // tabla del panel Vehiculos
+    // ======================================
+    
+    public javax.swing.JTable getTblVehiculo() {
+        return tblVehiculo;
+    }
+    
+    public javax.swing.JButton getBtnNuevoVehiculo() {
+        return btnNuevoVehiculo;
+    }
+    
+    public javax.swing.JButton getBtnEliminarVehiculo() {
+        return btnEliminarVehiculo;
+    }
+    
+    public javax.swing.JButton getBtnBuscarVehiculo() {
+        return btnBuscarVehiculo;
+    }
+     
 }
