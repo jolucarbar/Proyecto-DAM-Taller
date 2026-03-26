@@ -1,8 +1,11 @@
 
 package com.joseluis.apptaller.controlador;
 
+import com.joseluis.apptaller.modelo.dao.ClienteDAO;
 import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
+import com.joseluis.apptaller.modelo.vo.ClienteVO;
 import com.joseluis.apptaller.modelo.vo.VehiculoVO;
+import com.joseluis.apptaller.vista.dialogos.DialogNuevoVehiculo;
 import com.joseluis.apptaller.vista.ventanas.VentanaPrincipal;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -91,13 +94,65 @@ public class ControladorVehiculos implements ActionListener {
     }
     
     private void abrirDialogoNuevoVehiculo() {
-        // TODO: Lo programaremos en el Paso 2.3
-        JOptionPane.showMessageDialog(vista, "Preparando modal para Alta de Vehículos (Paso 2.3).", "Próximamente", JOptionPane.INFORMATION_MESSAGE);
+       // 1. Pedimos la lista de clientes activos para pasársela al diálogo
+        ClienteDAO clienteDAO = new ClienteDAO();
+        List<ClienteVO> clientesActivos = clienteDAO.listar();
+        
+        // 2. Abrimos el diálogo pasándole la lista
+        DialogNuevoVehiculo dialog = new DialogNuevoVehiculo(vista, true, clientesActivos);
+        dialog.setVisible(true); // Se pausa aquí hasta que el usuario cierra
+        
+        // 3. Cuando se cierra, comprobamos si guardó
+        if (dialog.isGuardado()) {
+            VehiculoVO nuevoVehiculo = dialog.getVehiculo();
+            
+            // 4. Mandamos a la Base de Datos
+            if (modeloDAO.insertar(nuevoVehiculo)) {
+                JOptionPane.showMessageDialog(vista, "Vehículo registrado con éxito.");
+                cargarVehiculos(); // Refrescamos la tabla
+            } else {
+                JOptionPane.showMessageDialog(vista, "Error al guardar el vehículo.\nRevise si la matrícula o bastidor ya existen.",
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } 
     }
     
     private void editarVehiculoSeleccionado() {
-        // TODO: Lo programaremos en el Paso 2.3
-        JOptionPane.showMessageDialog(vista, "La edición compartirá formulario con el Alta (Paso 2.3).", "Próximamente", JOptionPane.INFORMATION_MESSAGE);
+        int filaSelec = vista.getTblVehiculo().getSelectedRow();
+        if (filaSelec != -1) {
+            // 1. Obtenemos el Bastidor de la fila seleccionada (que está en la columna 0)
+            String bastidor = (String) modeloTabla.getValueAt(filaSelec, 0);
+            
+            // 2. Buscamos el vehículo completo en la BD
+            // Nota: Asegúrate de tener este método en tu VehiculoDAO. Si lo llamaste buscarPorId, usa ese nombre.
+            VehiculoVO vehiculoAEditar = modeloDAO.buscarPorBastidor(bastidor);
+            if (vehiculoAEditar != null) {
+                // 3. Cargamos los clientes para el desplegable
+                ClienteDAO clienteDAO = new ClienteDAO();
+                List<ClienteVO> clientesActivos = clienteDAO.listar();
+        
+                // 4. Abrimos el modal en modo EDICIÓN
+                DialogNuevoVehiculo dialog = new DialogNuevoVehiculo(vista, true, clientesActivos,
+                vehiculoAEditar);
+                dialog.setVisible(true);
+        
+                // 5. Al cerrar, si el usuario pulsó Guardar, hacemos el UPDATE
+                if (dialog.isGuardado()) {
+                    VehiculoVO vehiculoModificado = dialog.getVehiculo();
+                   
+                    // Interceptamos la respuesta en una variable antes del IF
+                    boolean resultadoDAO = modeloDAO.modificar(vehiculoModificado);
+                   
+                    if (resultadoDAO) {
+                        JOptionPane.showMessageDialog(vista, "Vehículo actualizado con éxito.");
+                        cargarVehiculos(); // Refrescamos la tabla visual
+                    } else {
+                        JOptionPane.showMessageDialog(vista, "Error al actualizar el vehículo en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                
+                }
+            }
+        }
     }
     
     private void eliminarVehiculoSeleccionado() {

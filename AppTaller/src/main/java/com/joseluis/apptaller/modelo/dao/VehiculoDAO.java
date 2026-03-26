@@ -99,4 +99,66 @@ public class VehiculoDAO {
         
         return v;
     }
+
+    public VehiculoVO buscarPorBastidor(String bastidor) {
+        VehiculoVO vehiculo = null;
+        // Ajusta el nombre de la tabla si en tu BD se llama distinto (ej: Vehiculos)
+        String sql = "SELECT * FROM vehiculos WHERE bastidor = ?";
+       
+        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+           
+            stmt.setString(1, bastidor);
+           
+            try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    vehiculo = new VehiculoVO();
+                    vehiculo.setBastidor(rs.getString("bastidor"));
+                    vehiculo.setMatricula(rs.getString("matricula"));
+                    vehiculo.setMarca(rs.getString("marca"));
+                    vehiculo.setModelo(rs.getString("modelo"));
+                    vehiculo.setColor(rs.getString("color"));
+                    vehiculo.setAnioFabricacion(rs.getInt("anio_fabricacion"));
+                    vehiculo.setDniPropietario(rs.getString("propietario_actual_dni"));
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error al buscar vehículo por bastidor: " + e.getMessage());
+        }
+       
+        return vehiculo;
+    }
+
+    public boolean modificar(VehiculoVO vehiculo) {
+        // En el UPDATE actualizamos todo MENOS el bastidor, que se usa en el WHERE
+        String sql = "UPDATE vehiculos SET matricula = ?, marca = ?, modelo = ?, color = ?, anio_fabricacion = ?, propietario_actual_dni = ? WHERE bastidor = ?";
+       
+        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+           
+            stmt.setString(1, vehiculo.getMatricula());
+            stmt.setString(2, vehiculo.getMarca());
+            stmt.setString(3, vehiculo.getModelo());
+            stmt.setString(4, vehiculo.getColor());
+            stmt.setInt(5, vehiculo.getAnioFabricacion());
+            stmt.setString(6, vehiculo.getDniPropietario());
+           
+            // El parámetro 7 es el bastidor para la cláusula WHERE
+            stmt.setString(7, vehiculo.getBastidor());
+           
+            
+            
+            int filasAfectadas = stmt.executeUpdate();
+            
+            boolean exito = filasAfectadas >= 0;  
+           
+            return exito;
+            
+            //return filasAfectadas >= 0; // Si es mayor que 0, se actualizó con éxito
+           
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error al modificar vehículo: " + e.getMessage());
+            return false;
+        }
+    }
 }
