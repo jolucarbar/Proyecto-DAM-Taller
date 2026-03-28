@@ -132,9 +132,11 @@ public class ClienteDAO {
     
     /**
      * Realiza un borrado lógico (desactiva el cliente).
+     * @param dni
+     * @return 
      */
     public boolean eliminar(String dni) {
-         Connection conn = null;
+        Connection conn = null;
         PreparedStatement stmt = null;
         try {
             conn = Conexion.getInstancia().getConnection();

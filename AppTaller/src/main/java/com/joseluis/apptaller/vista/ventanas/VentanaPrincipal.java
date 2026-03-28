@@ -7,6 +7,8 @@ import com.joseluis.apptaller.modelo.dao.FacturaDAO;
 import com.joseluis.apptaller.modelo.vo.FacturaVO;
 import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
 import com.joseluis.apptaller.controlador.ControladorVehiculos;
+import com.joseluis.apptaller.modelo.dao.EmpleadoDAO;
+import com.joseluis.apptaller.controlador.ControladorEmpleados;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -53,6 +55,10 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         // --- CONTROLADOR DE VEHÍCULOS ---
         VehiculoDAO vehiculoDAO = new VehiculoDAO();
         ControladorVehiculos ctrlVehiculos = new ControladorVehiculos(this, vehiculoDAO);
+        
+        // --- CONTROLADOR DE EMPLEADOS ---
+        EmpleadoDAO empleadoDAO = new EmpleadoDAO();
+        ControladorEmpleados ctrlEmpleados = new ControladorEmpleados(this, empleadoDAO);
         
     }
 
@@ -197,8 +203,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         btnNuevoEmpleado = new javax.swing.JButton();
         btnInformeEmpleado = new javax.swing.JButton();
         btnEliminarEmpleado = new javax.swing.JButton();
-        jScrollPaneClientes1 = new javax.swing.JScrollPane();
-        tblClientes1 = new javax.swing.JTable();
+        jScrollPaneEmpleado = new javax.swing.JScrollPane();
+        tblEmpleados = new javax.swing.JTable();
         panelAyuda = new javax.swing.JPanel();
         panelCabeceraAyuda = new javax.swing.JPanel();
         etqTituloAyuda = new javax.swing.JLabel();
@@ -1125,8 +1131,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         panelHerramientasEmpleados.add(btnBuscarEmpleado);
 
         btnNuevoEmpleado.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnNuevoEmpleado.setForeground(new java.awt.Color(255, 255, 255));
-        btnNuevoEmpleado.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_24dp.png"))); // NOI18N
+        btnNuevoEmpleado.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_persona_azul_24dp.png"))); // NOI18N
         btnNuevoEmpleado.setText("Nuevo");
         btnNuevoEmpleado.setFocusPainted(false);
         panelHerramientasEmpleados.add(btnNuevoEmpleado);
@@ -1147,20 +1152,20 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         panelEmpleados.add(panelHerramientasEmpleados, java.awt.BorderLayout.PAGE_START);
 
-        tblClientes1.setModel(new javax.swing.table.DefaultTableModel(
+        tblEmpleados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "DNI", "Nombre", "Apellidos", "Dirección", "Teléfono", "Email"
+                "ID_Empleado", "Id usuario", "DNI", "Nombre", "Apellidos", "Teléfono", "Email", "Dirección", "Cargo", "Fecha Alta", "Fecha Baja", "Salario base"
             }
         ));
-        jScrollPaneClientes1.setViewportView(tblClientes1);
+        jScrollPaneEmpleado.setViewportView(tblEmpleados);
 
-        panelEmpleados.add(jScrollPaneClientes1, java.awt.BorderLayout.CENTER);
+        panelEmpleados.add(jScrollPaneEmpleado, java.awt.BorderLayout.CENTER);
 
         panelPrincipal.add(panelEmpleados, "cardEmpleados");
 
@@ -1486,7 +1491,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPaneClientes;
-    private javax.swing.JScrollPane jScrollPaneClientes1;
+    private javax.swing.JScrollPane jScrollPaneEmpleado;
     private javax.swing.JScrollPane jScrollPaneFacturas;
     private javax.swing.JScrollPane jScrollPanePresupuestos;
     private javax.swing.JScrollPane jScrollPaneProductos;
@@ -1527,7 +1532,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel panelVehiculos;
     private javax.swing.JTable tablaFacturas;
     private javax.swing.JTable tblClientes;
-    private javax.swing.JTable tblClientes1;
+    private javax.swing.JTable tblEmpleados;
     private javax.swing.JTable tblPresupuestos;
     private javax.swing.JTable tblProductos;
     private javax.swing.JTable tblProveedores;
@@ -1631,11 +1636,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     public javax.swing.JButton getBtnEliminarCliente() {
         return btnEliminarCliente;
     }
-    
+
     public javax.swing.JButton getBtnHistorialCliente() {
-        return btnHistorialCliente; 
+        return btnHistorialCliente;
     }
-    
+
     
     // ======================================
     // Métodos para  que ControladorVehiculos
@@ -1658,5 +1663,27 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     public javax.swing.JButton getBtnBuscarVehiculo() {
         return btnBuscarVehiculo;
     }
+    
+    
+    // ======================================
+    // Métodos para  que ControladorEmpleados
+    // pueda manejar los botones y a la
+    // tabla del panel Empleados
+    // ======================================
+     public javax.swing.JTable getTblEmpleado() {
+         return tblEmpleados;
+     }
      
+      public javax.swing.JButton getBtnNuevoEmpleado() {
+        return btnNuevoEmpleado;
+    }
+      
+      public javax.swing.JButton getBtnEliminarEmpleado() {
+        return btnEliminarEmpleado;
+    }
+    
+    public javax.swing.JButton getBtnBuscarEmpleado() {
+        return btnBuscarEmpleado;
+    } 
+      
 }

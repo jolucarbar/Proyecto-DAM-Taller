@@ -49,7 +49,6 @@ public class DialogNuevoCliente extends javax.swing.JDialog {
     }
     
     private void guardar() {
-        System.out.println(">>> DIALOG: Botón Guardar pulsado."); // Chivato 1
         // 1. Validaciones básicas de interfaz
         if (txtDni.getText().trim().isEmpty() || txtNombre.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "El DNI y el Nombre son obligatorios.", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
@@ -66,7 +65,6 @@ public class DialogNuevoCliente extends javax.swing.JDialog {
         // Asignamos la fecha actual automáticamente al crear el cliente
         cliente.setFechaRegistro(java.time.LocalDate.now());
         
-        System.out.println(">>> DIALOG: Datos empaquetados correctamente. DNI: " + cliente.getDni()); // Chivato 2
         
         // 3. Marcamos como exitoso y cerramos
         this.guardado = true;

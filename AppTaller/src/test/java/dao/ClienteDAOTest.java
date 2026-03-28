@@ -79,14 +79,13 @@ public class ClienteDAOTest {
         assertTrue(insertado, "Debería insertar el cliente");
 
         // 2. LISTAR / BUSCAR
-        // Usamos listar() y filtramos, o si tienes buscarPorDni() mejor.
-        // Aquí asumo que comprobamos que existe en la lista general.
-        List<ClienteVO> lista = dao.listar(); // Asumiendo que tienes un método listar()
+        // Usamos listar() y filtramos
+        List<ClienteVO> lista = dao.listar(); 
         boolean existe = lista.stream().anyMatch(c -> c.getDni().equals(DNI_TEST));
         assertTrue(existe, "El cliente debería aparecer en el listado");
 
         // 3. ELIMINAR (Lógico)
-        boolean eliminado = dao.eliminar(DNI_TEST); // Asumiendo que tu método recibe el DNI
+        boolean eliminado = dao.eliminar(DNI_TEST); 
         assertTrue(eliminado, "Debería marcarse como eliminado/inactivo");
         
         // Verificar que ya no sale en la lista de activos
