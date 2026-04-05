@@ -115,7 +115,6 @@ public class ControladorClientes implements ActionListener {
                 JOptionPane.showMessageDialog(vista, "Cliente guardado con éxito.");
                 cargarClientes(); // Recargamos la tabla visual para que aparezca el nuevo registro
             } else {
-                System.out.println(">>> CTRL: ERROR. El DAO devolvió false."); // Chivato 7
                 JOptionPane.showMessageDialog(vista, "Error al guardar el cliente en la base de datos.\nRevise si el DNI ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }

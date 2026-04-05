@@ -124,7 +124,6 @@ public class ControladorVehiculos implements ActionListener {
             String bastidor = (String) modeloTabla.getValueAt(filaSelec, 0);
             
             // 2. Buscamos el vehículo completo en la BD
-            // Nota: Asegúrate de tener este método en tu VehiculoDAO. Si lo llamaste buscarPorId, usa ese nombre.
             VehiculoVO vehiculoAEditar = modeloDAO.buscarPorBastidor(bastidor);
             if (vehiculoAEditar != null) {
                 // 3. Cargamos los clientes para el desplegable

@@ -22,7 +22,8 @@ public class EmpleadoDAO {
             + "direccion, cargo, fecha_alta, fecha_baja, salario_base, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private final String SQL_SELECT_ALL = "SELECT * FROM empleados WHERE activo = 1";
     private final String SQL_SELECT_BY_DNI = "SELECT * FROM empleados WHERE dni = ? AND activo = 1";
-    private final String SQL_UPDATE = "UPDATE empleados SET nombre=?, apellidos=?, telefono=?, email=?, direccion=?, cargo=?, fecha_alta=?, fecha_baja=?, salario_base=? WHERE dni=?";
+    private final String SQL_UPDATE = "UPDATE empleados SET usuarios_id=?, dni=?, nombre=?, apellidos=?, telefono=?, email=?, "
+            + "direccion=?, cargo=?, fecha_alta=?, fecha_baja=?, salario_base=?, activo=? WHERE dni=?";
     private final String SQL_DELETE = "UPDATE empleados SET activo = 0 WHERE dni = ?"; // Borrado lógico, no físico
 
      /**
@@ -138,16 +139,32 @@ public class EmpleadoDAO {
         try {
             conn = Conexion.getInstancia().getConnection();
             stmt = conn.prepareStatement(SQL_UPDATE);
-            //      salario_base=
-            stmt.setString(1, empleado.getNombre());
-            stmt.setString(2, empleado.getApellidos());
-            stmt.setString(3, empleado.getTelefono());
-            stmt.setString(4, empleado.getEmail());
-            stmt.setString(5, empleado.getDireccion());
-            stmt.setString(6, empleado.getCargo());
-            stmt.setDate(7, Date.valueOf(empleado.getFecha_alta()));
-            stmt.setDate(8, Date.valueOf(empleado.getFecha_baja()));
-            stmt.setFloat(9, empleado.getSalario_base());
+            
+            if (empleado.getUsuario_id() > 0) {
+                stmt.setInt(1, empleado.getUsuario_id());
+            } else {
+                stmt.setNull(1, java.sql.Types.INTEGER);
+            }
+            stmt.setString(2, empleado.getDni());
+            stmt.setString(3, empleado.getNombre());
+            stmt.setString(4, empleado.getApellidos());
+            stmt.setString(5, empleado.getTelefono());
+            stmt.setString(6, empleado.getEmail());
+            stmt.setString(7, empleado.getDireccion());
+            stmt.setString(8, empleado.getCargo());
+            // Fecha alta obligatorio para MySQL
+            if (empleado.getFecha_alta() != null) {
+                stmt.setDate(9, java.sql.Date.valueOf(empleado.getFecha_alta()));
+            } else {
+                stmt.setDate(9, java.sql.Date.valueOf(java.time.LocalDate.now()));
+            }
+            if (empleado.getFecha_baja() != null) {
+                stmt.setDate(10, java.sql.Date.valueOf(empleado.getFecha_baja()));
+            } else {
+                stmt.setNull(10, java.sql.Types.DATE);
+            }
+            stmt.setFloat(11, empleado.getSalario_base());
+            stmt.setBoolean(12, empleado.isActivo());
                         
             return stmt.executeUpdate() >= 0;
         } catch (Exception e) {

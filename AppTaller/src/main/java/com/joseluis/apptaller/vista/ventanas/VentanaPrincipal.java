@@ -9,20 +9,18 @@ import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
 import com.joseluis.apptaller.controlador.ControladorVehiculos;
 import com.joseluis.apptaller.modelo.dao.EmpleadoDAO;
 import com.joseluis.apptaller.controlador.ControladorEmpleados;
+import com.joseluis.apptaller.modelo.dao.ProveedorDAO;
+import com.joseluis.apptaller.controlador.ControladorProveedores;
+import com.joseluis.apptaller.modelo.dao.ProductoDAO;
+import com.joseluis.apptaller.controlador.ControladorProductos;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import javax.swing.JOptionPane;
 import com.joseluis.apptaller.vista.dialogos.DialogDetallesReparacion;
-import com.joseluis.apptaller.vista.dialogos.DialogHistorialCliente;
 import com.joseluis.apptaller.vista.dialogos.DialogNuevaReparacion;
 import com.joseluis.apptaller.vista.dialogos.DialogPresupuesto;
 import java.awt.CardLayout;
-import java.awt.Image;
 import javax.swing.UIManager;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import mdlaf.MaterialLookAndFeel;
-import mdlaf.themes.MaterialLiteTheme;
 
 /**
  *
@@ -59,6 +57,14 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         // --- CONTROLADOR DE EMPLEADOS ---
         EmpleadoDAO empleadoDAO = new EmpleadoDAO();
         ControladorEmpleados ctrlEmpleados = new ControladorEmpleados(this, empleadoDAO);
+        
+        // --- CONTROLADOR DE PROVEEDORES ---
+        ProveedorDAO proveedorDAO = new ProveedorDAO();
+        ControladorProveedores ctrlProveedores = new ControladorProveedores(this, proveedorDAO);
+        
+        // --- CONTROLADOR DE PRODUCTOS ---
+        ProductoDAO productoDAO = new ProductoDAO();
+        ControladorProductos ctrlProductos = new ControladorProductos(this, productoDAO);
         
     }
 
@@ -918,13 +924,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         tblProveedores.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "DNI / CIF", "Empresa", "Contacto", "Teléfono", "Email", "Especialidad"
+                "CIF", "Nombre", "Dirección", "Teléfono", "Email", "Contacto", "Web"
             }
         ));
         jScrollPaneProveedores.setViewportView(tblProveedores);
@@ -973,13 +979,13 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         tblProductos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "ID / Referencia", "Descripción", "Categoría", "Precio coste", "PVP venta", "Stock"
+                "ID Producto", "Nombre", "Descripción", "Categoría", "Stock", "Stock minimo", "Precio compra", "PVP venta", "Proveedor", "Fecha alta"
             }
         ));
         jScrollPaneProductos.setViewportView(tblProductos);
@@ -1685,5 +1691,49 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     public javax.swing.JButton getBtnBuscarEmpleado() {
         return btnBuscarEmpleado;
     } 
-      
-}
+    
+    
+    // ======================================
+    // Métodos para que ControladorProveedores
+    // pueda manejar los botones y a la
+    // tabla del panel Proveedores
+    // ======================================
+    public javax.swing.JTable getTblProveedores() {
+        return tblProveedores;
+    }
+    
+    public javax.swing.JButton getBtnNuevoProveedor() {
+        return btnNuevoProveedores;
+    }
+    
+    public javax.swing.JButton getBtnEliminarProveedor() {
+        return btnEliminarProveedores;
+    }
+    
+    public javax.swing.JButton getBtnBuscarProveedor() {
+        return btnBuscarProveedores;
+    }
+    
+    
+    // ======================================
+    // Métodos para que ControladorProductos
+    // pueda manejar los botones y a la
+    // tabla del panel Productos
+    // ======================================
+    public javax.swing.JTable getTblProductos() {
+        return tblProductos;
+    }
+    
+    public javax.swing.JButton getBtnNuevoProducto() {
+        return btnNuevoProductos;
+    }
+    
+    public javax.swing.JButton getBtnEliminarProducto() {
+        return btnEliminarProductos;
+    }
+    
+    public javax.swing.JButton getBtnBuscarProducto() {
+        return btnBuscarProductos;
+    }
+    
+} 

@@ -54,7 +54,7 @@ public class VehiculoDAO {
     public List<VehiculoVO> listarPorCliente(String dni) {
         List<VehiculoVO> lista = new ArrayList<>();
         try (Connection conn = Conexion.getInstancia().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_CLIENTE)) {
+            PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BY_CLIENTE)) {
             stmt.setString(1, dni);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
