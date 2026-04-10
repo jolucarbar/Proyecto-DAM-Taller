@@ -60,7 +60,7 @@ CREATE TABLE empleados (
 
 -- Tabla de Clientes
 CREATE TABLE clientes (
-    dni VARCHAR(10) PRIMARY KEY,
+    dni_cif VARCHAR(10) PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     direccion VARCHAR(255),
     telefono VARCHAR(15),
@@ -89,7 +89,7 @@ CREATE TABLE vehiculos (
     kilometraje_actual INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
-    FOREIGN KEY (propietario_actual_dni) REFERENCES clientes(dni) ON DELETE SET NULL,
+    FOREIGN KEY (propietario_actual_dni) REFERENCES clientes(dni_cif) ON DELETE SET NULL,
     INDEX idx_matricula (matricula),
     INDEX idx_propietario (propietario_actual_dni),
     INDEX idx_marca_modelo (marca, modelo)
@@ -106,7 +106,7 @@ CREATE TABLE historial_propiedad (
     observaciones TEXT,
     
     FOREIGN KEY (vehiculo_bastidor) REFERENCES vehiculos(bastidor) ON DELETE CASCADE,
-    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni) ON DELETE CASCADE,
+    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni_cif) ON DELETE CASCADE,
     INDEX idx_vehiculo (vehiculo_bastidor),
     INDEX idx_cliente (cliente_dni),
     INDEX idx_fecha_inicio (fecha_inicio)
@@ -199,7 +199,7 @@ CREATE TABLE presupuestos (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (vehiculo_bastidor) REFERENCES vehiculos(bastidor),
-    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni),
+    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni_cif),
     FOREIGN KEY (usuario_creador) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
     INDEX idx_cliente (cliente_dni),
     INDEX idx_vehiculo (vehiculo_bastidor),
@@ -287,7 +287,7 @@ CREATE TABLE reparaciones (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
     FOREIGN KEY (vehiculo_bastidor) REFERENCES vehiculos(bastidor),
-    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni),
+    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni_cif),
     FOREIGN KEY (empleado_asignado_id) REFERENCES empleados(id_empleado),
     FOREIGN KEY (id_presupuesto) REFERENCES presupuestos(id_presupuesto) ON DELETE SET NULL,
     FOREIGN KEY (usuario_recepcion) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
@@ -388,7 +388,7 @@ CREATE TABLE facturas (
     
     FOREIGN KEY (id_reparacion) REFERENCES reparaciones(id_reparacion),
     FOREIGN KEY (id_presupuesto) REFERENCES presupuestos(id_presupuesto) ON DELETE SET NULL,
-    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni),
+    FOREIGN KEY (cliente_dni) REFERENCES clientes(dni_cif),
     FOREIGN KEY (vehiculo_bastidor) REFERENCES vehiculos(bastidor),
     FOREIGN KEY (usuario_emisor) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
     FOREIGN KEY (usuario_anulacion) REFERENCES usuarios(id_usuario) ON DELETE SET NULL,
@@ -493,7 +493,7 @@ SELECT
     DATEDIFF(NOW(), r.fecha_entrada) AS dias_en_taller
 FROM reparaciones r
 INNER JOIN vehiculos v ON r.vehiculo_bastidor = v.bastidor
-INNER JOIN clientes c ON r.cliente_dni = c.dni
+INNER JOIN clientes c ON r.cliente_dni = c.dni_cif
 INNER JOIN empleados e ON r.empleado_asignado_id = e.id_empleado
 WHERE r.estado IN ('EN_COLA', 'EN_PROCESO', 'PAUSADA', 'FINALIZADA')
 ORDER BY r.prioridad DESC, r.fecha_entrada ASC;

@@ -89,7 +89,7 @@ public class ControladorProductos implements ActionListener {
             p.getCantidadStock(),
             p.getStockMinimo(),
             p.getPrecioCompra(),
-            p.getPrecioUnitario(),
+            p.getPrecioUnitario(12.99F),
             p.getProveedorCif(),
             p.getCreated_at()
         };

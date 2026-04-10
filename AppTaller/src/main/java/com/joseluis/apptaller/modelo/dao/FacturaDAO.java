@@ -27,9 +27,9 @@ public class FacturaDAO {
             + "total_cobrado, metodo_pago, estado, observaciones, usuario_emisor) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
-    private final String SQL_SELECT_ALL = "SELECT * FROM Facturas ORDER BY fecha_emision DESC";
+    private final String SQL_SELECT_ALL = "SELECT * FROM facturas ORDER BY fecha_emision DESC";
     
-    private final String SQL_SELECT_BY_NUMERO = "SELECT * FROM Facturas WHERE numero_factura = ?";
+    private final String SQL_SELECT_BY_NUMERO = "SELECT * FROM facturas WHERE numero_factura = ?";
 
     /**
      * Registra una nueva factura en el sistema.

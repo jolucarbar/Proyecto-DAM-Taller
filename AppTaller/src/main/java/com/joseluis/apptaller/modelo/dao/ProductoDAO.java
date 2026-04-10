@@ -47,7 +47,7 @@ public class ProductoDAO {
             stmt.setInt(5, p.getCantidadStock());
             stmt.setInt(6, p.getStockMinimo());
             stmt.setDouble(7, p.getPrecioCompra());
-            stmt.setDouble(8, p.getPrecioUnitario());
+            stmt.setDouble(8, p.getPrecioUnitario(12.99F));
             stmt.setString(9, p.getProveedorCif());
             stmt.setString(10, p.getUbicacionAlmacen());
 
@@ -157,7 +157,7 @@ public class ProductoDAO {
         stmt.setString(3, p.getCategoria());
         stmt.setInt(4, p.getStockMinimo());
         stmt.setDouble(5, p.getPrecioCompra());
-        stmt.setDouble(6, p.getPrecioUnitario());
+        stmt.setDouble(6, p.getPrecioUnitario(12.99F));
         stmt.setString(7, p.getProveedorCif());
         stmt.setString(8, p.getUbicacionAlmacen());
         stmt.setString(9, p.getIdProducto());

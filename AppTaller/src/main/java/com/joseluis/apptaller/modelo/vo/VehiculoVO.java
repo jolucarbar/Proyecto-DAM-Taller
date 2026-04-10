@@ -56,6 +56,6 @@ public class VehiculoVO {
 
     @Override
     public String toString() {
-        return matricula + " (" + marca + " " + modelo + ")";
+        return matricula + " - " + modelo;
     }
 }

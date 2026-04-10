@@ -20,15 +20,14 @@ public class EmpleadoDAOTest {
     public void setUp() {
         dao = new EmpleadoDAO();
         
-        
         limpiarDatosDePrueba();
 
-        // Preparamos el objeto para el test
-        testEmpleado = new EmpleadoVO(2, 2, DNI_TEST, "Juan", "Gómez Pérez", "600123456", "juan@email.com", "Calle Baja", "Mecánico", LocalDate.of(2021, 10, 28), LocalDate.of(2025, 5, 28), (float) 22000.0);
-
+        // AQUÍ ESTÁ EL CAMBIO: El segundo parámetro ahora es 0 (usuario_id = 0)
+        // De esta forma, EmpleadoDAO insertará un NULL en la base de datos.
+        testEmpleado = new EmpleadoVO(2, 0, DNI_TEST, "Juan", "Gómez Pérez", "600123456", "juan@email.com", "Calle Baja", "Mecánico", LocalDate.of(2021, 10, 28), LocalDate.of(2025, 5, 28), (float) 22000.0);
     }
 
-   private void limpiarDatosDePrueba() {
+    private void limpiarDatosDePrueba() {
         try (Connection conn = Conexion.getInstancia().getConnection()) {
             
             // PASO 0: Desactivamos temporalmente la comprobación de FK (sólo para Testing)
@@ -49,7 +48,7 @@ public class EmpleadoDAOTest {
             }
 
         } catch (Exception e) {
-            System.err.println("Error crítico limpiando datos en ClienteDAOTest: " + e.getMessage());
+            System.err.println("Error crítico limpiando datos en EmpleadoDAOTest: " + e.getMessage());
         }
     }
 

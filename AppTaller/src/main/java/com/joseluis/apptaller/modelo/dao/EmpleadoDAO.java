@@ -26,6 +26,9 @@ public class EmpleadoDAO {
             + "direccion=?, cargo=?, fecha_alta=?, fecha_baja=?, salario_base=?, activo=? WHERE dni=?";
     private final String SQL_DELETE = "UPDATE empleados SET activo = 0 WHERE dni = ?"; // Borrado lógico, no físico
 
+    private final String SQL_FILTRAR_MECANICO = "SELECT * FROM empleados WHERE activo = TRUE AND LOWER(cargo) LIKE '%mecánico%'";
+    
+    
      /**
      * Inserta un nuevo empleado en la base de datos.
      */
@@ -202,6 +205,7 @@ public class EmpleadoDAO {
     // Método auxiliar para convertir ResultSet a Objeto
     private EmpleadoVO mapearEmpleado(ResultSet rs) throws SQLException {
         EmpleadoVO e = new EmpleadoVO();
+        e.setId_empleado(rs.getInt("id_empleado"));
         e.setUsuario_id(rs.getInt("usuario_id"));
         e.setDni(rs.getString("dni"));
         e.setNombre(rs.getString("nombre"));
@@ -230,5 +234,27 @@ public class EmpleadoDAO {
     }
 
     
+    
+    public List<EmpleadoVO> listarMecanicosActivos() {
+        List<EmpleadoVO> lista = new ArrayList<>();
+        // Filtramos por activo = true y que su cargo contenga la palabra mecánico
+        
+        
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_FILTRAR_MECANICO);
+             ResultSet rs = ps.executeQuery()) {
+            
+            while (rs.next()) {
+                EmpleadoVO emp = new EmpleadoVO();
+                emp.setId_empleado(rs.getInt("id_empleado"));
+                emp.setNombre(rs.getString("nombre"));
+                emp.setApellidos(rs.getString("apellidos"));
+                lista.add(emp);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return lista;
+    }
 
 }

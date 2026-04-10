@@ -1,6 +1,18 @@
 
 package com.joseluis.apptaller.vista.dialogos;
 
+import com.joseluis.apptaller.controlador.ControladorReparaciones;
+import com.joseluis.apptaller.modelo.dao.ClienteDAO;
+import com.joseluis.apptaller.modelo.dao.EmpleadoDAO;
+import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
+import com.joseluis.apptaller.modelo.vo.ClienteVO;
+import com.joseluis.apptaller.modelo.vo.EmpleadoVO;
+import com.joseluis.apptaller.modelo.vo.ReparacionVO;
+import com.joseluis.apptaller.modelo.vo.VehiculoVO;
+import java.awt.event.ItemEvent;
+import java.util.List;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author joseluis
@@ -15,6 +27,18 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         initComponents();
         setSize(600,700);
         setLocationRelativeTo(this);
+        
+        cargarComboClientes();
+        cargarComboMecanicos();
+        
+        cbxCliente.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                ClienteVO clienteSeleccionado = (ClienteVO) cbxCliente.getSelectedItem();
+                if (clienteSeleccionado != null) {
+                    actualizarComboVehiculos(clienteSeleccionado.getDni());
+                }
+            }
+        });
     }
 
     /**
@@ -29,30 +53,33 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         panelContenido = new javax.swing.JPanel();
         panelDatos = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        lblCliente = new javax.swing.JLabel();
+        cbxCliente = new javax.swing.JComboBox<>();
+        lblVehiculo = new javax.swing.JLabel();
+        cbxVehiculo = new javax.swing.JComboBox<>();
         panelInspeccion = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
-        jSlider1 = new javax.swing.JSlider();
+        sldCombustible = new javax.swing.JSlider();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTextArea1 = new javax.swing.JTextArea();
+        txtAreaDiagnostico = new javax.swing.JTextArea();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jTextField2 = new javax.swing.JTextField();
+        txtNotas = new javax.swing.JTextField();
+        spnKm = new javax.swing.JSpinner();
         panelAsignacion = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        jComboBox3 = new javax.swing.JComboBox<>();
+        cbxMecanico = new javax.swing.JComboBox<>();
         jLabel8 = new javax.swing.JLabel();
-        jComboBox4 = new javax.swing.JComboBox<>();
+        cbxPrioridad = new javax.swing.JComboBox<>();
         jLabel9 = new javax.swing.JLabel();
         jSpinner1 = new javax.swing.JSpinner();
+        lblLogo = new javax.swing.JLabel();
+        pnlTitulo = new javax.swing.JPanel();
+        lblTitulo = new javax.swing.JLabel();
         panelBotonesAccion = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
+        btnCancelar = new javax.swing.JButton();
+        btnCrearOrden = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Recepción de Vehículo - Nueva Reparación");
@@ -61,43 +88,50 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         setSize(new java.awt.Dimension(800, 700));
 
         panelDatos.setBorder(javax.swing.BorderFactory.createTitledBorder("Datos del Cliente y Vehículo"));
+        panelDatos.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         panelDatos.setLayout(new java.awt.GridLayout(2, 2, 10, 10));
 
-        jLabel1.setText("Cliente");
-        panelDatos.add(jLabel1);
+        lblCliente.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblCliente.setText("Cliente");
+        panelDatos.add(lblCliente);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Juan Pérez" }));
-        panelDatos.add(jComboBox1);
+        cbxCliente.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        panelDatos.add(cbxCliente);
 
-        jLabel2.setText("Vehículo");
-        panelDatos.add(jLabel2);
+        lblVehiculo.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblVehiculo.setText("Vehículo");
+        panelDatos.add(lblVehiculo);
 
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "1234-BCD" }));
-        panelDatos.add(jComboBox2);
+        cbxVehiculo.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        panelDatos.add(cbxVehiculo);
 
         panelInspeccion.setBorder(javax.swing.BorderFactory.createTitledBorder("Inspección de Entrada"));
 
+        jLabel3.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jLabel3.setText("Kilometraje");
 
-        jTextField1.setText("45786");
-
+        jLabel4.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jLabel4.setText("Combustible");
 
-        jSlider1.setMajorTickSpacing(25);
-        jSlider1.setPaintLabels(true);
-        jSlider1.setPaintTicks(true);
+        sldCombustible.setMajorTickSpacing(25);
+        sldCombustible.setPaintLabels(true);
+        sldCombustible.setPaintTicks(true);
 
-        jTextArea1.setColumns(20);
-        jTextArea1.setLineWrap(true);
-        jTextArea1.setRows(5);
-        jTextArea1.setText("El coche no arranca");
-        jScrollPane2.setViewportView(jTextArea1);
+        txtAreaDiagnostico.setColumns(20);
+        txtAreaDiagnostico.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        txtAreaDiagnostico.setLineWrap(true);
+        txtAreaDiagnostico.setRows(5);
+        jScrollPane2.setViewportView(txtAreaDiagnostico);
 
+        jLabel5.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jLabel5.setText("Descripción de la avería");
 
+        jLabel6.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jLabel6.setText("Notas");
 
-        jTextField2.setText("Deja documentación.");
+        txtNotas.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+
+        spnKm.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
 
         javax.swing.GroupLayout panelInspeccionLayout = new javax.swing.GroupLayout(panelInspeccion);
         panelInspeccion.setLayout(panelInspeccionLayout);
@@ -116,11 +150,11 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
                 .addGroup(panelInspeccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelInspeccionLayout.createSequentialGroup()
                         .addGap(6, 6, 6)
-                        .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtNotas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelInspeccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(jTextField1)
-                        .addComponent(jSlider1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)))
+                        .addComponent(sldCombustible, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE))
+                    .addComponent(spnKm, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
         panelInspeccionLayout.setVerticalGroup(
@@ -129,39 +163,44 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
                 .addContainerGap()
                 .addGroup(panelInspeccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(spnKm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(panelInspeccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jSlider1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(sldCombustible, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(panelInspeccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5)
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelInspeccionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtNotas, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
                 .addContainerGap(12, Short.MAX_VALUE))
         );
 
         panelAsignacion.setBorder(javax.swing.BorderFactory.createTitledBorder("Asignación y Prioridad"));
 
+        jLabel7.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jLabel7.setText("Mecánico asignado");
 
-        jComboBox3.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pedro García" }));
-        jComboBox3.addActionListener(new java.awt.event.ActionListener() {
+        cbxMecanico.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        cbxMecanico.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jComboBox3ActionPerformed(evt);
+                cbxMecanicoActionPerformed(evt);
             }
         });
 
+        jLabel8.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jLabel8.setText("Prioridad");
 
-        jComboBox4.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Normal" }));
+        cbxPrioridad.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        cbxPrioridad.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Baja", "Normal", "Alta", "Urgente" }));
 
+        jLabel9.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jLabel9.setText("Fecha estiamda entrega");
 
+        jSpinner1.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jSpinner1.setModel(new javax.swing.SpinnerDateModel());
 
         javax.swing.GroupLayout panelAsignacionLayout = new javax.swing.GroupLayout(panelAsignacion);
@@ -178,8 +217,8 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
                     .addGroup(panelAsignacionLayout.createSequentialGroup()
                         .addGap(6, 6, 6)
                         .addComponent(jSpinner1))
-                    .addComponent(jComboBox3, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jComboBox4, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addComponent(cbxMecanico, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(cbxPrioridad, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
         panelAsignacionLayout.setVerticalGroup(
@@ -188,10 +227,10 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
                 .addGap(5, 5, 5)
                 .addGroup(panelAsignacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jComboBox3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(cbxMecanico, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelAsignacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jComboBox4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(cbxPrioridad, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 14, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addGroup(panelAsignacionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -199,27 +238,63 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
                     .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
+        lblLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logo_apptaller_titulo.png"))); // NOI18N
+
+        pnlTitulo.setBackground(new java.awt.Color(33, 150, 243));
+
+        lblTitulo.setFont(new java.awt.Font("Roboto", 1, 18)); // NOI18N
+        lblTitulo.setForeground(new java.awt.Color(255, 255, 255));
+        lblTitulo.setText("ALTA / MODIFICACIÓN DE REPARACIONES");
+
+        javax.swing.GroupLayout pnlTituloLayout = new javax.swing.GroupLayout(pnlTitulo);
+        pnlTitulo.setLayout(pnlTituloLayout);
+        pnlTituloLayout.setHorizontalGroup(
+            pnlTituloLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlTituloLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 380, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(132, 132, 132))
+        );
+        pnlTituloLayout.setVerticalGroup(
+            pnlTituloLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlTituloLayout.createSequentialGroup()
+                .addContainerGap(41, Short.MAX_VALUE)
+                .addComponent(lblTitulo)
+                .addGap(30, 30, 30))
+        );
+
         javax.swing.GroupLayout panelContenidoLayout = new javax.swing.GroupLayout(panelContenido);
         panelContenido.setLayout(panelContenidoLayout);
         panelContenidoLayout.setHorizontalGroup(
             panelContenidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContenidoLayout.createSequentialGroup()
+                .addComponent(panelInspeccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
+            .addGroup(panelContenidoLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelContenidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(panelDatos, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelAsignacion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelInspeccion, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(342, Short.MAX_VALUE))
+                .addGroup(panelContenidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(panelAsignacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(panelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, 337, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(panelContenidoLayout.createSequentialGroup()
+                        .addComponent(lblLogo)
+                        .addGap(18, 18, 18)
+                        .addComponent(pnlTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, 382, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(502, Short.MAX_VALUE))
         );
         panelContenidoLayout.setVerticalGroup(
             panelContenidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelContenidoLayout.createSequentialGroup()
+                .addContainerGap(13, Short.MAX_VALUE)
+                .addGroup(panelContenidoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(pnlTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lblLogo, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(panelDatos, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(panelInspeccion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addComponent(panelAsignacion, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(85, Short.MAX_VALUE))
+                .addGap(15, 15, 15))
         );
 
         jScrollPane1.setViewportView(panelContenido);
@@ -228,20 +303,86 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
 
         panelBotonesAccion.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
 
-        jButton1.setText("Cancelar");
-        panelBotonesAccion.add(jButton1);
+        btnCancelar.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnCancelar.setText("Cancelar");
+        panelBotonesAccion.add(btnCancelar);
 
-        jButton2.setText("Crear Orden Reparación");
-        panelBotonesAccion.add(jButton2);
+        btnCrearOrden.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnCrearOrden.setText("Crear Orden Reparación");
+        btnCrearOrden.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCrearOrdenActionPerformed(evt);
+            }
+        });
+        panelBotonesAccion.add(btnCrearOrden);
 
         getContentPane().add(panelBotonesAccion, java.awt.BorderLayout.PAGE_END);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jComboBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox3ActionPerformed
+    private void btnCrearOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearOrdenActionPerformed
+        // 1. Validar campos obligatorios
+        if (cbxVehiculo.getSelectedIndex() == -1 || txtAreaDiagnostico.getText().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, complete el vehículo y el diagnóstico.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Obtener los objetos seleccionados directamente de los ComboBox
+        ClienteVO clienteSeleccionado = (ClienteVO) cbxCliente.getSelectedItem();
+        VehiculoVO vehiculoSeleccionado = (VehiculoVO) cbxVehiculo.getSelectedItem();
+        EmpleadoVO mecanicoSeleccionado = (EmpleadoVO) cbxMecanico.getSelectedItem();
+
+        // Validación de seguridad por si las listas están vacías
+        if (clienteSeleccionado == null || vehiculoSeleccionado == null || mecanicoSeleccionado == null) {
+            JOptionPane.showMessageDialog(this, "Debe seleccionar un cliente, un vehículo y un mecánico.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 3. Instanciar el VO para recolectar datos de la interfaz
+        ReparacionVO rep = new ReparacionVO();
+
+        // 4. Mapear datos (Usamos getValue() para el JSpinner)
+        rep.setKilometrajeEntrada((Integer) spnKm.getValue()); 
+        // Traducimos el valor del slider al ENUM de MySQL
+        int valorSlider = sldCombustible.getValue();
+        String nivelSql;
+        
+        if (valorSlider == 0) {
+            nivelSql = "Vacío";
+        } else if (valorSlider <= 25) {
+            nivelSql = "1/4";
+        } else if (valorSlider <= 50) {
+            nivelSql = "1/2";
+        } else if (valorSlider <= 75) {
+            nivelSql = "3/4";
+        } else {
+            nivelSql = "Lleno";
+        }
+        
+        rep.setNivelCombustible(nivelSql);
+        rep.setDiagnostico(txtAreaDiagnostico.getText()); 
+        rep.setObservaciones(txtNotas.getText());
+        rep.setPrioridad(cbxPrioridad.getSelectedItem().toString()); 
+
+        // Recuperamos los IDs de los objetos seleccionados
+        rep.setClienteDni(clienteSeleccionado.getDni()); 
+        rep.setVehiculoBastidor(vehiculoSeleccionado.getBastidor());
+        rep.setEmpleadoAsignadoId(mecanicoSeleccionado.getId_empleado()); 
+
+        // 5. Llamar al Controlador
+        ControladorReparaciones ctrl = new ControladorReparaciones();
+        if (ctrl.guardarNuevaReparacion(rep)) {
+            JOptionPane.showMessageDialog(this, "¡Orden de Reparación creada con éxito!");
+            this.dispose(); // Cerramos el modal
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al guardar en la base de datos. Revisa la consola.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnCrearOrdenActionPerformed
+
+    private void cbxMecanicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxMecanicoActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox3ActionPerformed
+    }//GEN-LAST:event_cbxMecanicoActionPerformed
 
     /**
      * @param args the command line arguments
@@ -287,14 +428,12 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
-    private javax.swing.JComboBox<String> jComboBox3;
-    private javax.swing.JComboBox<String> jComboBox4;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JButton btnCancelar;
+    private javax.swing.JButton btnCrearOrden;
+    private javax.swing.JComboBox<com.joseluis.apptaller.modelo.vo.ClienteVO> cbxCliente;
+    private javax.swing.JComboBox<com.joseluis.apptaller.modelo.vo.EmpleadoVO> cbxMecanico;
+    private javax.swing.JComboBox<String> cbxPrioridad;
+    private javax.swing.JComboBox<com.joseluis.apptaller.modelo.vo.VehiculoVO> cbxVehiculo;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -304,15 +443,58 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JSlider jSlider1;
     private javax.swing.JSpinner jSpinner1;
-    private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
+    private javax.swing.JLabel lblCliente;
+    private javax.swing.JLabel lblLogo;
+    private javax.swing.JLabel lblTitulo;
+    private javax.swing.JLabel lblVehiculo;
     private javax.swing.JPanel panelAsignacion;
     private javax.swing.JPanel panelBotonesAccion;
     private javax.swing.JPanel panelContenido;
     private javax.swing.JPanel panelDatos;
     private javax.swing.JPanel panelInspeccion;
+    private javax.swing.JPanel pnlTitulo;
+    private javax.swing.JSlider sldCombustible;
+    private javax.swing.JSpinner spnKm;
+    private javax.swing.JTextArea txtAreaDiagnostico;
+    private javax.swing.JTextField txtNotas;
     // End of variables declaration//GEN-END:variables
+
+    
+    private void cargarComboClientes() {
+        ClienteDAO cDao = new ClienteDAO();
+        List<ClienteVO> clientes = cDao.listar(); 
+        cbxCliente.removeAllItems();
+        for (ClienteVO c : clientes) {
+            cbxCliente.addItem(c); 
+        }
+    }
+    
+    private void cargarComboMecanicos() {
+        // Cargar mecánicos desde la BD usando su DAO
+        EmpleadoDAO empDao = new EmpleadoDAO();
+        List<EmpleadoVO> empleados = empDao.listar();
+        for (EmpleadoVO e : empleados) {
+            cbxMecanico.addItem(e); 
+        }
+    }
+    
+    private void actualizarComboVehiculos(String dni) {
+        VehiculoDAO vDao = new VehiculoDAO();
+        List<VehiculoVO> vehiculos = vDao.listarPorCliente(dni);
+
+        cbxVehiculo.removeAllItems();
+        if (vehiculos.isEmpty()) {
+            // Avisar si el cliente no tiene coches registrados
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Este cliente no tiene ningún vehículo registrado en el sistema.", 
+                "Sin Vehículos", 
+                javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            for (VehiculoVO v : vehiculos) {
+                cbxVehiculo.addItem(v);
+            }
+        }
+    }
+
 }

@@ -13,6 +13,8 @@ import com.joseluis.apptaller.modelo.dao.ProveedorDAO;
 import com.joseluis.apptaller.controlador.ControladorProveedores;
 import com.joseluis.apptaller.modelo.dao.ProductoDAO;
 import com.joseluis.apptaller.controlador.ControladorProductos;
+import com.joseluis.apptaller.controlador.ControladorReparaciones;
+import com.joseluis.apptaller.modelo.dao.ReparacionDAO;
 import javax.swing.table.DefaultTableModel;
 import java.util.List;
 import javax.swing.JOptionPane;
@@ -32,6 +34,35 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private FacturaDAO facturaDAO;
     private DefaultTableModel modeloFacturas;
     
+    // DECLARACIÓN DE DAOs Y CONTROLADORES
+    
+    // --- CLIENTES ---
+    private final ClienteDAO clienteDAO = new ClienteDAO();
+    private final ControladorClientes ctrlClientes;
+        
+    // --- VEHÍCULOS ---
+    private final VehiculoDAO vehiculoDAO = new VehiculoDAO();
+    private final ControladorVehiculos ctrlVehiculos; 
+
+    // --- EMPLEADOS ---
+    private final EmpleadoDAO empleadoDAO = new EmpleadoDAO();
+    private final ControladorEmpleados ctrlEmpleados; 
+
+    // --- PROVEEDORES ---
+    private final ProveedorDAO proveedorDAO = new ProveedorDAO();
+    private final ControladorProveedores ctrlProveedores; 
+
+    // --- PRODUCTOS ---
+    private final ProductoDAO productoDAO = new ProductoDAO();
+    private final ControladorProductos ctrlProductos; 
+
+    // --- REPARACIONES ---
+    private final ControladorReparaciones ctrlRep;
+    
+    
+    
+    
+    
     /**
      * Creates new form VentanaPrincipal
      */
@@ -46,25 +77,31 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         iniciarReloj();
         initPanelFacturas();
         
-        // --- CONTROLADOR DE CLIENTES ---
-        ClienteDAO clienteDAO = new ClienteDAO();
-        ControladorClientes ctrlClientes = new ControladorClientes(this, clienteDAO);
+        // INYECCIÓN DE DEPENDENCIAS E INICIALIZACIÓN DE CONTROLADORES
+        ctrlClientes = new ControladorClientes(this, clienteDAO);
+        ctrlVehiculos = new ControladorVehiculos(this, vehiculoDAO);
+        ctrlEmpleados = new ControladorEmpleados(this, empleadoDAO);
+        ctrlProveedores = new ControladorProveedores(this, proveedorDAO);
+        ctrlProductos = new ControladorProductos(this, productoDAO);
         
-        // --- CONTROLADOR DE VEHÍCULOS ---
-        VehiculoDAO vehiculoDAO = new VehiculoDAO();
-        ControladorVehiculos ctrlVehiculos = new ControladorVehiculos(this, vehiculoDAO);
+        ctrlRep = new ControladorReparaciones();
         
-        // --- CONTROLADOR DE EMPLEADOS ---
-        EmpleadoDAO empleadoDAO = new EmpleadoDAO();
-        ControladorEmpleados ctrlEmpleados = new ControladorEmpleados(this, empleadoDAO);
+        cbxFiltrarEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TODOS", "EN_COLA", "EN_PROCESO", "PAUSADA", "FINALIZADA", "ENTREGADA" }));
         
-        // --- CONTROLADOR DE PROVEEDORES ---
-        ProveedorDAO proveedorDAO = new ProveedorDAO();
-        ControladorProveedores ctrlProveedores = new ControladorProveedores(this, proveedorDAO);
-        
-        // --- CONTROLADOR DE PRODUCTOS ---
-        ProductoDAO productoDAO = new ProductoDAO();
-        ControladorProductos ctrlProductos = new ControladorProductos(this, productoDAO);
+        // Evento para filtrar la tabla cuando cambie el JComboBox de Estado
+        cbxFiltrarEstado.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                // Obtenemos el texto seleccionado (TODOS, EN_COLA, EN_PROCESO, etc.)
+                String estadoSeleccionado = cbxFiltrarEstado.getSelectedItem().toString();
+                
+                // Llamamos al controlador pasándole el modelo de la tabla y el estado
+                ctrlRep.filtrarTablaReparaciones(
+                    (DefaultTableModel) tblReparaciones.getModel(), 
+                    estadoSeleccionado
+                );
+            }
+        });
         
     }
 
@@ -136,31 +173,31 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         tblVehiculo = new javax.swing.JTable();
         panelReparaciones = new javax.swing.JPanel();
         panelIndicadores = new javax.swing.JPanel();
-        jPanel3 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
-        jPanel2 = new javax.swing.JPanel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jPanel1 = new javax.swing.JPanel();
-        jLabel15 = new javax.swing.JLabel();
-        jLabel16 = new javax.swing.JLabel();
+        pnlPrioridadUrgente = new javax.swing.JPanel();
+        lblNumPrioridadUrgente = new javax.swing.JLabel();
+        lblPrioridadUrgente = new javax.swing.JLabel();
+        pnlPrioridadAlta = new javax.swing.JPanel();
+        lblNumPrioridadAlta = new javax.swing.JLabel();
+        lblPrioridadAlta = new javax.swing.JLabel();
+        pnlPrioridadNormal = new javax.swing.JPanel();
+        lblNumPrioridadNormal = new javax.swing.JLabel();
+        lblPrioridadNormal = new javax.swing.JLabel();
+        pnlPrioridadBaja = new javax.swing.JPanel();
+        lblNumPrioridadBaja = new javax.swing.JLabel();
+        lblPrioridadBaja = new javax.swing.JLabel();
+        pnlPrioridadNA = new javax.swing.JPanel();
+        lblNumPrioridadNA = new javax.swing.JLabel();
+        lblPrioridadNA = new javax.swing.JLabel();
         panelCuerpo = new javax.swing.JPanel();
         panelBarraHerramientas = new javax.swing.JPanel();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jLabel17 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        btnNuevaReparacion = new javax.swing.JButton();
+        btnDetallesReparacion = new javax.swing.JButton();
+        btnEstadoReparacion = new javax.swing.JButton();
+        btnAsignarReparacion = new javax.swing.JButton();
+        lblFiltrarEstado = new javax.swing.JLabel();
+        cbxFiltrarEstado = new javax.swing.JComboBox<>();
         jScrollPane6 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tblReparaciones = new javax.swing.JTable();
         panelProveedores = new javax.swing.JPanel();
         panelHerramientasProveedores = new javax.swing.JPanel();
         etqGestionProveedores = new javax.swing.JLabel();
@@ -649,234 +686,251 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         panelIndicadores.setPreferredSize(new java.awt.Dimension(0, 80));
         panelIndicadores.setLayout(new java.awt.GridLayout(1, 5, 10, 0));
 
-        jPanel3.setBackground(new java.awt.Color(255, 153, 0));
+        pnlPrioridadUrgente.setBackground(new java.awt.Color(255, 153, 0));
 
-        jLabel2.setFont(new java.awt.Font("Roboto", 0, 36)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("5");
+        lblNumPrioridadUrgente.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblNumPrioridadUrgente.setForeground(new java.awt.Color(255, 255, 255));
+        lblNumPrioridadUrgente.setText("5");
 
-        jLabel8.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jLabel8.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel8.setText("Prioridad 1");
+        lblPrioridadUrgente.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblPrioridadUrgente.setForeground(new java.awt.Color(255, 255, 255));
+        lblPrioridadUrgente.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblPrioridadUrgente.setText("Prioridad Urgente");
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel3Layout.createSequentialGroup()
-                        .addGap(71, 71, 71)
-                        .addComponent(jLabel8))
-                    .addGroup(jPanel3Layout.createSequentialGroup()
+        javax.swing.GroupLayout pnlPrioridadUrgenteLayout = new javax.swing.GroupLayout(pnlPrioridadUrgente);
+        pnlPrioridadUrgente.setLayout(pnlPrioridadUrgenteLayout);
+        pnlPrioridadUrgenteLayout.setHorizontalGroup(
+            pnlPrioridadUrgenteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadUrgenteLayout.createSequentialGroup()
+                .addGroup(pnlPrioridadUrgenteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlPrioridadUrgenteLayout.createSequentialGroup()
                         .addGap(93, 93, 93)
-                        .addComponent(jLabel2)))
-                .addContainerGap(104, Short.MAX_VALUE))
+                        .addComponent(lblNumPrioridadUrgente))
+                    .addGroup(pnlPrioridadUrgenteLayout.createSequentialGroup()
+                        .addGap(22, 22, 22)
+                        .addComponent(lblPrioridadUrgente)))
+                .addContainerGap(25, Short.MAX_VALUE))
         );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap(10, Short.MAX_VALUE)
-                .addComponent(jLabel2)
+        pnlPrioridadUrgenteLayout.setVerticalGroup(
+            pnlPrioridadUrgenteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadUrgenteLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblNumPrioridadUrgente)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel8)
+                .addComponent(lblPrioridadUrgente)
                 .addContainerGap())
         );
 
-        panelIndicadores.add(jPanel3);
+        panelIndicadores.add(pnlPrioridadUrgente);
 
-        jPanel4.setBackground(new java.awt.Color(0, 51, 204));
+        pnlPrioridadAlta.setBackground(new java.awt.Color(0, 51, 204));
 
-        jLabel9.setFont(new java.awt.Font("Roboto", 0, 36)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel9.setText("3");
+        lblNumPrioridadAlta.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblNumPrioridadAlta.setForeground(new java.awt.Color(255, 255, 255));
+        lblNumPrioridadAlta.setText("3");
 
-        jLabel10.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jLabel10.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel10.setText("Prioridad 2");
+        lblPrioridadAlta.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblPrioridadAlta.setForeground(new java.awt.Color(255, 255, 255));
+        lblPrioridadAlta.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        lblPrioridadAlta.setText("Prioridad Alta");
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel4Layout.createSequentialGroup()
-                        .addGap(75, 75, 75)
-                        .addComponent(jLabel10))
-                    .addGroup(jPanel4Layout.createSequentialGroup()
+        javax.swing.GroupLayout pnlPrioridadAltaLayout = new javax.swing.GroupLayout(pnlPrioridadAlta);
+        pnlPrioridadAlta.setLayout(pnlPrioridadAltaLayout);
+        pnlPrioridadAltaLayout.setHorizontalGroup(
+            pnlPrioridadAltaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadAltaLayout.createSequentialGroup()
+                .addGroup(pnlPrioridadAltaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlPrioridadAltaLayout.createSequentialGroup()
                         .addGap(101, 101, 101)
-                        .addComponent(jLabel9)))
-                .addContainerGap(100, Short.MAX_VALUE))
+                        .addComponent(lblNumPrioridadAlta))
+                    .addGroup(pnlPrioridadAltaLayout.createSequentialGroup()
+                        .addGap(43, 43, 43)
+                        .addComponent(lblPrioridadAlta)))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
+        pnlPrioridadAltaLayout.setVerticalGroup(
+            pnlPrioridadAltaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadAltaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel9)
+                .addComponent(lblNumPrioridadAlta)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
+                .addComponent(lblPrioridadAlta)
+                .addContainerGap())
+        );
+
+        panelIndicadores.add(pnlPrioridadAlta);
+
+        pnlPrioridadNormal.setBackground(new java.awt.Color(204, 204, 204));
+        pnlPrioridadNormal.setForeground(new java.awt.Color(255, 255, 255));
+
+        lblNumPrioridadNormal.setBackground(new java.awt.Color(255, 255, 255));
+        lblNumPrioridadNormal.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblNumPrioridadNormal.setForeground(new java.awt.Color(255, 255, 255));
+        lblNumPrioridadNormal.setText("2");
+
+        lblPrioridadNormal.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblPrioridadNormal.setForeground(new java.awt.Color(255, 255, 255));
+        lblPrioridadNormal.setText("Prioridad Normal");
+
+        javax.swing.GroupLayout pnlPrioridadNormalLayout = new javax.swing.GroupLayout(pnlPrioridadNormal);
+        pnlPrioridadNormal.setLayout(pnlPrioridadNormalLayout);
+        pnlPrioridadNormalLayout.setHorizontalGroup(
+            pnlPrioridadNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadNormalLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblNumPrioridadNormal)
+                .addGap(109, 109, 109))
+            .addGroup(pnlPrioridadNormalLayout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(lblPrioridadNormal)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        pnlPrioridadNormalLayout.setVerticalGroup(
+            pnlPrioridadNormalLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadNormalLayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblNumPrioridadNormal)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel10)
-                .addContainerGap(10, Short.MAX_VALUE))
-        );
-
-        panelIndicadores.add(jPanel4);
-
-        jPanel5.setBackground(new java.awt.Color(204, 204, 204));
-        jPanel5.setForeground(new java.awt.Color(255, 255, 255));
-
-        jLabel11.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel11.setFont(new java.awt.Font("Roboto", 0, 36)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel11.setText("2");
-
-        jLabel12.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel12.setText("Prioridad 3");
-
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel5Layout.createSequentialGroup()
-                .addContainerGap(84, Short.MAX_VALUE)
-                .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel12)
-                    .addGroup(jPanel5Layout.createSequentialGroup()
-                        .addGap(23, 23, 23)
-                        .addComponent(jLabel11)))
-                .addGap(91, 91, 91))
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jLabel11)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                .addComponent(jLabel12)
+                .addComponent(lblPrioridadNormal)
                 .addContainerGap())
         );
 
-        panelIndicadores.add(jPanel5);
+        panelIndicadores.add(pnlPrioridadNormal);
 
-        jPanel2.setBackground(new java.awt.Color(102, 255, 102));
+        pnlPrioridadBaja.setBackground(new java.awt.Color(102, 255, 102));
 
-        jLabel13.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel13.setFont(new java.awt.Font("Roboto", 0, 36)); // NOI18N
-        jLabel13.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel13.setText("1");
+        lblNumPrioridadBaja.setBackground(new java.awt.Color(255, 255, 255));
+        lblNumPrioridadBaja.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblNumPrioridadBaja.setForeground(new java.awt.Color(255, 255, 255));
+        lblNumPrioridadBaja.setText("1");
 
-        jLabel14.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jLabel14.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel14.setText("Prioridad 4");
+        lblPrioridadBaja.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblPrioridadBaja.setForeground(new java.awt.Color(255, 255, 255));
+        lblPrioridadBaja.setText("Prioridad Baja");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(84, 84, 84)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel14)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGap(20, 20, 20)
-                        .addComponent(jLabel13)))
-                .addContainerGap(91, Short.MAX_VALUE))
+        javax.swing.GroupLayout pnlPrioridadBajaLayout = new javax.swing.GroupLayout(pnlPrioridadBaja);
+        pnlPrioridadBaja.setLayout(pnlPrioridadBajaLayout);
+        pnlPrioridadBajaLayout.setHorizontalGroup(
+            pnlPrioridadBajaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadBajaLayout.createSequentialGroup()
+                .addGroup(pnlPrioridadBajaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlPrioridadBajaLayout.createSequentialGroup()
+                        .addGap(104, 104, 104)
+                        .addComponent(lblNumPrioridadBaja))
+                    .addGroup(pnlPrioridadBajaLayout.createSequentialGroup()
+                        .addGap(38, 38, 38)
+                        .addComponent(lblPrioridadBaja)))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        pnlPrioridadBajaLayout.setVerticalGroup(
+            pnlPrioridadBajaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadBajaLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel13)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                .addComponent(jLabel14)
+                .addComponent(lblNumPrioridadBaja)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblPrioridadBaja)
                 .addContainerGap())
         );
 
-        panelIndicadores.add(jPanel2);
+        panelIndicadores.add(pnlPrioridadBaja);
 
-        jPanel1.setBackground(new java.awt.Color(0, 153, 51));
+        pnlPrioridadNA.setBackground(new java.awt.Color(0, 153, 51));
 
-        jLabel15.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel15.setFont(new java.awt.Font("Roboto", 0, 36)); // NOI18N
-        jLabel15.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel15.setText("0");
+        lblNumPrioridadNA.setBackground(new java.awt.Color(255, 255, 255));
+        lblNumPrioridadNA.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblNumPrioridadNA.setForeground(new java.awt.Color(255, 255, 255));
+        lblNumPrioridadNA.setText("0");
 
-        jLabel16.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jLabel16.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel16.setText("Prioridad 5");
+        lblPrioridadNA.setFont(new java.awt.Font("Roboto", 0, 24)); // NOI18N
+        lblPrioridadNA.setForeground(new java.awt.Color(255, 255, 255));
+        lblPrioridadNA.setText("Prioridad N/A");
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(97, Short.MAX_VALUE)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel16)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel15)
-                        .addGap(28, 28, 28)))
-                .addGap(78, 78, 78))
+        javax.swing.GroupLayout pnlPrioridadNALayout = new javax.swing.GroupLayout(pnlPrioridadNA);
+        pnlPrioridadNA.setLayout(pnlPrioridadNALayout);
+        pnlPrioridadNALayout.setHorizontalGroup(
+            pnlPrioridadNALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadNALayout.createSequentialGroup()
+                .addContainerGap(49, Short.MAX_VALUE)
+                .addGroup(pnlPrioridadNALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlPrioridadNALayout.createSequentialGroup()
+                        .addComponent(lblNumPrioridadNA)
+                        .addGap(106, 106, 106))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlPrioridadNALayout.createSequentialGroup()
+                        .addComponent(lblPrioridadNA)
+                        .addGap(39, 39, 39))))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
+        pnlPrioridadNALayout.setVerticalGroup(
+            pnlPrioridadNALayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlPrioridadNALayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel15)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 10, Short.MAX_VALUE)
-                .addComponent(jLabel16)
+                .addComponent(lblNumPrioridadNA)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lblPrioridadNA)
                 .addContainerGap())
         );
 
-        panelIndicadores.add(jPanel1);
+        panelIndicadores.add(pnlPrioridadNA);
 
         panelReparaciones.add(panelIndicadores, java.awt.BorderLayout.PAGE_START);
 
         panelCuerpo.setLayout(new java.awt.BorderLayout());
 
-        jButton1.setText("Nueva");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        btnNuevaReparacion.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnNuevaReparacion.setText("Nueva");
+        btnNuevaReparacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                btnNuevaReparacionActionPerformed(evt);
             }
         });
-        panelBarraHerramientas.add(jButton1);
+        panelBarraHerramientas.add(btnNuevaReparacion);
 
-        jButton2.setText("Detalles");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        btnDetallesReparacion.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnDetallesReparacion.setText("Detalles");
+        btnDetallesReparacion.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                btnDetallesReparacionActionPerformed(evt);
             }
         });
-        panelBarraHerramientas.add(jButton2);
+        panelBarraHerramientas.add(btnDetallesReparacion);
 
-        jButton3.setText("Estado");
-        panelBarraHerramientas.add(jButton3);
+        btnEstadoReparacion.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnEstadoReparacion.setText("Estado");
+        btnEstadoReparacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEstadoReparacionActionPerformed(evt);
+            }
+        });
+        panelBarraHerramientas.add(btnEstadoReparacion);
 
-        jButton4.setText("Asignar");
-        panelBarraHerramientas.add(jButton4);
+        btnAsignarReparacion.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnAsignarReparacion.setText("Asignar");
+        btnAsignarReparacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAsignarReparacionActionPerformed(evt);
+            }
+        });
+        panelBarraHerramientas.add(btnAsignarReparacion);
 
-        jLabel17.setText("Filtrar estado: ");
-        panelBarraHerramientas.add(jLabel17);
+        lblFiltrarEstado.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblFiltrarEstado.setText("Filtrar estado: ");
+        panelBarraHerramientas.add(lblFiltrarEstado);
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TODOS", "EN_COLA", "EN_PROCESO", "FINALIZADA" }));
-        panelBarraHerramientas.add(jComboBox1);
+        cbxFiltrarEstado.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        cbxFiltrarEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TODOS", "EN_COLA", "EN_PROCESO", "FINALIZADA" }));
+        panelBarraHerramientas.add(cbxFiltrarEstado);
 
         panelCuerpo.add(panelBarraHerramientas, java.awt.BorderLayout.PAGE_START);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tblReparaciones.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        tblReparaciones.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {"REP-001", "Ford Fiesta", "Juan Pérez", "Carlos M.", "ALTA", "EN_PROCESO", "20/11/2025"},
-                {"REP-002", "Audi A3", "Ana Gomez", "--", "MEDIA", "EN_COLA", "21/11/2025"},
-                {"REP-003", "Seat León", "Pedro Ruiz", "Carlos M.", "BAJA", "FINALIZADA", "19/11/2025"},
                 {null, null, null, null, null, null, null}
             },
             new String [] {
                 "ID", "Vehículo", "Cliente", "Mecánico", "Prioridad", "Estado", "Fecha Entrada"
             }
         ));
-        jScrollPane6.setViewportView(jTable1);
+        jScrollPane6.setViewportView(tblReparaciones);
 
         panelCuerpo.add(jScrollPane6, java.awt.BorderLayout.CENTER);
 
@@ -1350,6 +1404,21 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         cardLayout.show(panelPrincipal, "cardReparaciones");
         
         etqTitulo.setText("APP MI TALLER - REPARACIONES");
+        
+        // Cargar datos reales en la Tabla
+        // ctrlRep es la instancia de ControladorReparaciones que definimos antes
+        ctrlRep.llenarTablaReparaciones((DefaultTableModel) tblReparaciones.getModel()); 
+        
+        // Pedimos al controlador que nos dé las estadísticas actuales
+        java.util.Map<String, Integer> stats = ctrlRep.obtenerEstadisticas();
+        
+        // 2. Extraemos el número (stats.get("...")) y lo convertimos a texto (String.valueOf)
+        lblNumPrioridadUrgente.setText(String.valueOf(stats.get("Urgente")));
+        lblNumPrioridadAlta.setText(String.valueOf(stats.get("Alta")));
+        lblNumPrioridadNormal.setText(String.valueOf(stats.get("Normal")));
+        lblNumPrioridadBaja.setText(String.valueOf(stats.get("Baja")));
+        lblNumPrioridadNA.setText(String.valueOf(stats.get("NA")));
+        
     }//GEN-LAST:event_btnReparacionesActionPerformed
 
     private void btnNuevoPresupuestosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoPresupuestosActionPerformed
@@ -1357,15 +1426,34 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         dialogPresupuesto.setVisible(true);
     }//GEN-LAST:event_btnNuevoPresupuestosActionPerformed
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void btnNuevaReparacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaReparacionActionPerformed
         DialogNuevaReparacion nuevaReparacion = new DialogNuevaReparacion(this, true);
         nuevaReparacion.setVisible(true);
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_btnNuevaReparacionActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        DialogDetallesReparacion detallesReparacion = new DialogDetallesReparacion(this, true);
-        detallesReparacion.setVisible(true);
-    }//GEN-LAST:event_jButton2ActionPerformed
+    private void btnDetallesReparacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetallesReparacionActionPerformed
+        // 1. Verificar si el usuario ha hecho clic en alguna fila de la tabla
+        int filaSeleccionada = tblReparaciones.getSelectedRow();
+        
+        if (filaSeleccionada == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Por favor, selecciona una reparación de la tabla para ver sus detalles.", "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return; // Cortamos la ejecución aquí si no hay fila seleccionada
+        }
+
+        // 2. Extraer el ID de esa fila (Está en la columna 0 y le quitamos el "REP-")
+        String idTexto = tblReparaciones.getValueAt(filaSeleccionada, 0).toString();
+        int idReparacion = Integer.parseInt(idTexto.replace("REP-", ""));
+
+        // 3. Crear el Dialog Modal
+        DialogDetallesReparacion detallesDialog = new DialogDetallesReparacion(this, true);
+        
+        // 4. Inyectar datos: llama al método cargarDatosReparacion y rellena los JText
+        detallesDialog.cargarDatosReparacion(idReparacion);
+        
+        // 5. Mostrar en pantalla 
+        detallesDialog.setLocationRelativeTo(this);
+        detallesDialog.setVisible(true);
+    }//GEN-LAST:event_btnDetallesReparacionActionPerformed
 
     private void btnHistorialClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistorialClienteActionPerformed
         // Este evento se creó para probar que se abía el diálogo.
@@ -1380,6 +1468,86 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private void btnNuevoClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoClienteActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnNuevoClienteActionPerformed
+
+    private void btnEstadoReparacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEstadoReparacionActionPerformed
+        // 1. Verificar si hay una fila seleccionada
+        int filaSeleccionada = tblReparaciones.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor, selecciona una reparación de la tabla.");
+            return;
+        }
+
+        // 2. Obtener el ID de la reparación (está en la columna 0, ej: "REP-8")
+        String idTexto = tblReparaciones.getValueAt(filaSeleccionada, 0).toString();
+        int idReparacion = Integer.parseInt(idTexto.replace("REP-", ""));
+
+        // 3. Mostrar opciones de estado 
+        String[] estados = {"EN_COLA", "EN_PROCESO", "PAUSADA", "FINALIZADA", "ENTREGADA"};
+        String nuevoEstado = (String) JOptionPane.showInputDialog(
+                this, 
+                "Selecciona el nuevo estado:", 
+                "Actualizar Estado", 
+                JOptionPane.QUESTION_MESSAGE, 
+                null, 
+                estados, 
+                estados[0]
+        );
+
+        // 4. Ejecutar el cambio si el usuario no canceló
+        if (nuevoEstado != null) {
+            if (ctrlRep.cambiarEstado(idReparacion, nuevoEstado, (DefaultTableModel) tblReparaciones.getModel())) {
+                JOptionPane.showMessageDialog(this, "Estado actualizado correctamente.");
+            } else {
+                JOptionPane.showMessageDialog(this, "Error al actualizar el estado en la base de datos.");
+            }
+        }
+    }//GEN-LAST:event_btnEstadoReparacionActionPerformed
+
+    private void btnAsignarReparacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAsignarReparacionActionPerformed
+        // 1. Verificar si hay una fila seleccionada
+        int filaSeleccionada = tblReparaciones.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(this, "Por favor, selecciona una reparación de la tabla para asignar un mecánico.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Obtener el ID de la reparación (Columna 0)
+        String idTexto = tblReparaciones.getValueAt(filaSeleccionada, 0).toString();
+        int idReparacion = Integer.parseInt(idTexto.replace("REP-", ""));
+
+        // 3. Obtener la lista de mecánicos desde la BD
+        java.util.List<com.joseluis.apptaller.modelo.vo.EmpleadoVO> mecanicos = empleadoDAO.listarMecanicosActivos();
+        
+        if (mecanicos.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "No hay mecánicos activos registrados en el sistema.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        // 4. Mostrar el cuadro de diálogo para seleccionar el mecánico
+        com.joseluis.apptaller.modelo.vo.EmpleadoVO mecanicoSeleccionado = (com.joseluis.apptaller.modelo.vo.EmpleadoVO) JOptionPane.showInputDialog(
+                this,
+                "Selecciona el mecánico a asignar a la orden " + idTexto + ":",
+                "Asignar Mecánico",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                mecanicos.toArray(), // Pasamos la lista convertida a array
+                mecanicos.get(0)     // Valor por defecto
+        );
+
+        // 5. Si el usuario pulsó "Aceptar" y eligió un mecánico
+        if (mecanicoSeleccionado != null) {
+            // Obtenemos el filtro actual del combo de estados para no perder la vista del usuario
+            String estadoFiltroActual = cbxFiltrarEstado.getSelectedItem().toString();
+            
+            // Llamamos al controlador
+            if (ctrlRep.asignarMecanico(idReparacion, mecanicoSeleccionado.getId_empleado(), (DefaultTableModel) tblReparaciones.getModel(), estadoFiltroActual)) {
+                JOptionPane.showMessageDialog(this, "Mecánico asignado con éxito a la reparación.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this, "Ocurrió un error al guardar en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnAsignarReparacionActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1408,6 +1576,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnAsignarReparacion;
     private javax.swing.JButton btnAyuda;
     private javax.swing.JButton btnBuscarCliente;
     private javax.swing.JButton btnBuscarEmpleado;
@@ -1417,6 +1586,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnBuscarProveedores;
     private javax.swing.JButton btnBuscarVehiculo;
     private javax.swing.JButton btnClientes;
+    private javax.swing.JButton btnDetallesReparacion;
     private javax.swing.JButton btnEliminarCliente;
     private javax.swing.JButton btnEliminarEmpleado;
     private javax.swing.JButton btnEliminarFacturas;
@@ -1425,6 +1595,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnEliminarProveedores;
     private javax.swing.JButton btnEliminarVehiculo;
     private javax.swing.JButton btnEmpleados;
+    private javax.swing.JButton btnEstadoReparacion;
     private javax.swing.JButton btnFacturas;
     private javax.swing.JButton btnHistorialCliente;
     private javax.swing.JButton btnInformeCliente;
@@ -1436,6 +1607,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnInformeVehiculo;
     private javax.swing.JButton btnInicio;
     private javax.swing.JButton btnNuevaFactura;
+    private javax.swing.JButton btnNuevaReparacion;
     private javax.swing.JButton btnNuevoCliente;
     private javax.swing.JButton btnNuevoEmpleado;
     private javax.swing.JButton btnNuevoPresupuestos;
@@ -1448,6 +1620,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnReparaciones;
     private javax.swing.JButton btnSalir;
     private javax.swing.JButton btnVehiculos;
+    private javax.swing.JComboBox<String> cbxFiltrarEstado;
     private javax.swing.JLabel etqBienvenida;
     private javax.swing.JLabel etqBuscarAyuda;
     private javax.swing.JLabel etqGestionEmpleados;
@@ -1460,36 +1633,15 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JLabel etqReloj;
     private javax.swing.JLabel etqTitulo;
     private javax.swing.JLabel etqTituloAyuda;
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JEditorPane jEditorPane1;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
-    private javax.swing.JLabel jLabel16;
-    private javax.swing.JLabel jLabel17;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JList<String> jList1;
     private javax.swing.JList<String> jList2;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1504,8 +1656,18 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPaneProveedores;
     private javax.swing.JScrollPane jScrollPaneVehiculos;
     private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JLabel lblFiltrarEstado;
+    private javax.swing.JLabel lblNumPrioridadAlta;
+    private javax.swing.JLabel lblNumPrioridadBaja;
+    private javax.swing.JLabel lblNumPrioridadNA;
+    private javax.swing.JLabel lblNumPrioridadNormal;
+    private javax.swing.JLabel lblNumPrioridadUrgente;
+    private javax.swing.JLabel lblPrioridadAlta;
+    private javax.swing.JLabel lblPrioridadBaja;
+    private javax.swing.JLabel lblPrioridadNA;
+    private javax.swing.JLabel lblPrioridadNormal;
+    private javax.swing.JLabel lblPrioridadUrgente;
     private javax.swing.JList<String> lstAyuda;
     private javax.swing.JPanel panelAgenda;
     private javax.swing.JPanel panelAyuda;
@@ -1536,12 +1698,18 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JPanel panelStock;
     private javax.swing.JPanel panelTitulo;
     private javax.swing.JPanel panelVehiculos;
+    private javax.swing.JPanel pnlPrioridadAlta;
+    private javax.swing.JPanel pnlPrioridadBaja;
+    private javax.swing.JPanel pnlPrioridadNA;
+    private javax.swing.JPanel pnlPrioridadNormal;
+    private javax.swing.JPanel pnlPrioridadUrgente;
     private javax.swing.JTable tablaFacturas;
     private javax.swing.JTable tblClientes;
     private javax.swing.JTable tblEmpleados;
     private javax.swing.JTable tblPresupuestos;
     private javax.swing.JTable tblProductos;
     private javax.swing.JTable tblProveedores;
+    private javax.swing.JTable tblReparaciones;
     private javax.swing.JTable tblVehiculo;
     private javax.swing.JTextField txtBuscar;
     private javax.swing.JTextField txtBuscarEmpleado;

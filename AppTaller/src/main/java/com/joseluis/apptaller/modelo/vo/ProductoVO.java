@@ -95,7 +95,7 @@ public class ProductoVO {
     public double getPrecioCompra() { return precioCompra; }
     public void setPrecioCompra(double precioCompra) { this.precioCompra = precioCompra; }
 
-    public double getPrecioUnitario() { return precioUnitario; }
+    public double getPrecioUnitario(float par) { return precioUnitario; }
     public void setPrecioUnitario(double precioUnitario) { this.precioUnitario = precioUnitario; }
 
     public String getProveedorCif() { return proveedorCif; }

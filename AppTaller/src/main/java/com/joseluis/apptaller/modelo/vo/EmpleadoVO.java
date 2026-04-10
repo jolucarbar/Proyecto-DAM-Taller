@@ -9,7 +9,7 @@ import java.time.LocalDate;
  */
 public class EmpleadoVO {
     private int id_empleado;
-    private int usuario_id;
+    private Integer usuario_id;
     private String dni;
     private String nombre;
     private String apellidos;
@@ -39,6 +39,7 @@ public class EmpleadoVO {
         this.fecha_alta = fecha_alta;
         this.fecha_baja = fecha_baja;
         this.salario_base = salario_base;
+        this.activo = true;
     }
 
     // Getters y Setters
@@ -138,7 +139,10 @@ public class EmpleadoVO {
         this.salario_base = salario_base;
     }
 
-    
+    @Override
+    public String toString() {
+        return nombre + " " + apellidos; 
+    }
     
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }

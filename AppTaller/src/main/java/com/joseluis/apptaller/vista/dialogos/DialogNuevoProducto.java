@@ -28,7 +28,7 @@ public class DialogNuevoProducto extends javax.swing.JDialog {
         txtStock.setText(String.valueOf(p.getCantidadStock()));
         txtStockMinimo.setText(String.valueOf(p.getStockMinimo()));
         txtPrecioCompra.setText(String.valueOf(p.getPrecioCompra()));
-        txtPVP.setText(String.valueOf(p.getPrecioUnitario()));
+        txtPVP.setText(String.valueOf(p.getPrecioUnitario(12.99F)));
         
         // Buscar y seleccionar el proveedor actual en el ComboBox
         if (p.getProveedorCif() != null) {
