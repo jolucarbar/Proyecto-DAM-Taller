@@ -24,6 +24,7 @@ public class FacturaVO {
     private String estado;
     private String observaciones; 
     private int usuarioEmisor; 
+    private String clienteNombre;
 
     // Constructor vacío requerido para el DAO
     public FacturaVO() {
@@ -75,4 +76,7 @@ public class FacturaVO {
 
     public int getUsuarioEmisor() { return usuarioEmisor; }
     public void setUsuarioEmisor(int usuarioEmisor) { this.usuarioEmisor = usuarioEmisor; }
+    
+    public String getClienteNombre() { return clienteNombre; }
+    public void setClienteNombre(String clienteNombre) { this.clienteNombre = clienteNombre; }
 }

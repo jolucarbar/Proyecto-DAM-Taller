@@ -22,6 +22,11 @@ public class ReparacionVO {
     private String prioridad;
     private String diagnostico;
     private String observaciones;
+    
+    // --- Campos adicionales para las vistas (Rellenados mediante JOIN) ---
+    private String clienteNombre;
+    private String vehiculoMatricula;
+    private double totalPresupuesto;
 
     public ReparacionVO() {
         this.fechaEntrada = LocalDateTime.now(); // Por defecto ahora
@@ -65,4 +70,13 @@ public class ReparacionVO {
     public Integer getIdPresupuesto() { return idPresupuesto; }
 
     public void setIdPresupuesto(Integer idPresupuesto) { this.idPresupuesto = idPresupuesto; }
+    
+    public String getClienteNombre() { return clienteNombre; }
+    public void setClienteNombre(String clienteNombre) { this.clienteNombre = clienteNombre; }
+
+    public String getVehiculoMatricula() { return vehiculoMatricula; }
+    public void setVehiculoMatricula(String vehiculoMatricula) { this.vehiculoMatricula = vehiculoMatricula; }
+
+    public double getTotalPresupuesto() { return totalPresupuesto; }
+    public void setTotalPresupuesto(double totalPresupuesto) { this.totalPresupuesto = totalPresupuesto; }
 }

@@ -74,36 +74,109 @@ public class ReparacionDAO {
                    + "(SELECT COALESCE(SUM(subtotal), 0) FROM reparacion_detalle_mano_obra WHERE id_reparacion = ?) AS total_mo, "
                    + "(SELECT COALESCE(SUM(subtotal), 0) FROM reparacion_detalle_productos WHERE id_reparacion = ?) AS total_piezas";
     
-   //  
+   // Consulta para obtener el historial de todas las visitas al taller del vehículo asociado a una reparación
    private final String SQL_HISTORIAL_REPARACIONES = "SELECT r.fecha_entrada, r.estado, e.nombre AS mecanico, r.diagnostico AS notas "
                    + "FROM reparaciones AS r "
                    + "LEFT JOIN empleados AS e ON r.empleado_asignado_id = e.id_empleado "
                    + "WHERE r.vehiculo_bastidor = (SELECT vehiculo_bastidor FROM reparaciones WHERE id_reparacion = ?) "
                    + "ORDER BY r.fecha_entrada DESC"; // Las más recientes primero
+   
+   // Consulta para calcular el importe total de la mano de obra para una reparación específica
+   private final String SQL_CALCULA_MANO_OBRA = "SELECT COALESCE(SUM(subtotal), 0) AS total FROM reparacion_detalle_mano_obra WHERE id_reparacion = ?";
     
-    
-    public boolean insertar(ReparacionVO rep) {
-        try (Connection conn = Conexion.getInstancia().getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_INSERT)) {
-            
-            ps.setString(1, rep.getVehiculoBastidor());
-            ps.setString(2, rep.getClienteDni());
-            ps.setInt(3, rep.getEmpleadoAsignadoId());
-            ps.setTimestamp(4, Timestamp.valueOf(rep.getFechaEntrada()));
-            ps.setInt(5, rep.getKilometrajeEntrada());
-            ps.setString(6, rep.getNivelCombustible());
-            ps.setString(7, rep.getEstado());
-            ps.setString(8, rep.getPrioridad());
-            ps.setString(9, rep.getDiagnostico());
-            ps.setString(10, rep.getObservaciones());
+   // Consulta para calcular el importe total de los productos/piezas para una reparación específica
+   private final String SQL_CALCULA_PIEZAS = "SELECT COALESCE(SUM(subtotal), 0) AS total FROM reparacion_detalle_productos WHERE id_reparacion = ?";
+   
+   // Actualiza el estado de una reparación tras finalizarse
+   private final String SQL_UPDATE_ESTADO_REPARACION = "UPDATE reparaciones SET estado = 'ENTREGADA' WHERE id_reparacion = ?";
+   
+   
+   
+   
+   public boolean insertarConDetalles(ReparacionVO rep) {
+        Connection conn = null;
+        PreparedStatement psHeader = null;
+        PreparedStatement psCopyMO = null;
+        PreparedStatement psCopyProd = null;
+        ResultSet rsKeys = null;
 
-            return ps.executeUpdate() > 0;
+        try {
+            conn = Conexion.getInstancia().getConnection();
+            conn.setAutoCommit(false); // Iniciamos transacción
+
+            // 1. Insertar Cabecera de Reparación
+            String sqlHeader = "INSERT INTO reparaciones (vehiculo_bastidor, cliente_dni, empleado_asignado_id, id_presupuesto, "
+                    + "fecha_entrada, kilometraje_entrada, nivel_combustible, estado, prioridad, diagnostico, observaciones) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+            psHeader = conn.prepareStatement(sqlHeader, Statement.RETURN_GENERATED_KEYS);
+            psHeader.setString(1, rep.getVehiculoBastidor());
+            psHeader.setString(2, rep.getClienteDni());
+            psHeader.setInt(3, rep.getEmpleadoAsignadoId());
+            psHeader.setInt(4, rep.getIdPresupuesto());
+            psHeader.setTimestamp(5, Timestamp.valueOf(rep.getFechaEntrada()));
+            psHeader.setInt(6, rep.getKilometrajeEntrada());
+            psHeader.setString(7, rep.getNivelCombustible());
+            psHeader.setString(8, rep.getEstado());
+            psHeader.setString(9, rep.getPrioridad());
+            psHeader.setString(10, rep.getDiagnostico());
+            psHeader.setString(11, rep.getObservaciones());
+
+            psHeader.executeUpdate();
+            rsKeys = psHeader.getGeneratedKeys();
+
+            int idNuevaReparacion = 0;
+            if (rsKeys.next()) {
+                idNuevaReparacion = rsKeys.getInt(1);
+            } else {
+                throw new SQLException("No se pudo obtener el ID de la nueva reparación.");
+            }
+
+            // 2. COPIAR MANO DE OBRA DESDE EL PRESUPUESTO
+            // Pasamos de 'detalle_mano_obra' a 'reparacion_detalle_mano_obra'
+            String sqlCopyMO = "INSERT INTO reparacion_detalle_mano_obra (id_reparacion, empleado_id, descripcion_trabajo, tiempo_empleado_horas, tarifa_por_hora) "
+                    + "SELECT ?, ?, descripcion_trabajo, tiempo_empleado_horas, tarifa_por_hora "
+                    + "FROM detalle_mano_obra WHERE id_presupuesto = ?";
+
+            psCopyMO = conn.prepareStatement(sqlCopyMO);
+            psCopyMO.setInt(1, idNuevaReparacion);
+            psCopyMO.setInt(2, rep.getEmpleadoAsignadoId()); // Asignamos el mecánico actual a todas las líneas
+            psCopyMO.setInt(3, rep.getIdPresupuesto());
+            psCopyMO.executeUpdate();
+
+            // 3. COPIAR PRODUCTOS DESDE EL PRESUPUESTO
+            // Pasamos de 'detalle_productos' a 'reparacion_detalle_productos'
+            String sqlCopyProd = "INSERT INTO reparacion_detalle_productos (id_reparacion, id_producto, cantidad_usada, precio_venta_unitario) "
+                    + "SELECT ?, id_producto, cantidad_usada, precio_venta_unitario "
+                    + "FROM detalle_productos WHERE id_presupuesto = ?";
+
+            psCopyProd = conn.prepareStatement(sqlCopyProd);
+            psCopyProd.setInt(1, idNuevaReparacion);
+            psCopyProd.setInt(2, rep.getIdPresupuesto());
+            psCopyProd.executeUpdate();
+
+            conn.commit(); // Todo bien, consolidamos
+            return true;
+
         } catch (SQLException e) {
-            System.err.println("Error SQL al insertar reparación: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println("Error en transacción de creación de reparación: " + e.getMessage());
+            if (conn != null) {
+                try { conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
+            }
             return false;
+        } finally {
+            // Cerramos recursos manualmente (ya que no uso try-with-resources aquí para el commit)
+            try {
+                if (conn != null) conn.setAutoCommit(true);
+                if (rsKeys != null) rsKeys.close();
+                if (psHeader != null) psHeader.close();
+                if (psCopyMO != null) psCopyMO.close();
+                if (psCopyProd != null) psCopyProd.close();
+            } catch (SQLException e) { e.printStackTrace(); }
         }
     }
+   
+   
 
     public List<Object[]> obtenerListaParaTabla() {
         List<Object[]> datos = new ArrayList<>();
@@ -426,5 +499,112 @@ public class ReparacionDAO {
         }
         return lista;
     }
+    
+    
+    /**
+     * Calcula el importe total de la mano de obra para una reparación específica.
+     */
+    public double calcularTotalManoObra(int idReparacion) {
+        
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion.getInstancia().getConnection();
+            stmt = conn.prepareStatement(SQL_CALCULA_MANO_OBRA);
+            stmt.setInt(1, idReparacion);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al calcular total mano de obra: " + e.getMessage());
+        } finally {
+            // Usa tu método close() auxiliar que ya tienes en tus DAOs
+            close(stmt, rs); 
+        }
+        return 0.0;
+    }
+
+    /**
+     * Calcula el importe total de los productos/piezas para una reparación específica.
+     */
+    public double calcularTotalProductos(int idReparacion) {
+        
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion.getInstancia().getConnection();
+            stmt = conn.prepareStatement(SQL_CALCULA_PIEZAS);
+            stmt.setInt(1, idReparacion);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                return rs.getDouble("total");
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al calcular total productos: " + e.getMessage());
+        } finally {
+            close(stmt, rs);
+        }
+        return 0.0;
+    }
+    
+    // Métodos auxiliares para cerrar recursos
+    private void close(PreparedStatement stmt) { close(stmt, null); }
+    private void close(PreparedStatement stmt, ResultSet rs) {
+        try { if(rs != null) rs.close(); } catch(SQLException e){}
+        try { if(stmt != null) stmt.close(); } catch(SQLException e){}
+    }
+    
+    
+    /**
+     * Método que actualiza el estado de una reparación una vez finalizada
+     * @param idReparacion
+     * @return 
+     */
+    public boolean marcarComoFacturada(int idReparacion) {
+    
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_ESTADO_REPARACION)) {
+            ps.setInt(1, idReparacion);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+    
+    
+    // ... otros métodos como calcularTotalProductos ...
+
+    /**
+     * Obtiene el DNI del cliente y el Bastidor del vehículo asociados a una reparación.
+     * Retorna un array donde [0] es el DNI y [1] es el Bastidor.
+     */
+    public String[] obtenerDniYBastidor(int idReparacion) {
+        String sql = "SELECT cliente_dni, vehiculo_bastidor FROM reparaciones WHERE id_reparacion = ?";
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, idReparacion);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new String[]{
+                        rs.getString("cliente_dni"), 
+                        rs.getString("vehiculo_bastidor")
+                    };
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener DNI y Bastidor: " + e.getMessage());
+        }
+        return new String[]{"", ""}; 
+    }
+
+ 
     
 }

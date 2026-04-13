@@ -1,0 +1,182 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="Presupuesto" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="52e10fcf-632e-4b95-a15b-db0d9e5081c5">
+	<parameter name="ID_PRESUPUESTO" class="java.lang.Integer"/>
+	<parameter name="LOGO_PATH" class="java.lang.String"/>
+	<query language="sql"><![CDATA[SELECT 
+            p.id_presupuesto, p.fecha_emision, p.total_estimado, p.descripcion_trabajo as averia,
+            c.nombre AS cliente_nom, c.dni_cif AS cliente_dni, v.matricula, v.marca, v.modelo,
+            'MANO DE OBRA' as tipo_seccion,
+            mo.descripcion_trabajo as detalle_desc,
+            mo.tiempo_empleado_horas as detalle_cant,
+            mo.tarifa_por_hora as detalle_precio,
+            mo.subtotal as detalle_subtotal
+        FROM presupuestos p
+        JOIN clientes c ON p.cliente_dni = c.dni_cif
+        JOIN vehiculos v ON p.vehiculo_bastidor = v.bastidor
+        LEFT JOIN detalle_mano_obra mo ON p.id_presupuesto = mo.id_presupuesto
+        WHERE p.id_presupuesto = $P{ID_PRESUPUESTO}
+
+        UNION ALL
+
+        SELECT 
+            p.id_presupuesto, p.fecha_emision, p.total_estimado, p.descripcion_trabajo as averia,
+            c.nombre AS cliente_nom, c.dni_cif AS cliente_dni, v.matricula, v.marca, v.modelo,
+            'RECAMBIOS' as tipo_seccion,
+            prod.nombre as detalle_desc,
+            dp.cantidad_usada as detalle_cant,
+            dp.precio_venta_unitario as detalle_precio,
+            dp.subtotal as detalle_subtotal
+        FROM presupuestos p
+        JOIN clientes c ON p.cliente_dni = c.dni_cif
+        JOIN vehiculos v ON p.vehiculo_bastidor = v.bastidor
+        LEFT JOIN detalle_productos dp ON p.id_presupuesto = dp.id_presupuesto
+        LEFT JOIN productos prod ON dp.id_producto = prod.id_producto
+        WHERE p.id_presupuesto = $P{ID_PRESUPUESTO}]]></query>
+	<field name="id_presupuesto" class="java.lang.Integer"/>
+	<field name="fecha_emision" class="java.sql.Date"/>
+	<field name="total_estimado" class="java.math.BigDecimal"/>
+	<field name="averia" class="java.lang.String"/>
+	<field name="cliente_nom" class="java.lang.String"/>
+	<field name="cliente_dni" class="java.lang.String"/>
+	<field name="matricula" class="java.lang.String"/>
+	<field name="marca" class="java.lang.String"/>
+	<field name="modelo" class="java.lang.String"/>
+	<field name="tipo_seccion" class="java.lang.String"/>
+	<field name="detalle_desc" class="java.lang.String"/>
+	<field name="detalle_cant" class="java.math.BigDecimal"/>
+	<field name="detalle_precio" class="java.math.BigDecimal"/>
+	<field name="detalle_subtotal" class="java.math.BigDecimal"/>
+	<variable name="BaseImponible" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{total_estimado}.divide(new java.math.BigDecimal("1.21"), 2, java.math.RoundingMode.HALF_UP)]]></expression>
+	</variable>
+	<variable name="CuotaIVA" class="java.math.BigDecimal">
+		<expression><![CDATA[$F{total_estimado}.subtract($V{BaseImponible})]]></expression>
+	</variable>
+	<group name="SeccionGrupo">
+		<expression><![CDATA[$F{tipo_seccion}]]></expression>
+		<groupHeader>
+			<band height="25">
+				<element kind="textField" uuid="0b11287d-0c97-4e5f-989b-fa843431d486" mode="Opaque" x="0" y="5" width="555" height="20" backcolor="#F0F0F0" fontName="SansSerif" fontSize="10.0" bold="true" vTextAlign="Middle">
+					<paragraph leftIndent="5"/>
+					<expression><![CDATA[$F{tipo_seccion}]]></expression>
+				</element>
+			</band>
+		</groupHeader>
+	</group>
+	<title height="110">
+		<element kind="rectangle" uuid="32af4bd8-de0e-4e9e-a2b8-136d63ccadb4" x="0" y="0" width="555" height="75" forecolor="#2196F3" backcolor="#2196F3"/>
+		<element kind="image" uuid="51409d0c-f2b2-4a09-bd3d-613ed17adfcd" x="10" y="5" width="65" height="65" onErrorType="Blank">
+			<expression><![CDATA[$P{LOGO_PATH}]]></expression>
+		</element>
+		<element kind="staticText" uuid="93bc11ec-90d4-48f1-9df5-22e6f53cd964" x="85" y="15" width="285" height="45" forecolor="#FFFFFF" fontSize="24.0" bold="true" vTextAlign="Middle">
+			<text><![CDATA[PRESUPUESTO TALLER]]></text>
+		</element>
+		<element kind="textField" uuid="1055f76b-b527-49a5-96bc-d94c97967dce" x="380" y="10" width="165" height="55" forecolor="#FFFFFF" fontSize="9.0" bold="false" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA["CALLE MECÁNICA, 123\n" +
+"21009 HUELVA\n" +
+"TEL: 959 345 678\n" +
+"Email: info@mitaller.com\n" +
+"CIF: B-12345678"]]></expression>
+		</element>
+		<element kind="textField" uuid="f7e9a555-cc92-42c1-9974-62bcd80aa85c" x="410" y="80" width="135" height="20" forecolor="#333333" fontSize="12.0" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA["Nº CONTROL: " + $F{id_presupuesto}]]></expression>
+		</element>
+	</title>
+	<pageHeader height="90">
+		<element kind="staticText" uuid="32553837-6f99-459d-b609-957302d5d1cd" x="0" y="10" width="70" height="20" bold="true">
+			<text><![CDATA[CLIENTE:]]></text>
+		</element>
+		<element kind="textField" uuid="1d73ca81-3039-43db-a751-27b353827695" x="70" y="10" width="230" height="20">
+			<expression><![CDATA[$F{cliente_nom} + " (" + $F{cliente_dni} + ")"]]></expression>
+		</element>
+		<element kind="staticText" uuid="b2d93615-06df-4add-a641-480d87af6068" x="320" y="10" width="70" height="20" bold="true">
+			<text><![CDATA[VEHÍCULO:]]></text>
+		</element>
+		<element kind="textField" uuid="8f7bdf6c-fec2-453e-bef4-a81d99f41399" x="390" y="10" width="165" height="20">
+			<expression><![CDATA[$F{matricula} + " - " + $F{marca} + " " + $F{modelo}]]></expression>
+		</element>
+		<element kind="staticText" uuid="bb84d712-c9e6-4004-9e28-968e5fee8155" x="0" y="40" width="70" height="20" bold="true">
+			<text><![CDATA[FECHA:]]></text>
+		</element>
+		<element kind="textField" uuid="0c50cb40-e2d3-4da4-be45-968e87754b01" x="70" y="40" width="100" height="20" pattern="dd/MM/yyyy">
+			<expression><![CDATA[$F{fecha_emision}]]></expression>
+		</element>
+		<element kind="line" uuid="043f3be4-8279-4c80-9d28-f6399b88b00e" x="0" y="80" width="555" height="1" forecolor="#CCCCCC"/>
+	</pageHeader>
+	<columnHeader height="25">
+		<element kind="staticText" uuid="b765087e-c086-4b48-9615-8cf1382eaccf" x="0" y="0" width="300" height="20" bold="true">
+			<text><![CDATA[Descripción del trabajo / Recambio]]></text>
+		</element>
+		<element kind="staticText" uuid="13b049ca-d996-440b-a408-3239d0bbfa25" x="300" y="0" width="80" height="20" bold="true" hTextAlign="Center">
+			<text><![CDATA[Cant / Hrs]]></text>
+		</element>
+		<element kind="staticText" uuid="1a3d2f0e-bc9a-45bf-b9bc-231ab95c6eda" x="380" y="0" width="80" height="20" bold="true" hTextAlign="Right">
+			<text><![CDATA[Precio Ud.]]></text>
+		</element>
+		<element kind="staticText" uuid="f0987c9a-6e4e-4dde-91d0-87b0353ca487" x="460" y="0" width="95" height="20" bold="true" hTextAlign="Right">
+			<text><![CDATA[Subtotal]]></text>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<element kind="textField" uuid="7e1409d9-b675-4201-bfe4-bb1f91dfda30" x="0" y="2" width="300" height="15" blankWhenNull="true">
+				<expression><![CDATA[$F{detalle_desc}]]></expression>
+			</element>
+			<element kind="textField" uuid="fb272854-088b-48b3-9abf-9d956d85803e" x="300" y="2" width="80" height="15" blankWhenNull="true" hTextAlign="Center">
+				<expression><![CDATA[$F{detalle_cant}]]></expression>
+			</element>
+			<element kind="textField" uuid="35cef345-a7fe-4534-b710-968b0e3c5471" x="380" y="2" width="80" height="15" pattern="#,##0.00 €" blankWhenNull="true" hTextAlign="Right">
+				<expression><![CDATA[$F{detalle_precio}]]></expression>
+			</element>
+			<element kind="textField" uuid="35e6e775-ad67-449b-8b9b-9be1a8b8f97a" x="460" y="2" width="95" height="15" pattern="#,##0.00 €" blankWhenNull="true" hTextAlign="Right">
+				<expression><![CDATA[$F{detalle_subtotal}]]></expression>
+			</element>
+		</band>
+	</detail>
+	<pageFooter height="30">
+		<element kind="textField" uuid="345832cb-8254-44c2-b17b-c808ce4902e5" x="435" y="10" width="80" height="20" hTextAlign="Right">
+			<expression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></expression>
+		</element>
+		<element kind="textField" uuid="5254e176-9382-4f8f-b90d-3ef9cd0f6b49" x="515" y="10" width="40" height="20" evaluationTime="Report">
+			<expression><![CDATA[" " + $V{PAGE_NUMBER}]]></expression>
+		</element>
+	</pageFooter>
+	<summary height="180">
+		<element kind="staticText" uuid="71bc6b75-424d-4e64-ace6-3b0fc94f30ee" x="350" y="10" width="100" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[Base Imponible:]]></text>
+		</element>
+		<element kind="textField" uuid="d66e57f5-ae3d-465d-8bd9-426a344c5b70" x="450" y="10" width="105" height="20" pattern="#,##0.00 €" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA[$V{BaseImponible}]]></expression>
+		</element>
+		<element kind="staticText" uuid="b2db3fbe-f5c5-4216-ba9c-60a85e70b2ea" x="350" y="30" width="100" height="20" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<text><![CDATA[I.V.A. (21%):]]></text>
+		</element>
+		<element kind="textField" uuid="44d088af-c2ea-4ac3-acb9-9c12c7b69b1f" x="450" y="30" width="105" height="20" pattern="#,##0.00 €" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA[$V{CuotaIVA}]]></expression>
+		</element>
+		<element kind="line" uuid="9ddd31bb-88b3-4051-b98d-6764353efe65" x="350" y="55" width="205" height="1" forecolor="#2196F3">
+			<pen lineWidth="1.5"/>
+		</element>
+		<element kind="staticText" uuid="03a93958-c909-474f-9750-cc175a760f86" x="350" y="60" width="100" height="30" fontSize="14.0" bold="true" vTextAlign="Middle">
+			<text><![CDATA[TOTAL:]]></text>
+		</element>
+		<element kind="textField" uuid="6b219ed6-21e9-4c4a-afdf-72e96ced97b3" x="450" y="60" width="105" height="30" forecolor="#2196F3" fontSize="16.0" pattern="#,##0.00 €" bold="true" hTextAlign="Right" vTextAlign="Middle">
+			<expression><![CDATA[$F{total_estimado}]]></expression>
+		</element>
+		<element kind="line" uuid="d028c805-a3ef-4aec-bc74-446ca9b04e4f" x="40" y="140" width="180" height="1" forecolor="#666666">
+			<pen lineStyle="Dashed"/>
+		</element>
+		<element kind="staticText" uuid="7096e04f-4c25-4a13-8c48-6590bda1d510" x="40" y="145" width="180" height="20" forecolor="#666666" fontSize="9.0" italic="true" hTextAlign="Center">
+			<text><![CDATA[Firma del Taller]]></text>
+		</element>
+		<element kind="line" uuid="a3202d15-d81f-4f49-85e9-e438c433d210" x="330" y="140" width="180" height="1" forecolor="#666666">
+			<pen lineStyle="Dashed"/>
+		</element>
+		<element kind="staticText" uuid="827419b2-a7d8-40ae-bffc-f9356371ea3f" x="330" y="145" width="180" height="20" forecolor="#666666" fontSize="9.0" italic="true" hTextAlign="Center">
+			<text><![CDATA[Acepto el presupuesto (Firma Cliente)]]></text>
+		</element>
+		<element kind="staticText" uuid="1aeebe38-d4ef-4a86-afe7-d2e62a4fcf2a" x="0" y="10" width="300" height="40" forecolor="#999999" fontSize="8.0">
+			<text><![CDATA[NOTAS: Este presupuesto tiene una validez de 15 días naturales a partir de la fecha de emisión. Los precios de los recambios están sujetos a cambios por parte del fabricante.]]></text>
+		</element>
+	</summary>
+</jasperReport>

@@ -20,7 +20,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import com.joseluis.apptaller.vista.dialogos.DialogDetallesReparacion;
 import com.joseluis.apptaller.vista.dialogos.DialogNuevaReparacion;
-import com.joseluis.apptaller.vista.dialogos.DialogPresupuesto;
+import com.joseluis.apptaller.vista.dialogos.DialogNuevoPresupuesto;
 import java.awt.CardLayout;
 import javax.swing.UIManager;
 
@@ -190,12 +190,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         lblPrioridadNA = new javax.swing.JLabel();
         panelCuerpo = new javax.swing.JPanel();
         panelBarraHerramientas = new javax.swing.JPanel();
-        btnNuevaReparacion = new javax.swing.JButton();
         btnDetallesReparacion = new javax.swing.JButton();
         btnEstadoReparacion = new javax.swing.JButton();
         btnAsignarReparacion = new javax.swing.JButton();
-        lblFiltrarEstado = new javax.swing.JLabel();
+        btnGenerarFactura = new javax.swing.JButton();
         cbxFiltrarEstado = new javax.swing.JComboBox<>();
+        lblFiltrarEstado = new javax.swing.JLabel();
         jScrollPane6 = new javax.swing.JScrollPane();
         tblReparaciones = new javax.swing.JTable();
         panelProveedores = new javax.swing.JPanel();
@@ -224,6 +224,9 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         txtBuscarPresupuestos = new javax.swing.JTextField();
         btnBuscarPresupuestos = new javax.swing.JButton();
         btnNuevoPresupuestos = new javax.swing.JButton();
+        btnDetallesPresupuesto = new javax.swing.JButton();
+        btnEstadoPresupuesto = new javax.swing.JButton();
+        btnCrearOrdenReparacion = new javax.swing.JButton();
         btnInformePresupuestos = new javax.swing.JButton();
         btnEliminarPresupuestos = new javax.swing.JButton();
         jScrollPanePresupuestos = new javax.swing.JScrollPane();
@@ -233,8 +236,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         etqGestionFacturas = new javax.swing.JLabel();
         txtBuscarFacturas = new javax.swing.JTextField();
         btnBuscarFacturas = new javax.swing.JButton();
-        btnNuevaFactura = new javax.swing.JButton();
-        btnInformeFacturas = new javax.swing.JButton();
+        btnRegistrarPago = new javax.swing.JButton();
+        btnVerFactura = new javax.swing.JButton();
         btnEliminarFacturas = new javax.swing.JButton();
         jScrollPaneFacturas = new javax.swing.JScrollPane();
         tablaFacturas = new javax.swing.JTable();
@@ -875,15 +878,6 @@ public class VentanaPrincipal extends javax.swing.JFrame {
 
         panelCuerpo.setLayout(new java.awt.BorderLayout());
 
-        btnNuevaReparacion.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnNuevaReparacion.setText("Nueva");
-        btnNuevaReparacion.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNuevaReparacionActionPerformed(evt);
-            }
-        });
-        panelBarraHerramientas.add(btnNuevaReparacion);
-
         btnDetallesReparacion.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         btnDetallesReparacion.setText("Detalles");
         btnDetallesReparacion.addActionListener(new java.awt.event.ActionListener() {
@@ -911,13 +905,22 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         });
         panelBarraHerramientas.add(btnAsignarReparacion);
 
-        lblFiltrarEstado.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        lblFiltrarEstado.setText("Filtrar estado: ");
-        panelBarraHerramientas.add(lblFiltrarEstado);
+        btnGenerarFactura.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        btnGenerarFactura.setText("Generar Factura");
+        btnGenerarFactura.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnGenerarFacturaActionPerformed(evt);
+            }
+        });
+        panelBarraHerramientas.add(btnGenerarFactura);
 
         cbxFiltrarEstado.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         cbxFiltrarEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "TODOS", "EN_COLA", "EN_PROCESO", "FINALIZADA" }));
         panelBarraHerramientas.add(cbxFiltrarEstado);
+
+        lblFiltrarEstado.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblFiltrarEstado.setText("Filtrar estado: ");
+        panelBarraHerramientas.add(lblFiltrarEstado);
 
         panelCuerpo.add(panelBarraHerramientas, java.awt.BorderLayout.PAGE_START);
 
@@ -1079,14 +1082,50 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         });
         panelHerramientasPresupuestos.add(btnNuevoPresupuestos);
 
+        btnDetallesPresupuesto.setText("Ver Detalles");
+        btnDetallesPresupuesto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDetallesPresupuestoActionPerformed(evt);
+            }
+        });
+        panelHerramientasPresupuestos.add(btnDetallesPresupuesto);
+
+        btnEstadoPresupuesto.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnEstadoPresupuesto.setText("Cambiar Estado");
+        btnEstadoPresupuesto.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEstadoPresupuestoActionPerformed(evt);
+            }
+        });
+        panelHerramientasPresupuestos.add(btnEstadoPresupuesto);
+
+        btnCrearOrdenReparacion.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnCrearOrdenReparacion.setText("Crear Orden Reparación");
+        btnCrearOrdenReparacion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCrearOrdenReparacionActionPerformed(evt);
+            }
+        });
+        panelHerramientasPresupuestos.add(btnCrearOrdenReparacion);
+
         btnInformePresupuestos.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         btnInformePresupuestos.setText("Informe");
+        btnInformePresupuestos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnInformePresupuestosActionPerformed(evt);
+            }
+        });
         panelHerramientasPresupuestos.add(btnInformePresupuestos);
 
         btnEliminarPresupuestos.setBackground(new java.awt.Color(229, 57, 53));
         btnEliminarPresupuestos.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         btnEliminarPresupuestos.setForeground(new java.awt.Color(255, 255, 255));
         btnEliminarPresupuestos.setText("Eliminar");
+        btnEliminarPresupuestos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnEliminarPresupuestosActionPerformed(evt);
+            }
+        });
         panelHerramientasPresupuestos.add(btnEliminarPresupuestos);
 
         panelPresupuestos.add(panelHerramientasPresupuestos, java.awt.BorderLayout.PAGE_START);
@@ -1102,6 +1141,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
                 "Nº Presupuesto", "Fecha", "Cliente", "Vehículo", "Total (€)", "Estado (Pendiente/Aceptado)"
             }
         ));
+        tblPresupuestos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblPresupuestosMouseClicked(evt);
+            }
+        });
         jScrollPanePresupuestos.setViewportView(tblPresupuestos);
 
         panelPresupuestos.add(jScrollPanePresupuestos, java.awt.BorderLayout.CENTER);
@@ -1128,20 +1172,25 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         btnBuscarFacturas.setText("Buscar");
         panelHerramientasFacturas.add(btnBuscarFacturas);
 
-        btnNuevaFactura.setBackground(new java.awt.Color(33, 150, 243));
-        btnNuevaFactura.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnNuevaFactura.setForeground(new java.awt.Color(255, 255, 255));
-        btnNuevaFactura.setText("Nuevo");
-        btnNuevaFactura.addActionListener(new java.awt.event.ActionListener() {
+        btnRegistrarPago.setBackground(new java.awt.Color(33, 150, 243));
+        btnRegistrarPago.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnRegistrarPago.setForeground(new java.awt.Color(255, 255, 255));
+        btnRegistrarPago.setText("Registrar Pago");
+        btnRegistrarPago.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnNuevaFacturaActionPerformed(evt);
+                btnRegistrarPagoActionPerformed(evt);
             }
         });
-        panelHerramientasFacturas.add(btnNuevaFactura);
+        panelHerramientasFacturas.add(btnRegistrarPago);
 
-        btnInformeFacturas.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        btnInformeFacturas.setText("Informe");
-        panelHerramientasFacturas.add(btnInformeFacturas);
+        btnVerFactura.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        btnVerFactura.setText("Ver Factura");
+        btnVerFactura.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnVerFacturaActionPerformed(evt);
+            }
+        });
+        panelHerramientasFacturas.add(btnVerFactura);
 
         btnEliminarFacturas.setBackground(new java.awt.Color(229, 57, 53));
         btnEliminarFacturas.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
@@ -1164,7 +1213,7 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         ));
         jScrollPaneFacturas.setViewportView(tablaFacturas);
 
-        panelFacturas.add(jScrollPaneFacturas, java.awt.BorderLayout.PAGE_END);
+        panelFacturas.add(jScrollPaneFacturas, java.awt.BorderLayout.CENTER);
 
         panelPrincipal.add(panelFacturas, "cardFacturas");
 
@@ -1361,6 +1410,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         cardLayout.show(panelPrincipal, "cardPresupuestos");
         
         etqTitulo.setText("APP MI TALLER - PRESUPUESTOS");
+        
+        cargarTablaPresupuestos();
     }//GEN-LAST:event_btnPresupuestosActionPerformed
 
     private void btnFacturasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFacturasActionPerformed
@@ -1422,14 +1473,23 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnReparacionesActionPerformed
 
     private void btnNuevoPresupuestosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoPresupuestosActionPerformed
-        DialogPresupuesto dialogPresupuesto = new DialogPresupuesto(this, true);
+        DialogNuevoPresupuesto dialogPresupuesto = new DialogNuevoPresupuesto(this, true);
+        
+        // Instancio el Modelo (DAO) y el Controlador
+        com.joseluis.apptaller.modelo.dao.PresupuestoDAO dao = new com.joseluis.apptaller.modelo.dao.PresupuestoDAO();
+        com.joseluis.apptaller.controlador.ControladorPresupuestos controlador = 
+            new com.joseluis.apptaller.controlador.ControladorPresupuestos(dialogPresupuesto, dao);
+        
+        // Vinculo el Controlador a la Vista
+        dialogPresupuesto.setControlador(controlador);
+        
+        // Inicializo datos desde MySQL
+        controlador.inicializar();
+        
         dialogPresupuesto.setVisible(true);
+        
+        cargarTablaPresupuestos();
     }//GEN-LAST:event_btnNuevoPresupuestosActionPerformed
-
-    private void btnNuevaReparacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaReparacionActionPerformed
-        DialogNuevaReparacion nuevaReparacion = new DialogNuevaReparacion(this, true);
-        nuevaReparacion.setVisible(true);
-    }//GEN-LAST:event_btnNuevaReparacionActionPerformed
 
     private void btnDetallesReparacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetallesReparacionActionPerformed
         // 1. Verificar si el usuario ha hecho clic en alguna fila de la tabla
@@ -1456,14 +1516,56 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     }//GEN-LAST:event_btnDetallesReparacionActionPerformed
 
     private void btnHistorialClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHistorialClienteActionPerformed
-        // Este evento se creó para probar que se abía el diálogo.
+        // Este evento se creó para probar que se abría el diálogo.
         // Lo dejamos vacío intencionadamente. 
         // El ControladorClientes se encarga de escuchar este botón.
     }//GEN-LAST:event_btnHistorialClienteActionPerformed
 
-    private void btnNuevaFacturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevaFacturaActionPerformed
-        JOptionPane.showMessageDialog(this, "Crear Factura: Próximamente...");
-    }//GEN-LAST:event_btnNuevaFacturaActionPerformed
+    private void btnRegistrarPagoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRegistrarPagoActionPerformed
+       // 1. Verificar que hay una fila seleccionada
+        int fila = tablaFacturas.getSelectedRow();
+        if (fila == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Por favor, seleccione una factura de la lista para registrar su pago.", 
+                "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Extraer el ID oculto y el estado actual de la tabla
+        int idFactura = Integer.parseInt(tablaFacturas.getValueAt(fila, 0).toString());
+        String numFactura = tablaFacturas.getValueAt(fila, 1).toString();
+        String estadoActual = tablaFacturas.getValueAt(fila, 6).toString(); // Columna 6 es el Estado
+
+        // 3. Validar que no esté pagada ya
+        if (estadoActual.equalsIgnoreCase("PAGADA")) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Esta factura ya figura como PAGADA en el sistema.", 
+                "Información", javax.swing.JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        // 4. Pedir confirmación de seguridad al usuario
+        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this,
+                "¿Confirmas la recepción del pago para la factura " + numFactura + "?\nEl estado cambiará a PAGADA.",
+                "Confirmar Registro de Pago",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+
+        // 5. Si dice que SÍ, actualizamos la base de datos
+        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+            com.joseluis.apptaller.modelo.dao.FacturaDAO fDao = new com.joseluis.apptaller.modelo.dao.FacturaDAO();
+            
+            if (fDao.actualizarEstado(idFactura, "PAGADA")) {
+                javax.swing.JOptionPane.showMessageDialog(this, "¡Pago registrado correctamente!");
+                // 6. Recargamos la tabla para que se actualice visualmente
+                cargarTablaFacturas();
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, 
+                    "Error al registrar el pago en la base de datos.", 
+                    "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnRegistrarPagoActionPerformed
 
     private void btnNuevoClienteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoClienteActionPerformed
         // TODO add your handling code here:
@@ -1549,6 +1651,279 @@ public class VentanaPrincipal extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_btnAsignarReparacionActionPerformed
 
+    private void btnEliminarPresupuestosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarPresupuestosActionPerformed
+        // Verificar si hay una fila seleccionada en la tabla
+        int filaSeleccionada = tblPresupuestos.getSelectedRow();
+        if (filaSeleccionada == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Por favor, selecciona un presupuesto de la tabla para eliminarlo.", 
+                "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Extraer el ID de la fila seleccionada (Quitamos el prefijo "PRE-")
+        String idTexto = tblPresupuestos.getValueAt(filaSeleccionada, 0).toString();
+        int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", ""));
+
+        // Confirmación de seguridad 
+        int confirmacion = javax.swing.JOptionPane.showConfirmDialog(this, 
+            "¿Estás seguro de que deseas eliminar permanentemente el presupuesto " + idTexto + "?\nEsta acción no se puede deshacer.", 
+            "Confirmar Eliminación", 
+            javax.swing.JOptionPane.YES_NO_OPTION, 
+            javax.swing.JOptionPane.WARNING_MESSAGE);
+
+        if (confirmacion == javax.swing.JOptionPane.YES_OPTION) {
+            // Llamar al DAO para eliminar
+            com.joseluis.apptaller.modelo.dao.PresupuestoDAO dao = new com.joseluis.apptaller.modelo.dao.PresupuestoDAO();
+            boolean exito = dao.eliminarPresupuesto(idPresupuesto);
+
+            if (exito) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Presupuesto eliminado con éxito.");
+                // Recargar la tabla para que desaparezca visualmente
+                cargarTablaPresupuestos();
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Error al eliminar el presupuesto.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnEliminarPresupuestosActionPerformed
+
+    private void tblPresupuestosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblPresupuestosMouseClicked
+        
+    }//GEN-LAST:event_tblPresupuestosMouseClicked
+
+    private void btnInformePresupuestosActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnInformePresupuestosActionPerformed
+        int fila = tblPresupuestos.getSelectedRow();
+        
+        if (fila == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Seleccione un presupuesto de la tabla para imprimir.");
+            return;
+        }
+
+        try {
+            // Extraigo el ID (como hice con los detalles)
+            String idTexto = tblPresupuestos.getValueAt(fila, 0).toString();
+            int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", "").trim());
+
+            // Llamo a mi utilidad
+            com.joseluis.apptaller.util.GeneradorInformes.mostrarInformePresupuesto(idPresupuesto);
+
+        } catch (Exception e) {
+            javax.swing.JOptionPane.showMessageDialog(this, "Error: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnInformePresupuestosActionPerformed
+
+    private void btnDetallesPresupuestoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDetallesPresupuestoActionPerformed
+        // 1. Comprobar que hay una fila seleccionada
+        int filaSeleccionada = tblPresupuestos.getSelectedRow();
+        
+        if (filaSeleccionada == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Por favor, selecciona un presupuesto de la tabla para ver sus detalles.", 
+                "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            // 2. Extraer el ID (Quitando el "PRE-")
+            String idTexto = tblPresupuestos.getValueAt(filaSeleccionada, 0).toString();
+            int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", "").trim());
+
+            // 3. Abrir el diálogo Modal
+            com.joseluis.apptaller.vista.dialogos.DialogDetallesPresupuesto dialog = 
+                new com.joseluis.apptaller.vista.dialogos.DialogDetallesPresupuesto(this, true);
+            
+            // 4. Cargar los datos y mostrar
+            dialog.cargarDatos(idPresupuesto);
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Error al abrir los detalles: " + ex.getMessage(), 
+                "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_btnDetallesPresupuestoActionPerformed
+
+    private void btnGenerarFacturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarFacturaActionPerformed
+        int filaSeleccionada = tblReparaciones.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Por favor, selecciona una reparación de la lista para facturar.", 
+                "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Comprobamos el estado
+        String estado = tblReparaciones.getValueAt(filaSeleccionada, 5).toString();
+        if (!estado.equals("FINALIZADA")) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Solo se pueden facturar reparaciones cuyo trabajo haya finalizado (Estado: FINALIZADA).", 
+                "Operación no permitida", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            // 1. Extraemos el ID de la tabla visual 
+            String idTexto = tblReparaciones.getValueAt(filaSeleccionada, 0).toString();
+            int idReparacion = Integer.parseInt(idTexto.replace("REP-", "").trim());
+
+            int idPresupuesto = 0; 
+
+            // 2. Instanciamos el DAO
+            com.joseluis.apptaller.modelo.dao.ReparacionDAO repDao = new com.joseluis.apptaller.modelo.dao.ReparacionDAO();
+
+            // 3. Sacamos el DNI y Bastidor de la base de datos
+            String[] clavesReales = repDao.obtenerDniYBastidor(idReparacion);
+            String clienteDni = clavesReales[0]; 
+            String bastidor = clavesReales[1];   
+
+            // 4. Calculamos los importes
+            double totalManoObra = repDao.calcularTotalManoObra(idReparacion);
+            double totalProductos = repDao.calcularTotalProductos(idReparacion);
+
+            // 5. Instanciar y abrir el modal
+            com.joseluis.apptaller.vista.dialogos.DialogGenerarFactura dialog = 
+                new com.joseluis.apptaller.vista.dialogos.DialogGenerarFactura(
+                    this, true, idReparacion, idPresupuesto, clienteDni, bastidor, 
+                    totalManoObra, totalProductos
+                );
+
+            dialog.setVisible(true); 
+
+            // 6. Al cerrar el modal, refrescamos la tabla para que se actualice el estado
+            ctrlRep.llenarTablaReparaciones((javax.swing.table.DefaultTableModel) tblReparaciones.getModel());
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Error al leer los datos de la reparación: " + e.getMessage(), 
+                "Error Interno", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnGenerarFacturaActionPerformed
+
+    private void btnCrearOrdenReparacionActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearOrdenReparacionActionPerformed
+        // 1. Comprobar que hay una fila seleccionada
+        int filaSeleccionada = tblPresupuestos.getSelectedRow();
+        
+        if (filaSeleccionada == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Por favor, selecciona un presupuesto para crear la orden de reparación.", 
+                "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Comprobar que el presupuesto esté APROBADO
+        String estado = tblPresupuestos.getValueAt(filaSeleccionada, 5).toString();
+        if (!estado.equalsIgnoreCase("APROBADO")) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Solo puedes iniciar reparaciones de presupuestos que estén en estado APROBADO.", 
+                "Operación no permitida", javax.swing.JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            // 3. Extraer el ID del presupuesto (Quitando el "PRE-")
+            String idTexto = tblPresupuestos.getValueAt(filaSeleccionada, 0).toString();
+            int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", "").trim());
+
+            // 4. Abrir el Dialog de Nueva Reparación PASÁNDOLE EL ID
+            com.joseluis.apptaller.vista.dialogos.DialogNuevaReparacion dialog = 
+                new com.joseluis.apptaller.vista.dialogos.DialogNuevaReparacion(this, true, idPresupuesto);
+            
+            dialog.setVisible(true);
+
+            // 5. (Opcional) Si quieres, tras crear la orden, puedes saltar automáticamente a la pestaña de reparaciones:
+            // btnReparaciones.doClick();
+
+        } catch (Exception ex) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Error al iniciar la reparación: " + ex.getMessage(), 
+                "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnCrearOrdenReparacionActionPerformed
+
+    private void btnEstadoPresupuestoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEstadoPresupuestoActionPerformed
+        // 1. Verificar si hay una fila seleccionada
+        int filaSeleccionada = tblPresupuestos.getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            javax.swing.JOptionPane.showMessageDialog(this, 
+                "Por favor, selecciona un presupuesto de la tabla.", 
+                "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // 2. Obtener el ID del presupuesto (Quitando el "PRE-")
+        String idTexto = tblPresupuestos.getValueAt(filaSeleccionada, 0).toString();
+        int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", "").trim());
+
+        // 3. Mostrar opciones de estado 
+        String[] estados = {"PENDIENTE", "APROBADO", "RECHAZADO"};
+        
+        // Obtener el estado actual para que salga preseleccionado
+        String estadoActual = tblPresupuestos.getValueAt(filaSeleccionada, 5).toString();
+
+        String nuevoEstado = (String) javax.swing.JOptionPane.showInputDialog(
+                this, 
+                "Selecciona el nuevo estado para el presupuesto " + idTexto + ":", 
+                "Actualizar Estado", 
+                javax.swing.JOptionPane.QUESTION_MESSAGE, 
+                null, 
+                estados, 
+                estadoActual
+        );
+
+        // 4. Ejecutar el cambio si el usuario no canceló y el estado es diferente
+        if (nuevoEstado != null && !nuevoEstado.equals(estadoActual)) {
+            com.joseluis.apptaller.modelo.dao.PresupuestoDAO dao = new com.joseluis.apptaller.modelo.dao.PresupuestoDAO();
+            
+            if (dao.actualizarEstado(idPresupuesto, nuevoEstado)) {
+                javax.swing.JOptionPane.showMessageDialog(this, "Estado actualizado correctamente.");
+                // Recargamos la tabla para que el cambio se vea reflejado inmediatamente
+                cargarTablaPresupuestos(); 
+            } else {
+                javax.swing.JOptionPane.showMessageDialog(this, "Error al actualizar el estado en la base de datos.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }//GEN-LAST:event_btnEstadoPresupuestoActionPerformed
+
+    private void btnVerFacturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnVerFacturaActionPerformed
+        // 1. Obtener la fila seleccionada
+        int fila = tablaFacturas.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione una factura de la lista para visualizarla.");
+            return;
+        }
+
+        try {
+            // 2. Extraer el ID de la factura (está oculto en la columna 0)
+            int idFactura = Integer.parseInt(tablaFacturas.getValueAt(fila, 0).toString());
+
+            // 3. Recuperar el objeto factura completo de la BD
+            FacturaVO factura = facturaDAO.obtenerPorId(idFactura);
+
+            if (factura != null) {
+                com.joseluis.apptaller.logica.GestorFacturacion gestor = new com.joseluis.apptaller.logica.GestorFacturacion();
+
+                // 4. Obtener los detalles (mano de obra y piezas) de la reparación asociada
+                java.util.List<com.joseluis.apptaller.modelo.vo.DetalleFactura> detalles = 
+                    gestor.obtenerDetallesParaFactura(factura.getIdReparacion());
+
+                // 5. Lanzar el visor de JasperReports
+                gestor.generarInformePDF(factura, detalles);
+
+            } else {
+                JOptionPane.showMessageDialog(this, "No se ha podido recuperar la información de la factura.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al intentar visualizar la factura: " + e.getMessage());
+        }
+    }//GEN-LAST:event_btnVerFacturaActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -1586,6 +1961,8 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnBuscarProveedores;
     private javax.swing.JButton btnBuscarVehiculo;
     private javax.swing.JButton btnClientes;
+    private javax.swing.JButton btnCrearOrdenReparacion;
+    private javax.swing.JButton btnDetallesPresupuesto;
     private javax.swing.JButton btnDetallesReparacion;
     private javax.swing.JButton btnEliminarCliente;
     private javax.swing.JButton btnEliminarEmpleado;
@@ -1595,19 +1972,18 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnEliminarProveedores;
     private javax.swing.JButton btnEliminarVehiculo;
     private javax.swing.JButton btnEmpleados;
+    private javax.swing.JButton btnEstadoPresupuesto;
     private javax.swing.JButton btnEstadoReparacion;
     private javax.swing.JButton btnFacturas;
+    private javax.swing.JButton btnGenerarFactura;
     private javax.swing.JButton btnHistorialCliente;
     private javax.swing.JButton btnInformeCliente;
     private javax.swing.JButton btnInformeEmpleado;
-    private javax.swing.JButton btnInformeFacturas;
     private javax.swing.JButton btnInformePresupuestos;
     private javax.swing.JButton btnInformeProductos;
     private javax.swing.JButton btnInformeProveedores;
     private javax.swing.JButton btnInformeVehiculo;
     private javax.swing.JButton btnInicio;
-    private javax.swing.JButton btnNuevaFactura;
-    private javax.swing.JButton btnNuevaReparacion;
     private javax.swing.JButton btnNuevoCliente;
     private javax.swing.JButton btnNuevoEmpleado;
     private javax.swing.JButton btnNuevoPresupuestos;
@@ -1617,9 +1993,11 @@ public class VentanaPrincipal extends javax.swing.JFrame {
     private javax.swing.JButton btnPresupuestos;
     private javax.swing.JButton btnProductos;
     private javax.swing.JButton btnProveedores;
+    private javax.swing.JButton btnRegistrarPago;
     private javax.swing.JButton btnReparaciones;
     private javax.swing.JButton btnSalir;
     private javax.swing.JButton btnVehiculos;
+    private javax.swing.JButton btnVerFactura;
     private javax.swing.JComboBox<String> cbxFiltrarEstado;
     private javax.swing.JLabel etqBienvenida;
     private javax.swing.JLabel etqBuscarAyuda;
@@ -1783,7 +2161,12 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             fila[0] = f.getIdFactura();
             fila[1] = f.getNumeroFactura();
             fila[2] = f.getFechaEmision();
-            fila[3] = f.getClienteDni();
+            // Formato "DNI - Nombre del Cliente"
+            String textoCliente = f.getClienteDni();
+            if (f.getClienteNombre() != null && !f.getClienteNombre().trim().isEmpty() && !f.getClienteNombre().equals("Desconocido")) {
+                textoCliente = f.getClienteDni() + " - " + f.getClienteNombre();
+            }
+            fila[3] = textoCliente;
             fila[4] = f.getVehiculoBastidor();
             // Formateo sencillo de moneda
             fila[5] = String.format("%.2f €", f.getTotalCobrado());
@@ -1792,6 +2175,27 @@ public class VentanaPrincipal extends javax.swing.JFrame {
             modeloFacturas.addRow(fila);
         }
     }
+    
+    
+    
+    /**
+     * Consulta la BD y recarga la tabla de presupuestos.
+     */
+    private void cargarTablaPresupuestos() {
+        // Obtenemos el modelo de la tabla y lo limpiamos
+        javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tblPresupuestos.getModel();
+        modelo.setRowCount(0); // Borra las filas vacías que trae NetBeans por defecto
+
+        // Instanciamos el DAO y pedimos los datos
+        com.joseluis.apptaller.modelo.dao.PresupuestoDAO dao = new com.joseluis.apptaller.modelo.dao.PresupuestoDAO();
+        java.util.List<Object[]> datos = dao.listarParaTabla();
+
+        // Añadimos los datos fila a fila
+        for (Object[] fila : datos) {
+            modelo.addRow(fila);
+        }
+    }
+    
     
     // ====================================
     // Métodos para que ControladorClientes 

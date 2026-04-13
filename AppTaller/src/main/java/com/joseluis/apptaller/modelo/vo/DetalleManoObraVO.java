@@ -1,0 +1,45 @@
+
+package com.joseluis.apptaller.modelo.vo;
+
+import java.math.BigDecimal;
+
+/**
+ * Value Object para la tabla detalle_mano_obra de Presupuestos.
+ * @author joseluis
+ */
+public class DetalleManoObraVO {
+    private Integer idDetalle;
+    private Integer idPresupuesto;
+    private String descripcionTrabajo;
+    private BigDecimal tiempoEmpleadoHoras;
+    private BigDecimal tarifaPorHora;
+    private BigDecimal subtotal; // En BD es GENERATED ALWAYS, pero lo necesitamos para la Vista
+
+    public DetalleManoObraVO() {}
+
+    public DetalleManoObraVO(String descripcionTrabajo, BigDecimal tiempoEmpleadoHoras, BigDecimal tarifaPorHora) {
+        this.descripcionTrabajo = descripcionTrabajo;
+        this.tiempoEmpleadoHoras = tiempoEmpleadoHoras;
+        this.tarifaPorHora = tarifaPorHora;
+        this.subtotal = tiempoEmpleadoHoras.multiply(tarifaPorHora);
+    }
+
+    // Getters y Setters
+    public Integer getIdDetalle() { return idDetalle; }
+    public void setIdDetalle(Integer idDetalle) { this.idDetalle = idDetalle; }
+
+    public Integer getIdPresupuesto() { return idPresupuesto; }
+    public void setIdPresupuesto(Integer idPresupuesto) { this.idPresupuesto = idPresupuesto; }
+
+    public String getDescripcionTrabajo() { return descripcionTrabajo; }
+    public void setDescripcionTrabajo(String descripcionTrabajo) { this.descripcionTrabajo = descripcionTrabajo; }
+
+    public BigDecimal getTiempoEmpleadoHoras() { return tiempoEmpleadoHoras; }
+    public void setTiempoEmpleadoHoras(BigDecimal tiempoEmpleadoHoras) { this.tiempoEmpleadoHoras = tiempoEmpleadoHoras; }
+
+    public BigDecimal getTarifaPorHora() { return tarifaPorHora; }
+    public void setTarifaPorHora(BigDecimal tarifaPorHora) { this.tarifaPorHora = tarifaPorHora; }
+
+    public BigDecimal getSubtotal() { return subtotal; }
+    public void setSubtotal(BigDecimal subtotal) { this.subtotal = subtotal; }
+}

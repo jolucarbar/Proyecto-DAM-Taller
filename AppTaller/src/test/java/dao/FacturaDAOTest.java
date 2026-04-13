@@ -35,7 +35,7 @@ public class FacturaDAOTest {
             // 2. Insertamos Cliente, Vehículo y Reparación
             stmt.executeUpdate("INSERT IGNORE INTO clientes (dni_cif, nombre, fecha_registro, activo) VALUES ('12345678Z', 'Cliente Test JUnit', CURDATE(), 1)");
             stmt.executeUpdate("INSERT IGNORE INTO vehiculos (bastidor, matricula, propietario_actual_dni) VALUES ('BASTIDOR_TEST_01', '9999TST', '12345678Z')");
-            stmt.executeUpdate("INSERT IGNORE INTO reparaciones (id_reparacion, vehiculo_bastidor, cliente_dni, empleado_asignado_id, fecha_entrada, estado) VALUES (1, 'BASTIDOR_TEST_01', '12345678Z', 1, NOW(), 'FINALIZADA')");
+            stmt.executeUpdate("INSERT IGNORE INTO reparaciones (id_reparacion, vehiculo_bastidor, cliente_dni, empleado_asignado_id, fecha_entrada, estado) VALUES (99, 'BASTIDOR_TEST_01', '12345678Z', 1, NOW(), 'FINALIZADA')");
             
             System.out.println(">>> Base de datos preparada para el test de Facturas.");
         } catch (SQLException e) {
@@ -61,7 +61,7 @@ public class FacturaDAOTest {
         
         // Asignamos datos. Usamos timestamp para garantizar un numero_factura único.
         nuevaFactura.setNumeroFactura("TEST-" + System.currentTimeMillis()); 
-        nuevaFactura.setIdReparacion(1); // Ya existe gracias al @BeforeAll
+        nuevaFactura.setIdReparacion(99); // Ya existe gracias al @BeforeAll
         nuevaFactura.setClienteDni("12345678Z"); 
         nuevaFactura.setVehiculoBastidor("BASTIDOR_TEST_01"); 
         

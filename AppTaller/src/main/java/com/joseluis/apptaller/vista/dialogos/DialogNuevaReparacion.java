@@ -19,26 +19,23 @@ import javax.swing.JOptionPane;
  */
 public class DialogNuevaReparacion extends javax.swing.JDialog {
 
+    private int idPresupuestoVinculado;
+    private String dniVinculado;
+    private String bastidorVinculado;
+    
     /**
      * Creates new form DialogNuevaReparacion
      */
-    public DialogNuevaReparacion(java.awt.Frame parent, boolean modal) {
+    public DialogNuevaReparacion(java.awt.Frame parent, boolean modal, int idPresupuesto) {
         super(parent, modal);
         initComponents();
         setSize(600,700);
-        setLocationRelativeTo(this);
+        setLocationRelativeTo(parent);
         
-        cargarComboClientes();
-        cargarComboMecanicos();
+        this.idPresupuestoVinculado = idPresupuesto;
         
-        cbxCliente.addItemListener(e -> {
-            if (e.getStateChange() == ItemEvent.SELECTED) {
-                ClienteVO clienteSeleccionado = (ClienteVO) cbxCliente.getSelectedItem();
-                if (clienteSeleccionado != null) {
-                    actualizarComboVehiculos(clienteSeleccionado.getDni());
-                }
-            }
-        });
+        cargarMecanicos(); // Solo cargamos los mecánicos para que el usuario elija
+        cargarDatosFijosDelPresupuesto();
     }
 
     /**
@@ -322,61 +319,40 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnCrearOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearOrdenActionPerformed
-        // 1. Validar campos obligatorios
-        if (cbxVehiculo.getSelectedIndex() == -1 || txtAreaDiagnostico.getText().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Por favor, complete el vehículo y el diagnóstico.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        if (cbxMecanico.getSelectedIndex() == -1) {
+            JOptionPane.showMessageDialog(this, "Debe asignar un mecánico a la orden.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        // 2. Obtener los objetos seleccionados directamente de los ComboBox
-        ClienteVO clienteSeleccionado = (ClienteVO) cbxCliente.getSelectedItem();
-        VehiculoVO vehiculoSeleccionado = (VehiculoVO) cbxVehiculo.getSelectedItem();
-        EmpleadoVO mecanicoSeleccionado = (EmpleadoVO) cbxMecanico.getSelectedItem();
+        com.joseluis.apptaller.modelo.vo.EmpleadoVO mecanicoSeleccionado = 
+            (com.joseluis.apptaller.modelo.vo.EmpleadoVO) cbxMecanico.getSelectedItem();
 
-        // Validación de seguridad por si las listas están vacías
-        if (clienteSeleccionado == null || vehiculoSeleccionado == null || mecanicoSeleccionado == null) {
-            JOptionPane.showMessageDialog(this, "Debe seleccionar un cliente, un vehículo y un mecánico.", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
+        com.joseluis.apptaller.modelo.vo.ReparacionVO rep = new com.joseluis.apptaller.modelo.vo.ReparacionVO();
 
-        // 3. Instanciar el VO para recolectar datos de la interfaz
-        ReparacionVO rep = new ReparacionVO();
-
-        // 4. Mapear datos (Usamos getValue() para el JSpinner)
+        // 1. Datos que introduce el recepcionista
         rep.setKilometrajeEntrada((Integer) spnKm.getValue()); 
-        // Traducimos el valor del slider al ENUM de MySQL
+        
         int valorSlider = sldCombustible.getValue();
-        String nivelSql;
-        
-        if (valorSlider == 0) {
-            nivelSql = "Vacío";
-        } else if (valorSlider <= 25) {
-            nivelSql = "1/4";
-        } else if (valorSlider <= 50) {
-            nivelSql = "1/2";
-        } else if (valorSlider <= 75) {
-            nivelSql = "3/4";
-        } else {
-            nivelSql = "Lleno";
-        }
-        
+        String nivelSql = (valorSlider == 0) ? "Vacío" : (valorSlider <= 25) ? "1/4" : (valorSlider <= 50) ? "1/2" : (valorSlider <= 75) ? "3/4" : "Lleno";
         rep.setNivelCombustible(nivelSql);
-        rep.setDiagnostico(txtAreaDiagnostico.getText()); 
+        
         rep.setObservaciones(txtNotas.getText());
         rep.setPrioridad(cbxPrioridad.getSelectedItem().toString()); 
-
-        // Recuperamos los IDs de los objetos seleccionados
-        rep.setClienteDni(clienteSeleccionado.getDni()); 
-        rep.setVehiculoBastidor(vehiculoSeleccionado.getBastidor());
+        
+        // 2. Datos bloqueados provenientes del presupuesto
+        rep.setDiagnostico(txtAreaDiagnostico.getText()); 
+        rep.setIdPresupuesto(idPresupuestoVinculado);
+        rep.setClienteDni(dniVinculado); 
+        rep.setVehiculoBastidor(bastidorVinculado);
         rep.setEmpleadoAsignadoId(mecanicoSeleccionado.getId_empleado()); 
 
-        // 5. Llamar al Controlador
-        ControladorReparaciones ctrl = new ControladorReparaciones();
+        // 3. Guardar en la base de datos
+        com.joseluis.apptaller.controlador.ControladorReparaciones ctrl = new com.joseluis.apptaller.controlador.ControladorReparaciones();
         if (ctrl.guardarNuevaReparacion(rep)) {
-            JOptionPane.showMessageDialog(this, "¡Orden de Reparación creada con éxito!");
-            this.dispose(); // Cerramos el modal
+            JOptionPane.showMessageDialog(this, "¡Orden de Reparación creada con éxito!\nEl vehículo ya está en el taller.");
+            this.dispose(); 
         } else {
-            JOptionPane.showMessageDialog(this, "Error al guardar en la base de datos. Revisa la consola.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error al guardar en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }//GEN-LAST:event_btnCrearOrdenActionPerformed
 
@@ -415,7 +391,7 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         /* Create and display the dialog */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                DialogNuevaReparacion dialog = new DialogNuevaReparacion(new javax.swing.JFrame(), true);
+                DialogNuevaReparacion dialog = new DialogNuevaReparacion(new javax.swing.JFrame(), true, 0);
                 dialog.addWindowListener(new java.awt.event.WindowAdapter() {
                     @Override
                     public void windowClosing(java.awt.event.WindowEvent e) {
@@ -430,10 +406,10 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnCancelar;
     private javax.swing.JButton btnCrearOrden;
-    private javax.swing.JComboBox<com.joseluis.apptaller.modelo.vo.ClienteVO> cbxCliente;
+    private javax.swing.JComboBox<String> cbxCliente;
     private javax.swing.JComboBox<com.joseluis.apptaller.modelo.vo.EmpleadoVO> cbxMecanico;
     private javax.swing.JComboBox<String> cbxPrioridad;
-    private javax.swing.JComboBox<com.joseluis.apptaller.modelo.vo.VehiculoVO> cbxVehiculo;
+    private javax.swing.JComboBox<String> cbxVehiculo;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -460,41 +436,38 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
     private javax.swing.JTextField txtNotas;
     // End of variables declaration//GEN-END:variables
 
-    
-    private void cargarComboClientes() {
-        ClienteDAO cDao = new ClienteDAO();
-        List<ClienteVO> clientes = cDao.listar(); 
-        cbxCliente.removeAllItems();
-        for (ClienteVO c : clientes) {
-            cbxCliente.addItem(c); 
+   
+    private void cargarDatosFijosDelPresupuesto() {
+        com.joseluis.apptaller.modelo.dao.PresupuestoDAO pDao = new com.joseluis.apptaller.modelo.dao.PresupuestoDAO();
+        com.joseluis.apptaller.modelo.vo.PresupuestoVO presu = pDao.obtenerPresupuestoPorId(idPresupuestoVinculado);
+
+        if (presu != null) {
+            // Guardamos las claves para usarlas al guardar
+            this.dniVinculado = presu.getClienteDni();
+            this.bastidorVinculado = presu.getVehiculoBastidor();
+
+            // Mostramos los datos en los comboboxes y los bloqueamos
+            cbxCliente.removeAllItems();
+            cbxCliente.addItem(presu.getClienteDni()); // Opcional: podrías cruzarlo con ClienteDAO para mostrar el nombre
+            cbxCliente.setEnabled(false);
+
+            cbxVehiculo.removeAllItems();
+            cbxVehiculo.addItem(presu.getVehiculoBastidor());
+            cbxVehiculo.setEnabled(false);
+
+            txtAreaDiagnostico.setText(presu.getDescripcionTrabajo());
+            txtAreaDiagnostico.setEditable(false);
         }
     }
-    
-    private void cargarComboMecanicos() {
-        // Cargar mecánicos desde la BD usando su DAO
-        EmpleadoDAO empDao = new EmpleadoDAO();
-        List<EmpleadoVO> empleados = empDao.listar();
-        for (EmpleadoVO e : empleados) {
+
+    private void cargarMecanicos() {
+        com.joseluis.apptaller.modelo.dao.EmpleadoDAO empDao = new com.joseluis.apptaller.modelo.dao.EmpleadoDAO();
+        java.util.List<com.joseluis.apptaller.modelo.vo.EmpleadoVO> empleados = empDao.listarMecanicosActivos();
+        cbxMecanico.removeAllItems();
+        for (com.joseluis.apptaller.modelo.vo.EmpleadoVO e : empleados) {
             cbxMecanico.addItem(e); 
         }
     }
     
-    private void actualizarComboVehiculos(String dni) {
-        VehiculoDAO vDao = new VehiculoDAO();
-        List<VehiculoVO> vehiculos = vDao.listarPorCliente(dni);
-
-        cbxVehiculo.removeAllItems();
-        if (vehiculos.isEmpty()) {
-            // Avisar si el cliente no tiene coches registrados
-            javax.swing.JOptionPane.showMessageDialog(this, 
-                "Este cliente no tiene ningún vehículo registrado en el sistema.", 
-                "Sin Vehículos", 
-                javax.swing.JOptionPane.INFORMATION_MESSAGE);
-        } else {
-            for (VehiculoVO v : vehiculos) {
-                cbxVehiculo.addItem(v);
-            }
-        }
-    }
 
 }

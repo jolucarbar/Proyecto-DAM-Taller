@@ -173,4 +173,27 @@ public class ClienteDAO {
         try { if(rs != null) rs.close(); } catch(SQLException e){}
         try { if(stmt != null) stmt.close(); } catch(SQLException e){}
     }
+    
+    
+    
+    /**
+     * Obtiene la lista de todos los clientes activos.
+     */
+    public java.util.List<com.joseluis.apptaller.modelo.vo.ClienteVO> listarTodos() {
+        java.util.List<com.joseluis.apptaller.modelo.vo.ClienteVO> lista = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM clientes WHERE activo = TRUE ORDER BY nombre ASC";
+        
+        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement(sql);
+             java.sql.ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                lista.add(mapearCliente(rs)); 
+            }
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error al listar todos los clientes: " + e.getMessage());
+        }
+        return lista;
+    }
+    
 }

@@ -27,7 +27,10 @@ public class FacturaDAO {
             + "total_cobrado, metodo_pago, estado, observaciones, usuario_emisor) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
-    private final String SQL_SELECT_ALL = "SELECT * FROM facturas ORDER BY fecha_emision DESC";
+    private final String SQL_SELECT_ALL = "SELECT f.*, c.nombre AS cliente_nombre " +
+        "FROM facturas f " +
+        "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif " +
+        "ORDER BY f.fecha_emision DESC";
     
     private final String SQL_SELECT_BY_NUMERO = "SELECT * FROM facturas WHERE numero_factura = ?";
 
@@ -40,6 +43,7 @@ public class FacturaDAO {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
+            System.out.println(">>> DEBUG FACTURA - DNI: [" + factura.getClienteDni() + "] | Bastidor: [" + factura.getVehiculoBastidor() + "]");
             conn = Conexion.getInstancia().getConnection(); // Uso del Singleton 
             stmt = conn.prepareStatement(SQL_INSERT);
 
@@ -112,9 +116,21 @@ public class FacturaDAO {
         f.setIdPresupuesto(rs.getInt("id_presupuesto"));
         f.setClienteDni(rs.getString("cliente_dni"));
         f.setVehiculoBastidor(rs.getString("vehiculo_bastidor"));
-        f.setFechaEmision(rs.getDate("fecha_emision").toLocalDate());
+        
+        if (rs.getDate("fecha_emision") != null) {
+            f.setFechaEmision(rs.getDate("fecha_emision").toLocalDate());
+        }
+        
         f.setTotalCobrado(rs.getDouble("total_cobrado"));
         f.setEstado(rs.getString("estado"));
+        
+        // Intentamos leer 'cliente_nombre'.
+        try {
+            f.setClienteNombre(rs.getString("cliente_nombre"));
+        } catch (SQLException e) {
+            f.setClienteNombre("Desconocido");
+        }
+               
         return f;
     }
 
@@ -124,4 +140,94 @@ public class FacturaDAO {
         try { if (rs != null) rs.close(); } catch (SQLException e) {}
         try { if (stmt != null) stmt.close(); } catch (SQLException e) {}
     }
+    
+    
+    /**
+     * Genera el siguiente número de factura secuencial para el año en curso.
+     * Formato: FACT-YYYY-NNNN (ej. FACT-2026-0001)
+     */
+    public String generarSiguienteNumeroFactura() {
+        String anioActual = String.valueOf(java.time.Year.now().getValue());
+        String patron = "FACT-" + anioActual + "-%";
+        String sql = "SELECT MAX(numero_factura) AS ultimo_numero FROM facturas WHERE numero_factura LIKE ?";
+        
+        @SuppressWarnings("UnusedAssignment")
+        Connection conn = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            conn = Conexion.getInstancia().getConnection();
+            stmt = conn.prepareStatement(sql);
+            stmt.setString(1, patron);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                String ultimoNumero = rs.getString("ultimo_numero");
+                if (ultimoNumero != null) {
+                    // Extraer la parte numérica (los últimos 4 caracteres)
+                    String secuenciaStr = ultimoNumero.substring(ultimoNumero.lastIndexOf("-") + 1);
+                    int secuencia = Integer.parseInt(secuenciaStr);
+                    secuencia++;
+                    return String.format("FACT-%s-%04d", anioActual, secuencia);
+                }
+            }
+            
+            // Si no hay facturas este año, devolvemos la primera
+            return "FACT-" + anioActual + "-0001";
+            
+        } catch (SQLException e) {
+            System.err.println("Error al generar secuencia de factura: " + e.getMessage());
+            return "ERROR-SECUENCIA";
+        } finally {
+            close(stmt, rs);
+        }
+    }
+    
+    
+    /**
+    * Recupera una factura completa por su ID, incluyendo el nombre del cliente.
+    */
+   public FacturaVO obtenerPorId(int idFactura) {
+       String sql = "SELECT f.*, c.nombre AS cliente_nombre " +
+                    "FROM facturas f " +
+                    "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif " +
+                    "WHERE f.id_factura = ?";
+
+       try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)) {
+
+           ps.setInt(1, idFactura);
+           try (ResultSet rs = ps.executeQuery()) {
+               if (rs.next()) {
+                   return mapearFactura(rs); // Reutilizamos tu mapeador existente
+               }
+           }
+       } catch (SQLException e) {
+           System.err.println("Error al obtener factura por ID: " + e.getMessage());
+       }
+       return null;
+   }
+    
+   
+   /**
+     * Actualiza el estado de una factura en la base de datos.
+     */
+    public boolean actualizarEstado(int idFactura, String nuevoEstado) {
+        String sql = "UPDATE facturas SET estado = ? WHERE id_factura = ?";
+        
+        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, nuevoEstado);
+            ps.setInt(2, idFactura);
+            
+            return ps.executeUpdate() > 0;
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error al actualizar el estado de la factura: " + e.getMessage());
+            return false;
+        }
+    }
+   
+   
 }

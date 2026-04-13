@@ -33,15 +33,12 @@ public class ControladorReparaciones {
      * Procesa el registro de una nueva reparación con validaciones previas.
      */
     public boolean guardarNuevaReparacion(ReparacionVO rep) {
-        // Lógica de negocio: Validar que el kilometraje sea coherente
-        if (rep.getKilometrajeEntrada() < 0) {
-            return false; 
-        }
-        
-        // Lógica de negocio: Forzar mayúsculas en el bastidor por seguridad
-        rep.setVehiculoBastidor(rep.getVehiculoBastidor().toUpperCase());
-        
-        return reparacionDAO.insertar(rep);
+        if (rep.getKilometrajeEntrada() < 0) return false; 
+    
+            rep.setVehiculoBastidor(rep.getVehiculoBastidor().toUpperCase());
+
+            // Llamamos al método transaccional que copia los detalles
+            return reparacionDAO.insertarConDetalles(rep);
     }
     
     /**
