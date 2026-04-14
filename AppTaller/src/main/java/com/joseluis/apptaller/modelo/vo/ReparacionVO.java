@@ -4,10 +4,13 @@ package com.joseluis.apptaller.modelo.vo;
 import java.time.LocalDateTime;
 
 /**
- * Value Object para la tabla Reparaciones.
- * Refleja fielmente la estructura de la base de datos apptaller_db.
- * 
- * @author joseluis
+ * Clase que representa una orden de reparación activa o finalizada en el taller.
+ * Contiene la información del estado del trabajo, el mecánico asignado, datos técnicos 
+ * (kilometraje, combustible, diagnóstico) y campos auxiliares para facilitar su visualización.
+ *
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ReparacionVO {
     private int idReparacion;

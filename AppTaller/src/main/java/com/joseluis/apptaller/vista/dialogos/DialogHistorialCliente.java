@@ -9,8 +9,14 @@ import java.util.List;
 import javax.swing.table.DefaultTableModel;
 
 /**
+ * Ventana de diálogo que muestra el historial completo de un cliente.
+ * Agrupa su información personal básica y organiza en pestañas todos los 
+ * vehículos, presupuestos y facturas asociadas a su perfil, ofreciendo 
+ * una vista panorámica de su actividad y relación con el taller.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogHistorialCliente extends javax.swing.JDialog {
     // Añadimos la variable para guardar el cliente

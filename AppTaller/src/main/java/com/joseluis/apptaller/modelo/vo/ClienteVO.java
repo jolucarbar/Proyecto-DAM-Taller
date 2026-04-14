@@ -1,12 +1,18 @@
 
 package com.joseluis.apptaller.modelo.vo;
 
-/**
- * Representa a un cliente físico del taller.
- */
-
 import java.time.LocalDate;
 
+
+/**
+ * Clase que representa a un cliente dentro de la aplicación.
+ * Se utiliza como un contenedor de datos (Value Object) para transportar 
+ * la información del cliente entre las distintas capas del programa.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
+ */
 public class ClienteVO {
     private String dni;
     private String nombre;

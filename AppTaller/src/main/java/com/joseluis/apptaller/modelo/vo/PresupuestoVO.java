@@ -7,8 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Value Object principal (Aggregate Root) para la tabla Presupuestos.
- * @author joseluis
+ * Clase que representa un presupuesto de reparación en el sistema.
+ * Actúa como contenedor principal, agrupando los datos generales (cliente, vehículo, fechas)
+ * junto con las listas detalladas de piezas y mano de obra necesarias.
+ *
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class PresupuestoVO {
     private Integer idPresupuesto;
@@ -36,7 +41,7 @@ public class PresupuestoVO {
         this.lineasProductos = new ArrayList<>();
     }
 
-    // --- Métodos de utilidad para las líneas ---
+    // Métodos de utilidad para las líneas
     public void addLineaManoObra(DetalleManoObraVO linea) {
         this.lineasManoObra.add(linea);
     }

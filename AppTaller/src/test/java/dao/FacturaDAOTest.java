@@ -45,7 +45,6 @@ public class FacturaDAOTest {
 
     @AfterEach
     public void tearDown() {
-        // TECH LEAD: Limpiamos en minúsculas
         try (Connection conn = Conexion.getInstancia().getConnection();
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("DELETE FROM facturas WHERE numero_factura LIKE 'TEST-%'");

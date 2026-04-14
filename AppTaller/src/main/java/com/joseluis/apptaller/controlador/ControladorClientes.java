@@ -13,12 +13,11 @@ import javax.swing.table.DefaultTableModel;
 import com.joseluis.apptaller.vista.dialogos.DialogHistorialCliente;
 
 /**
- * Clase que conecta la interfaz gráfica con la base de datos.
- */
-
-/**
- *
- * @author joseluis
+ * Clase que gestiona la lógica de negocio de los Clientes.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 
 public class ControladorClientes implements ActionListener {
@@ -100,17 +99,17 @@ public class ControladorClientes implements ActionListener {
     }
 
     private void abrirDialogoNuevoCliente() {
-        // 1. Abrimos el modal visual
+        // Abrimos el dialog
         DialogNuevoCliente dialog = new DialogNuevoCliente(vista, true);
         dialog.setVisible(true); // La aplicación se "pausa" aquí hasta que el usuario cierra la ventana
                 
-        // 2. Cuando el diálogo se cierra, comprobamos si el usuario pulsó el botón "Guardar"
+        // Cuando el diálogo se cierra, comprobamos si el usuario pulsó el botón "Guardar"
         if (dialog.isGuardado()) {
             
-            // 3. Le pedimos al diálogo los datos que ha introducido el usuario
+            // Le pedimos al diálogo los datos que ha introducido el usuario
             ClienteVO nuevoCliente = dialog.getCliente();
             
-            // 4. Se los pasamos al DAO para que haga el INSERT en MySQL
+            // Se los pasamos al DAO para que haga el INSERT en MySQL
             if (modeloDAO.insertar(nuevoCliente)) {
                 JOptionPane.showMessageDialog(vista, "Cliente guardado con éxito.");
                 cargarClientes(); // Recargamos la tabla visual para que aparezca el nuevo registro
@@ -144,25 +143,25 @@ public class ControladorClientes implements ActionListener {
     private void editarClienteSeleccionado() {
         int filaSelec = vista.getTblClientes().getSelectedRow();
         if (filaSelec != -1) {
-            // 1. Obtenemos el DNI de la fila seleccionada
+            // Obtenemos el DNI de la fila seleccionada
             String dni = (String) modeloTabla.getValueAt(filaSelec, 0);
             
-            // 2. Buscamos el cliente completo en la base de datos usando el DAO
+            // Buscamos el cliente completo en la base de datos usando el DAO
             ClienteVO clienteAEditar = modeloDAO.buscarPorDni(dni);
             
             if (clienteAEditar != null) {
-                // 3. Abrimos el diálogo usando el constructor sobrecargado 
+                // Abrimos el diálogo usando el constructor sobrecargado 
                 DialogNuevoCliente dialog = new DialogNuevoCliente(vista, true, clienteAEditar);
                 dialog.setVisible(true);
                 
-                // 4. Al cerrar, comprobamos si pulsó guardar
+                // Al cerrar, comprobamos si pulsó guardar
                 if (dialog.isGuardado()) {
                     ClienteVO clienteModificado = dialog.getCliente();
                     // Al ser modificación, no alteramos la fecha de registro original ni el estado activo
                     clienteModificado.setFechaRegistro(clienteAEditar.getFechaRegistro());
                     clienteModificado.setActivo(clienteAEditar.isActivo());
                     
-                    // 5. Mandamos actualizar a MySQL
+                    // Mandamos actualizar a MySQL
                     if (modeloDAO.modificar(clienteModificado)) {
                         javax.swing.JOptionPane.showMessageDialog(vista, "Cliente actualizado con éxito.");
                         cargarClientes(); // Refrescamos la tabla
@@ -182,7 +181,7 @@ public class ControladorClientes implements ActionListener {
             ClienteVO clienteSeleccionado = modeloDAO.buscarPorDni(dni);
             
             if (clienteSeleccionado != null) {
-                // Abrimos el diálogo de forma limpia
+                // Abrimos el diálogo 
                 DialogHistorialCliente dialog = new DialogHistorialCliente(vista, true, clienteSeleccionado);
                 dialog.setVisible(true);
             }

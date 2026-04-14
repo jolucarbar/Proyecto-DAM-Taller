@@ -6,6 +6,16 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/**
+ * Gestiona la persistencia de los datos de los vehículos en la base de datos.
+ * Permite realizar operaciones CRUD, incluyendo el registro de nuevos coches, 
+ * la edición de sus datos y la consulta de vehículos asociados a un cliente específico.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
+ */
 public class VehiculoDAO {
 
     private final String SQL_INSERT = "INSERT INTO vehiculos (bastidor, matricula, marca, modelo, anio_fabricacion, color, propietario_actual_dni, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -17,6 +27,15 @@ public class VehiculoDAO {
     private final String SQL_UPDATE = "UPDATE vehiculos SET marca=?, modelo=?, anio_fabricacion=?, color=?, propietario_actual_dni=? WHERE matricula=?"; // Actualizamos buscando por matrícula
     private final String SQL_DELETE = "UPDATE vehiculos SET activo = 0 WHERE matricula = ?";
 
+    // Selecciona por bastidor
+    private final String SQL_SELECT_BASTIDOR = "SELECT * FROM vehiculos WHERE bastidor = ?";
+    
+    // Actualiza por bastidor
+    private final String SQL_UPDATE_BASTIDOR = "UPDATE vehiculos SET matricula = ?, marca = ?, modelo = ?, color = ?, anio_fabricacion = ?, propietario_actual_dni = ? WHERE bastidor = ?";
+
+    
+    
+    
     public boolean insertar(VehiculoVO v) {
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement stmt = conn.prepareStatement(SQL_INSERT)) {
@@ -37,6 +56,7 @@ public class VehiculoDAO {
         }
     }
 
+    
     public List<VehiculoVO> listar() {
         List<VehiculoVO> lista = new ArrayList<>();
         try (Connection conn = Conexion.getInstancia().getConnection();
@@ -51,6 +71,7 @@ public class VehiculoDAO {
         return lista;
     }
 
+    
     public List<VehiculoVO> listarPorCliente(String dni) {
         List<VehiculoVO> lista = new ArrayList<>();
         try (Connection conn = Conexion.getInstancia().getConnection();
@@ -67,6 +88,7 @@ public class VehiculoDAO {
         return lista;
     }
 
+    
     public boolean eliminar(String matricula) {
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement stmt = conn.prepareStatement(SQL_DELETE)) {
@@ -78,11 +100,11 @@ public class VehiculoDAO {
         }
     }
 
+    
     private VehiculoVO mapearVehiculo(ResultSet rs) throws SQLException {
         VehiculoVO v = new VehiculoVO();
-        
-       
-        v.setBastidor(rs.getString("bastidor"));              // Columna BD -> Método VO
+               
+        v.setBastidor(rs.getString("bastidor"));  // Columna BD -> Método VO
         v.setMatricula(rs.getString("matricula"));
         v.setMarca(rs.getString("marca"));
         v.setModelo(rs.getString("modelo"));
@@ -102,11 +124,9 @@ public class VehiculoDAO {
 
     public VehiculoVO buscarPorBastidor(String bastidor) {
         VehiculoVO vehiculo = null;
-        // Ajusta el nombre de la tabla si en tu BD se llama distinto (ej: Vehiculos)
-        String sql = "SELECT * FROM vehiculos WHERE bastidor = ?";
-       
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BASTIDOR)) {
            
             stmt.setString(1, bastidor);
            
@@ -129,12 +149,11 @@ public class VehiculoDAO {
         return vehiculo;
     }
 
+    
     public boolean modificar(VehiculoVO vehiculo) {
-        // En el UPDATE actualizamos todo MENOS el bastidor, que se usa en el WHERE
-        String sql = "UPDATE vehiculos SET matricula = ?, marca = ?, modelo = ?, color = ?, anio_fabricacion = ?, propietario_actual_dni = ? WHERE bastidor = ?";
-       
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
+        
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE_BASTIDOR)) {
            
             stmt.setString(1, vehiculo.getMatricula());
             stmt.setString(2, vehiculo.getMarca());
@@ -146,8 +165,6 @@ public class VehiculoDAO {
             // El parámetro 7 es el bastidor para la cláusula WHERE
             stmt.setString(7, vehiculo.getBastidor());
            
-            
-            
             int filasAfectadas = stmt.executeUpdate();
             
             boolean exito = filasAfectadas >= 0;  

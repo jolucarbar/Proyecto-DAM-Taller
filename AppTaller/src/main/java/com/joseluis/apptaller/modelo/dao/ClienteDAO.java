@@ -1,9 +1,5 @@
 package com.joseluis.apptaller.modelo.dao;
 
-/**
- * Esta clase implementa las operaciones CRUD (Crear, Leer, Actualizar, Borrar) para la tabla clientes.
- */
-
 import com.joseluis.apptaller.modelo.vo.ClienteVO;
 import com.joseluis.apptaller.persistencia.Conexion;
 import java.sql.Connection;
@@ -14,6 +10,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Esta clase implementa las operaciones CRUD (Crear, Leer, Actualizar, Borrar) 
+ * para la tabla clientes.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
+ */
 public class ClienteDAO {
 
     // Consultas SQL
@@ -23,6 +27,7 @@ public class ClienteDAO {
     private final String SQL_UPDATE = "UPDATE clientes SET nombre=?, telefono=?, email=?, direccion=? WHERE dni_cif=?";
     private final String SQL_DELETE = "UPDATE clientes SET activo = 0 WHERE dni_cif = ?"; // Borrado lógico, no físico
 
+    
     /**
      * Inserta un nuevo cliente en la base de datos.
      */
@@ -53,6 +58,7 @@ public class ClienteDAO {
         }
     }
 
+    
     /**
      * Obtiene todos los clientes activos.
      */
@@ -78,6 +84,7 @@ public class ClienteDAO {
         }
         return lista;
     }
+    
     
     /**
      * Busca un cliente por su DNI.
@@ -105,6 +112,7 @@ public class ClienteDAO {
         return cliente;
     }
     
+    
     /**
      * Actualiza los datos de un cliente.
      */
@@ -130,6 +138,7 @@ public class ClienteDAO {
         }
     }
     
+    
     /**
      * Realiza un borrado lógico (desactiva el cliente).
      * @param dni
@@ -151,6 +160,7 @@ public class ClienteDAO {
         }
     }
 
+    
     // Método auxiliar para convertir ResultSet a Objeto
     private ClienteVO mapearCliente(ResultSet rs) throws SQLException {
         ClienteVO c = new ClienteVO();
@@ -167,6 +177,7 @@ public class ClienteDAO {
         return c;
     }
 
+    
     // Métodos auxiliares para cerrar recursos
     private void close(PreparedStatement stmt) { close(stmt, null); }
     private void close(PreparedStatement stmt, ResultSet rs) {

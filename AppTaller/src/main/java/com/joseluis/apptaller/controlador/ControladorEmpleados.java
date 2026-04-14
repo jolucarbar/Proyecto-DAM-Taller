@@ -12,8 +12,11 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
- * @author joseluis
+ * Clase que gestiona la lógica de negocio de los Empleados.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ControladorEmpleados implements ActionListener{
 
@@ -99,7 +102,7 @@ public class ControladorEmpleados implements ActionListener{
 
     
     private void abrirDialogoNuevoEmpleado() {
-        // Abrimos el modal vacío (Alta)
+        // Abrimos el dialog
         DialogNuevoEmpleado dialog = new DialogNuevoEmpleado(vista, true);
         dialog.setVisible(true);
        
@@ -124,7 +127,7 @@ public class ControladorEmpleados implements ActionListener{
             EmpleadoVO empleadoAEditar = modeloDAO.buscarPorDni(dni);
            
             if (empleadoAEditar != null) {
-                // Abrimos el modal pasándole los datos (Edición)
+                // Abrimos el dialog pasándole los datos (Edición)
                 DialogNuevoEmpleado dialog = new DialogNuevoEmpleado(vista, true, empleadoAEditar);
                 dialog.setVisible(true);
                

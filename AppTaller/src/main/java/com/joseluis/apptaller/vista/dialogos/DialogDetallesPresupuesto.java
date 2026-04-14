@@ -1,17 +1,29 @@
 
 package com.joseluis.apptaller.vista.dialogos;
 
+import com.joseluis.apptaller.controlador.ControladorPresupuestos;
+import com.joseluis.apptaller.modelo.dao.PresupuestoDAO;
+import com.joseluis.apptaller.modelo.vo.DetalleManoObraVO;
+import com.joseluis.apptaller.modelo.vo.DetalleProductoVO;
+import com.joseluis.apptaller.modelo.vo.PresupuestoVO;
+import java.util.List;
+
 /**
+ * Ventana de diálogo que muestra la información detallada de un presupuesto existente.
+ * Carga los datos generales, las piezas y la mano de obra desde la base de datos, 
+ * presentándolos en modo de solo lectura para su consulta sin riesgo de modificaciones.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogDetallesPresupuesto extends javax.swing.JDialog {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DialogDetallesPresupuesto.class.getName());
 
-    private com.joseluis.apptaller.controlador.ControladorPresupuestos controlador;
+    private ControladorPresupuestos controlador;
 
-    public void setControlador(com.joseluis.apptaller.controlador.ControladorPresupuestos controlador) {
+    public void setControlador(ControladorPresupuestos controlador) {
         this.controlador = controlador; }
     
     /**
@@ -21,15 +33,14 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         
-        // 1. Aumentamos la velocidad del scroll (por defecto es muy lenta)
+        // Aumentamos la velocidad del scroll (por defecto es muy lenta)
         scrollPrincipal.getVerticalScrollBar().setUnitIncrement(16);
 
-        // 2. Forzamos un tamaño mínimo para las tablas para que no se colapsen a 0px
-        // Ajusta los nombres de tus tablas si son distintos
+        // Forzamos un tamaño mínimo para las tablas para que no se colapsen a 0px
         jScrollPane2.setMinimumSize(new java.awt.Dimension(500, 150)); 
         jScrollPane3.setMinimumSize(new java.awt.Dimension(500, 150));
 
-        // 3. Forzar recalculo visual
+        // Forzar recalculo visual
         panelContenido.revalidate();
         panelContenido.repaint();
 
@@ -446,7 +457,6 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
 
-// --- LÓGICA DE CÁLCULO DE TOTALES ---
 
     /**
      * Convierte el valor de una celda a BigDecimal de forma segura.
@@ -463,6 +473,7 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
         }
     }
 
+    
     /**
      * Recalcula el "Total" de una fila específica en la tabla de Mano de Obra
      */
@@ -477,6 +488,7 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
         modelo.setValueAt(subtotal.toString(), fila, 3); // Actualizamos la columna Total
     }
 
+    
     /**
      * Recalcula el "Total" de una fila específica en la tabla de Materiales
      */
@@ -491,19 +503,20 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
         modelo.setValueAt(subtotal.toString(), fila, 4); // Actualizamos la columna Total
     }
 
+    
     /**
      * Recorre ambas tablas, suma los totales y actualiza los JTextField inferiores.
      */
     private void calcularTotalesGlobales() {
         java.math.BigDecimal baseImponible = java.math.BigDecimal.ZERO;
 
-        // Sumar Mano de Obra (leemos la columna 3: Total)
+        // Sumamos Mano de Obra (leemos la columna 3: Total)
         javax.swing.table.DefaultTableModel modManoObra = (javax.swing.table.DefaultTableModel) tablaManoObra.getModel();
         for (int i = 0; i < modManoObra.getRowCount(); i++) {
             baseImponible = baseImponible.add(parsearCelda(modManoObra.getValueAt(i, 3)));
         }
 
-        // Sumar Materiales (leemos la columna 4: Total)
+        // Sumamos Materiales (leemos la columna 4: Total)
         javax.swing.table.DefaultTableModel modMateriales = (javax.swing.table.DefaultTableModel) tablaMateriales.getModel();
         for (int i = 0; i < modMateriales.getRowCount(); i++) {
             baseImponible = baseImponible.add(parsearCelda(modMateriales.getValueAt(i, 4)));
@@ -581,10 +594,10 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
      * Carga todos los datos del presupuesto en la interfaz y bloquea la edición.
      */
     public void cargarDatos(int idPresupuesto) {
-        com.joseluis.apptaller.modelo.dao.PresupuestoDAO dao = new com.joseluis.apptaller.modelo.dao.PresupuestoDAO();
+        PresupuestoDAO dao = new PresupuestoDAO();
 
-        // 1. CARGAR LA CABECERA
-        com.joseluis.apptaller.modelo.vo.PresupuestoVO cabecera = dao.obtenerPresupuestoPorId(idPresupuesto);
+        // Cargamos la cabecera
+        PresupuestoVO cabecera = dao.obtenerPresupuestoPorId(idPresupuesto);
         if (cabecera != null) {
             // Como los combobox estarán bloqueados, simplemente metemos el dato como único ítem
             cbxCliente.removeAllItems();
@@ -600,12 +613,12 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
             txtTotal.setText(cabecera.getTotalEstimado().toString());
         }
 
-        // 2. CARGAR MANO DE OBRA
+        // Cargamos mano de obra
         javax.swing.table.DefaultTableModel modManoObra = (javax.swing.table.DefaultTableModel) tablaManoObra.getModel();
         modManoObra.setRowCount(0); // Vaciamos la tabla
-        java.util.List<com.joseluis.apptaller.modelo.vo.DetalleManoObraVO> manoObra = dao.obtenerManoObraPorPresupuesto(idPresupuesto);
+        List<DetalleManoObraVO> manoObra = dao.obtenerManoObraPorPresupuesto(idPresupuesto);
         
-        for (com.joseluis.apptaller.modelo.vo.DetalleManoObraVO mo : manoObra) {
+        for (DetalleManoObraVO mo : manoObra) {
             modManoObra.addRow(new Object[]{
                 mo.getDescripcionTrabajo(),
                 mo.getTiempoEmpleadoHoras(),
@@ -614,10 +627,10 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
             });
         }
 
-        // 3. CARGAR MATERIALES
+        // Cargamos materiales
         javax.swing.table.DefaultTableModel modMateriales = (javax.swing.table.DefaultTableModel) tablaMateriales.getModel();
         modMateriales.setRowCount(0); // Vaciamos la tabla
-        java.util.List<com.joseluis.apptaller.modelo.vo.DetalleProductoVO> productos = dao.obtenerProductosPorPresupuesto(idPresupuesto);
+        List<DetalleProductoVO> productos = dao.obtenerProductosPorPresupuesto(idPresupuesto);
         
         for (com.joseluis.apptaller.modelo.vo.DetalleProductoVO prod : productos) {
             modMateriales.addRow(new Object[]{
@@ -629,10 +642,11 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
             });
         }
 
-        // 4. BLOQUEAR INTERFAZ
+        // Bloquear interfaz
         bloquearInterfaz();
     }
 
+    
     /**
      * Congela todos los inputs para que el usuario no pueda modificar nada.
      */

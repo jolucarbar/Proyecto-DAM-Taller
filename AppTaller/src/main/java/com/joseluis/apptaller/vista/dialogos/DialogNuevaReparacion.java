@@ -2,20 +2,23 @@
 package com.joseluis.apptaller.vista.dialogos;
 
 import com.joseluis.apptaller.controlador.ControladorReparaciones;
-import com.joseluis.apptaller.modelo.dao.ClienteDAO;
 import com.joseluis.apptaller.modelo.dao.EmpleadoDAO;
-import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
-import com.joseluis.apptaller.modelo.vo.ClienteVO;
+import com.joseluis.apptaller.modelo.dao.PresupuestoDAO;
 import com.joseluis.apptaller.modelo.vo.EmpleadoVO;
+import com.joseluis.apptaller.modelo.vo.PresupuestoVO;
 import com.joseluis.apptaller.modelo.vo.ReparacionVO;
-import com.joseluis.apptaller.modelo.vo.VehiculoVO;
-import java.awt.event.ItemEvent;
 import java.util.List;
 import javax.swing.JOptionPane;
 
 /**
+ * Ventana de diálogo encargada de la recepción del vehículo y la creación de una 
+ * nueva orden de reparación. Vincula automáticamente los datos de un presupuesto 
+ * previamente aprobado y permite registrar la inspección de entrada (combustible, 
+ * kilometraje, notas), así como asignar el mecánico responsable y la prioridad del trabajo.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogNuevaReparacion extends javax.swing.JDialog {
 
@@ -318,18 +321,18 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
     private void btnCrearOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCrearOrdenActionPerformed
         if (cbxMecanico.getSelectedIndex() == -1) {
             JOptionPane.showMessageDialog(this, "Debe asignar un mecánico a la orden.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
-        com.joseluis.apptaller.modelo.vo.EmpleadoVO mecanicoSeleccionado = 
-            (com.joseluis.apptaller.modelo.vo.EmpleadoVO) cbxMecanico.getSelectedItem();
+        EmpleadoVO mecanicoSeleccionado = (EmpleadoVO) cbxMecanico.getSelectedItem();
 
-        com.joseluis.apptaller.modelo.vo.ReparacionVO rep = new com.joseluis.apptaller.modelo.vo.ReparacionVO();
+        ReparacionVO rep = new ReparacionVO();
 
-        // 1. Datos que introduce el recepcionista
+        // Datos que introduce el recepcionista
         rep.setKilometrajeEntrada((Integer) spnKm.getValue()); 
         
         int valorSlider = sldCombustible.getValue();
@@ -339,15 +342,15 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         rep.setObservaciones(txtNotas.getText());
         rep.setPrioridad(cbxPrioridad.getSelectedItem().toString()); 
         
-        // 2. Datos bloqueados provenientes del presupuesto
+        // Datos bloqueados provenientes del presupuesto
         rep.setDiagnostico(txtAreaDiagnostico.getText()); 
         rep.setIdPresupuesto(idPresupuestoVinculado);
         rep.setClienteDni(dniVinculado); 
         rep.setVehiculoBastidor(bastidorVinculado);
         rep.setEmpleadoAsignadoId(mecanicoSeleccionado.getId_empleado()); 
 
-        // 3. Guardar en la base de datos
-        com.joseluis.apptaller.controlador.ControladorReparaciones ctrl = new com.joseluis.apptaller.controlador.ControladorReparaciones();
+        // Guardamos en la base de datos
+        ControladorReparaciones ctrl = new ControladorReparaciones();
         if (ctrl.guardarNuevaReparacion(rep)) {
             JOptionPane.showMessageDialog(this, "¡Orden de Reparación creada con éxito!\nEl vehículo ya está en el taller.");
             this.dispose(); 
@@ -356,6 +359,7 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_btnCrearOrdenActionPerformed
 
+    
     private void cbxMecanicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbxMecanicoActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cbxMecanicoActionPerformed
@@ -438,8 +442,8 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
 
    
     private void cargarDatosFijosDelPresupuesto() {
-        com.joseluis.apptaller.modelo.dao.PresupuestoDAO pDao = new com.joseluis.apptaller.modelo.dao.PresupuestoDAO();
-        com.joseluis.apptaller.modelo.vo.PresupuestoVO presu = pDao.obtenerPresupuestoPorId(idPresupuestoVinculado);
+        PresupuestoDAO pDao = new PresupuestoDAO();
+        PresupuestoVO presu = pDao.obtenerPresupuestoPorId(idPresupuestoVinculado);
 
         if (presu != null) {
             // Guardamos las claves para usarlas al guardar
@@ -448,7 +452,7 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
 
             // Mostramos los datos en los comboboxes y los bloqueamos
             cbxCliente.removeAllItems();
-            cbxCliente.addItem(presu.getClienteDni()); // Opcional: podrías cruzarlo con ClienteDAO para mostrar el nombre
+            cbxCliente.addItem(presu.getClienteDni()); 
             cbxCliente.setEnabled(false);
 
             cbxVehiculo.removeAllItems();
@@ -460,11 +464,12 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         }
     }
 
+    
     private void cargarMecanicos() {
-        com.joseluis.apptaller.modelo.dao.EmpleadoDAO empDao = new com.joseluis.apptaller.modelo.dao.EmpleadoDAO();
-        java.util.List<com.joseluis.apptaller.modelo.vo.EmpleadoVO> empleados = empDao.listarMecanicosActivos();
+        EmpleadoDAO empDao = new EmpleadoDAO();
+        List<EmpleadoVO> empleados = empDao.listarMecanicosActivos();
         cbxMecanico.removeAllItems();
-        for (com.joseluis.apptaller.modelo.vo.EmpleadoVO e : empleados) {
+        for (EmpleadoVO e : empleados) {
             cbxMecanico.addItem(e); 
         }
     }

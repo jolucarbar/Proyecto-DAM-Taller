@@ -5,8 +5,14 @@ import com.joseluis.apptaller.modelo.vo.ClienteVO;
 import javax.swing.JOptionPane;
 
 /**
+ * Ventana de diálogo destinada al alta y modificación de clientes en el sistema.
+ * Permite capturar y validar los datos personales a través de un formulario, 
+ * reutilizando de forma eficiente la misma vista gráfica tanto para registros 
+ * nuevos como para ediciones gracias a la sobrecarga de constructores.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogNuevoCliente extends javax.swing.JDialog {
     
@@ -27,8 +33,19 @@ public class DialogNuevoCliente extends javax.swing.JDialog {
         this.guardado = false;
         
         // Listeners de los botones
-        btnGuardar.addActionListener(e -> guardar());
-        btnCancelar.addActionListener(e -> cancelar());
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                guardar();
+            }
+        });
+
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelar();
+            }
+        });
         
         // Convierte el botón 'btnGuardar' en el botón por defecto
         this.getRootPane().setDefaultButton(btnGuardar);
@@ -49,13 +66,13 @@ public class DialogNuevoCliente extends javax.swing.JDialog {
     }
     
     private void guardar() {
-        // 1. Validaciones básicas de interfaz
+        // Validaciones básicas de interfaz
         if (txtDni.getText().trim().isEmpty() || txtNombre.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "El DNI y el Nombre son obligatorios.", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
-        // 2. Construimos el VO con los datos del formulario
+        // Construimos el VO con los datos del formulario
         cliente = new ClienteVO();
         cliente.setDni(txtDni.getText().trim());
         cliente.setNombre(txtNombre.getText().trim());
@@ -66,7 +83,7 @@ public class DialogNuevoCliente extends javax.swing.JDialog {
         cliente.setFechaRegistro(java.time.LocalDate.now());
         
         
-        // 3. Marcamos como exitoso y cerramos
+        // Marcamos como exitoso y cerramos
         this.guardado = true;
         this.dispose();
     }

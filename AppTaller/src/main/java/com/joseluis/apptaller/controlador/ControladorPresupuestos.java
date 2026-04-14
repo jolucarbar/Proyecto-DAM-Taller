@@ -1,9 +1,15 @@
 package com.joseluis.apptaller.controlador;
 
+import com.joseluis.apptaller.modelo.dao.ClienteDAO;
 import com.joseluis.apptaller.modelo.dao.PresupuestoDAO;
+import com.joseluis.apptaller.modelo.dao.ProductoDAO;
+import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
+import com.joseluis.apptaller.modelo.vo.ClienteVO;
 import com.joseluis.apptaller.modelo.vo.DetalleManoObraVO;
 import com.joseluis.apptaller.modelo.vo.DetalleProductoVO;
 import com.joseluis.apptaller.modelo.vo.PresupuestoVO;
+import com.joseluis.apptaller.modelo.vo.ProductoVO;
+import com.joseluis.apptaller.modelo.vo.VehiculoVO;
 import com.joseluis.apptaller.vista.dialogos.DialogNuevoPresupuesto;
 
 import javax.swing.JOptionPane;
@@ -12,11 +18,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Controlador para la gestión de creación de presupuestos.
  * Conecta la Vista (DialogNuevoPresupuesto) con el Modelo (DAO/VO).
- * @author joseluis
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ControladorPresupuestos {
 
@@ -33,7 +43,7 @@ public class ControladorPresupuestos {
      * Método principal llamado por la vista cuando el usuario pulsa "Guardar".
      */
     public void guardarPresupuesto() {
-        // VALIDACIÓN BÁSICA
+        // Validación básica
         if (vista.getCbxCliente().getSelectedItem() == null || vista.getCbxVehiculo().getSelectedItem() == null) {
             mostrarError("Debe seleccionar un Cliente y un Vehículo.");
             return;
@@ -47,7 +57,7 @@ public class ControladorPresupuestos {
              return;
         }
 
-        // CREACIÓN DEL MODELO (VO)
+        // Creación del modelo (VO)
         PresupuestoVO presupuesto = new PresupuestoVO();
         
         String clienteDni = vista.getCbxCliente().getSelectedItem().toString().split(" - ")[0]; 
@@ -56,7 +66,7 @@ public class ControladorPresupuestos {
         presupuesto.setClienteDni(clienteDni);
         presupuesto.setVehiculoBastidor(vehiculoBastidor);
         
-        // Convertir la fecha del JSpinner a LocalDate
+        // Convertimos la fecha del JSpinner a LocalDate
         Date dateObj = (Date) vista.getSpnFecha().getValue();
         LocalDate fecha = dateObj.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         presupuesto.setFechaEmision(fecha);
@@ -66,7 +76,7 @@ public class ControladorPresupuestos {
         presupuesto.setDescripcionTrabajo(vista.getTxtAveria().getText());
         presupuesto.setTotalEstimado(parsearCelda(vista.getTxtTotal().getText()));
 
-        // RECOLECTAR MANO DE OBRA
+        // Cogemos los datos de mano de obra
         for (int i = 0; i < modManoObra.getRowCount(); i++) {
             Object desc = modManoObra.getValueAt(i, 0);
             if (desc != null && !desc.toString().trim().isEmpty()) {
@@ -76,14 +86,11 @@ public class ControladorPresupuestos {
             }
         }
 
-        // RECOLECTAR MATERIALES
+        // Cogemos los datos de materiales
         for (int i = 0; i < modMateriales.getRowCount(); i++) {
             Object ref = modMateriales.getValueAt(i, 0);
             Object concepto = modMateriales.getValueAt(i, 1);
             if (ref != null && !ref.toString().trim().isEmpty()) {
-                
-                // BORRAR TRAS DEBUG
-                System.out.println(">>> DEBUG TABLA: Fila " + i + " | Ref: [" + ref.toString() + "]"); 
                 
                 BigDecimal cantidadObj = parsearCelda(modMateriales.getValueAt(i, 2));
                 BigDecimal precio = parsearCelda(modMateriales.getValueAt(i, 3));
@@ -94,7 +101,6 @@ public class ControladorPresupuestos {
             }
         }
 
-        // DELEGAR AL DAO Y ACTUALIZAR VISTA
         boolean exito = dao.insertarPresupuestoCompleto(presupuesto);
 
         if (exito) {
@@ -154,9 +160,9 @@ public class ControladorPresupuestos {
      * Reutiliza ProductoDAO.listar() para mostrar el catálogo real.
      */
     public void aniadirMaterial() {
-        com.joseluis.apptaller.modelo.dao.ProductoDAO prodDAO = new com.joseluis.apptaller.modelo.dao.ProductoDAO();
+        ProductoDAO prodDAO = new ProductoDAO();
         
-        java.util.List<com.joseluis.apptaller.modelo.vo.ProductoVO> productos = prodDAO.listar();
+        List<ProductoVO> productos = prodDAO.listar();
 
         if (productos.isEmpty()) {
             mostrarError("No hay productos registrados en la base de datos.");
@@ -184,7 +190,7 @@ public class ControladorPresupuestos {
             String precio = partes[2].trim();
 
             DefaultTableModel modelo = (DefaultTableModel) vista.getTablaMateriales().getModel();
-            // --- NUEVA LÓGICA: Comprobar si el producto ya está en la tabla ---
+            // Comprobamos si el producto ya está en la tabla
             boolean productoYaExiste = false;
             for (int i = 0; i < modelo.getRowCount(); i++) {
                 Object celdaRef = modelo.getValueAt(i, 0);
@@ -194,13 +200,13 @@ public class ControladorPresupuestos {
                     int cantidadActual = Integer.parseInt(modelo.getValueAt(i, 2).toString());
                     modelo.setValueAt(String.valueOf(cantidadActual + 1), i, 2);
                     
-                    // Nota: ¡Tu TableModelListener se encargará de recalcular el subtotal automáticamente!
+                    // El TableModelListener se encargará de recalcular el subtotal automáticamente
                     productoYaExiste = true;
                     break;
                 }
             }
 
-            // --- Si NO existía, lo añadimos en una fila nueva o vacía ---
+            // Si NO existía, lo añadimos en una fila nueva o vacía
             if (!productoYaExiste) {
                 int filaVacia = buscarPrimeraFilaVacia(modelo);
 
@@ -219,7 +225,7 @@ public class ControladorPresupuestos {
     }
 
     /**
-     * Helper: Busca la primera fila de la tabla que tenga la primera columna vacía.
+     * Busca la primera fila de la tabla que tenga la primera columna vacía.
      */
     private int buscarPrimeraFilaVacia(DefaultTableModel modelo) {
         for (int i = 0; i < modelo.getRowCount(); i++) {
@@ -232,7 +238,7 @@ public class ControladorPresupuestos {
     }
     
 
-    // --- Métodos Auxiliares ---
+    // Métodos Auxiliares
     
     private void mostrarError(String mensaje) {
         JOptionPane.showMessageDialog(vista, mensaje, "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -264,17 +270,17 @@ public class ControladorPresupuestos {
      */
     
     public void inicializar() {
-        // 1. Cargamos TODOS los clientes
+        // Cargamos todos los clientes
         cargarDesplegableClientes();
         
-        // 2. Activamos la escucha (cuando cambie el cliente, se cargarán sus coches)
+        // Activamos la escucha (cuando cambie el cliente, se cargarán sus coches)
         configurarEventosDesplegables(); 
         
-        // 3. El combo de vehículos empieza con un texto de aviso
+        // El combo de vehículos empieza con un texto de aviso
         vista.getCbxVehiculo().removeAllItems();
         vista.getCbxVehiculo().addItem("Seleccione un cliente primero...");
         
-        // 4. Limpiamos los campos de texto
+        // Limpiamos los campos de texto
         vista.getTxtAveria().setText("");
         vista.getTxtBase().setText("0.00");
         vista.getTxtIva().setText("0.00");
@@ -284,13 +290,13 @@ public class ControladorPresupuestos {
     private void cargarDesplegableClientes() {
         vista.getCbxCliente().removeAllItems(); 
         
-        com.joseluis.apptaller.modelo.dao.ClienteDAO clienteDAO = new com.joseluis.apptaller.modelo.dao.ClienteDAO();
+       ClienteDAO clienteDAO = new ClienteDAO();
         
-        java.util.List<com.joseluis.apptaller.modelo.vo.ClienteVO> clientes = clienteDAO.listarTodos(); 
+        List<ClienteVO> clientes = clienteDAO.listarTodos(); 
         
         vista.getCbxCliente().setSelectedItem(null); // Evita disparar el evento durante la carga
         
-        for (com.joseluis.apptaller.modelo.vo.ClienteVO c : clientes) {
+        for (ClienteVO c : clientes) {
             vista.getCbxCliente().addItem(c.getDni() + " - " + c.getNombre());
         }
     }
@@ -311,10 +317,9 @@ public class ControladorPresupuestos {
     private void cargarVehiculosDelCliente(String dni) {
         vista.getCbxVehiculo().removeAllItems();
         
-        com.joseluis.apptaller.modelo.dao.VehiculoDAO vehiculoDAO = new com.joseluis.apptaller.modelo.dao.VehiculoDAO();
+        VehiculoDAO vehiculoDAO = new VehiculoDAO();
         
-        // Usamos TU método nativo
-        java.util.List<com.joseluis.apptaller.modelo.vo.VehiculoVO> vehiculos = vehiculoDAO.listarPorCliente(dni);
+        List<VehiculoVO> vehiculos = vehiculoDAO.listarPorCliente(dni);
         
         if (vehiculos.isEmpty()) {
             vista.getCbxVehiculo().addItem("Sin vehículos registrados");

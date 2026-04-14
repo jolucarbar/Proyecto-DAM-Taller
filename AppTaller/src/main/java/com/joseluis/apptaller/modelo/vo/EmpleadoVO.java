@@ -4,8 +4,13 @@ package com.joseluis.apptaller.modelo.vo;
 import java.time.LocalDate;
 
 /**
+ * Clase que representa a un empleado de la plantilla del taller.
+ * Almacena información personal, laboral y salarial, facilitando el transporte
+ * de estos datos entre la base de datos y la interfaz de usuario.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class EmpleadoVO {
     private int id_empleado;
@@ -23,7 +28,7 @@ public class EmpleadoVO {
     private boolean activo;
 
     public EmpleadoVO() {
-        this.activo = true;  // Todo cliente nuevo nace activo por defecto
+        this.activo = true;  // Todo empleado nuevo nace activo por defecto
     }
 
     public EmpleadoVO(int id_empleado, int usuario_id, String dni, String nombre, String apellidos, String telefono, String email, String direccion, String cargo, LocalDate fecha_alta, LocalDate fecha_baja, float salario_base) {
@@ -43,101 +48,53 @@ public class EmpleadoVO {
     }
 
     // Getters y Setters
-    public int getId_empleado() {
-        return id_empleado;
-    }
+    public int getId_empleado() { return id_empleado; }
 
-    public void setId_empleado(int id_empleado) {
-        this.id_empleado = id_empleado;
-    }
+    public void setId_empleado(int id_empleado) { this.id_empleado = id_empleado; }
 
-    public int getUsuario_id() {
-        return usuario_id;
-    }
+    public int getUsuario_id() { return usuario_id; }
 
-    public void setUsuario_id(int usuario_id) {
-        this.usuario_id = usuario_id;
-    }
+    public void setUsuario_id(int usuario_id) { this.usuario_id = usuario_id; }
 
-    public String getDni() {
-        return dni;
-    }
+    public String getDni() { return dni; }
 
-    public void setDni(String dni) {
-        this.dni = dni;
-    }
+    public void setDni(String dni) { this.dni = dni; }
 
-    public String getNombre() {
-        return nombre;
-    }
+    public String getNombre() { return nombre; }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
+    public void setNombre(String nombre) { this.nombre = nombre; }
 
-    public String getApellidos() {
-        return apellidos;
-    }
+    public String getApellidos() { return apellidos; }
 
-    public void setApellidos(String apellidos) {
-        this.apellidos = apellidos;
-    }
+    public void setApellidos(String apellidos) { this.apellidos = apellidos; }
 
-    public String getTelefono() {
-        return telefono;
-    }
+    public String getTelefono() { return telefono; }
 
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 
-    public String getEmail() {
-        return email;
-    }
+    public String getEmail() { return email; }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+    public void setEmail(String email) { this.email = email; }
 
-    public String getDireccion() {
-        return direccion;
-    }
+    public String getDireccion() { return direccion; }
 
-    public void setDireccion(String direccion) {
-        this.direccion = direccion;
-    }
+    public void setDireccion(String direccion) { this.direccion = direccion; }
 
-    public String getCargo() {
-        return cargo;
-    }
+    public String getCargo() { return cargo; }
 
-    public void setCargo(String cargo) {
-        this.cargo = cargo;
-    }
+    public void setCargo(String cargo) { this.cargo = cargo; }
 
-    public LocalDate getFecha_alta() {
-        return fecha_alta;
-    }
+    public LocalDate getFecha_alta() { return fecha_alta; }
 
-    public void setFecha_alta(LocalDate fecha_alta) {
-        this.fecha_alta = fecha_alta;
-    }
+    public void setFecha_alta(LocalDate fecha_alta) { this.fecha_alta = fecha_alta; }
 
-    public LocalDate getFecha_baja() {
-        return fecha_baja;
-    }
+    public LocalDate getFecha_baja() { return fecha_baja; }
 
-    public void setFecha_baja(LocalDate fecha_baja) {
-        this.fecha_baja = fecha_baja;
-    }
+    public void setFecha_baja(LocalDate fecha_baja) { this.fecha_baja = fecha_baja; }
 
-    public float getSalario_base() {
-        return salario_base;
-    }
+    public float getSalario_base() { return salario_base; }
 
-    public void setSalario_base(float salario_base) {
-        this.salario_base = salario_base;
-    }
+    public void setSalario_base(float salario_base) { this.salario_base = salario_base; }
 
     @Override
     public String toString() {
@@ -146,7 +103,5 @@ public class EmpleadoVO {
     
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
-    
-    
-    
+
 }

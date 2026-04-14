@@ -15,9 +15,10 @@ import java.util.List;
  * Clase DAO para gestionar la persistencia de las Facturas en la base de datos.
  * (implementa las operaciones para gestionar la creación de facturas, asignarlas a un 
  * cliente y calcular totales).
- * Sigue el patrón Singleton para la conexión y las reglas de negocio del ERP.
  * 
- * * @author José Luis Cárdenas Barroso
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class FacturaDAO {
 
@@ -34,6 +35,12 @@ public class FacturaDAO {
     
     private final String SQL_SELECT_BY_NUMERO = "SELECT * FROM facturas WHERE numero_factura = ?";
 
+    
+    // Actualiza el estado de una factura
+    private final String SQL_UPDATE_ESTADO = "UPDATE facturas SET estado = ? WHERE id_factura = ?";
+    
+    
+    
     /**
      * Registra una nueva factura en el sistema.
      * @param factura Objeto de tipo Factura (debes tener el VO correspondiente)
@@ -44,13 +51,13 @@ public class FacturaDAO {
         PreparedStatement stmt = null;
         try {
             System.out.println(">>> DEBUG FACTURA - DNI: [" + factura.getClienteDni() + "] | Bastidor: [" + factura.getVehiculoBastidor() + "]");
-            conn = Conexion.getInstancia().getConnection(); // Uso del Singleton 
+            conn = Conexion.getInstancia().getConnection();  
             stmt = conn.prepareStatement(SQL_INSERT);
 
             stmt.setString(1, factura.getNumeroFactura());
             stmt.setInt(2, factura.getIdReparacion());
             
-            // Campos que pueden ser nulos según el script SQL
+            // Campos que pueden ser nulos 
             if (factura.getIdPresupuesto() > 0) {
                 stmt.setInt(3, factura.getIdPresupuesto());
             } else {
@@ -79,9 +86,9 @@ public class FacturaDAO {
         }
     }
 
+    
     /**
      * Genera un listado de todas las facturas registradas.
-     * Útil para alimentar el tblFacturas del panel principal
      */
     public List<FacturaVO> listar() {
         Connection conn = null;
@@ -105,6 +112,7 @@ public class FacturaDAO {
         return lista;
     }
 
+    
     /**
      * Mapea una fila de ResultSet a un objeto FacturaVO.
      */
@@ -200,7 +208,7 @@ public class FacturaDAO {
            ps.setInt(1, idFactura);
            try (ResultSet rs = ps.executeQuery()) {
                if (rs.next()) {
-                   return mapearFactura(rs); // Reutilizamos tu mapeador existente
+                   return mapearFactura(rs); // Reutilizamos el mapeador existente
                }
            }
        } catch (SQLException e) {
@@ -214,10 +222,10 @@ public class FacturaDAO {
      * Actualiza el estado de una factura en la base de datos.
      */
     public boolean actualizarEstado(int idFactura, String nuevoEstado) {
-        String sql = "UPDATE facturas SET estado = ? WHERE id_factura = ?";
+        
         
         try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+             java.sql.PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
             
             ps.setString(1, nuevoEstado);
             ps.setInt(2, idFactura);

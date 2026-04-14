@@ -1,18 +1,25 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JDialog.java to edit this template
- */
+
 package com.joseluis.apptaller.vista.dialogos;
 
+import com.joseluis.apptaller.controlador.ControladorPresupuestos;
+import java.math.BigDecimal;
+import java.util.logging.Logger;
+
 /**
+ * Ventana de diálogo diseñada para la creación y cálculo de nuevos presupuestos.
+ * Integra la selección de cliente y vehículo con tablas interactivas para desglosar 
+ * materiales y mano de obra, recalculando automáticamente en tiempo real las 
+ * bases imponibles, los impuestos (IVA) y el importe total estimado.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogNuevoPresupuesto extends javax.swing.JDialog {
     
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DialogNuevoPresupuesto.class.getName());
+    private static final Logger logger = java.util.logging.Logger.getLogger(DialogNuevoPresupuesto.class.getName());
 
-    private com.joseluis.apptaller.controlador.ControladorPresupuestos controlador;
+    ControladorPresupuestos controlador;
 
     public void setControlador(com.joseluis.apptaller.controlador.ControladorPresupuestos controlador) {
         this.controlador = controlador; }
@@ -24,15 +31,14 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
         super(parent, modal);
         initComponents();
         
-        // 1. Aumentamos la velocidad del scroll (por defecto es muy lenta)
+        // Aumentamos la velocidad del scroll (por defecto es muy lenta)
         scrollPrincipal.getVerticalScrollBar().setUnitIncrement(16);
 
-        // 2. Forzamos un tamaño mínimo para las tablas para que no se colapsen a 0px
-        // Ajusta los nombres de tus tablas si son distintos
+        // Forzamos un tamaño mínimo para las tablas para que no se colapsen a 0px
         jScrollPane2.setMinimumSize(new java.awt.Dimension(500, 150)); 
         jScrollPane3.setMinimumSize(new java.awt.Dimension(500, 150));
 
-        // 3. Forzar recalculo visual
+        // Forzamos recalculo visual
         panelContenido.revalidate();
         panelContenido.repaint();
 
@@ -398,10 +404,12 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
     private void btnCancelarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelarActionPerformed
         this.dispose(); // Cierra el JDialog liberando memoria
     }//GEN-LAST:event_btnCancelarActionPerformed
 
+    
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         // La vista delega toda la responsabilidad al controlador
         if (controlador != null) {
@@ -409,12 +417,14 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
         }
     }//GEN-LAST:event_btnGuardarActionPerformed
 
+    
     private void btnAniadirTareaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAniadirTareaActionPerformed
         if (controlador != null) {
             controlador.aniadirTarea();
         }
     }//GEN-LAST:event_btnAniadirTareaActionPerformed
 
+    
     private void btnAniadirMaterialActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAniadirMaterialActionPerformed
         if (controlador != null) {
             controlador.aniadirMaterial();
@@ -498,23 +508,24 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
 
-// --- LÓGICA DE CÁLCULO DE TOTALES ---
+    // Lógica de cálculo de totales
 
     /**
      * Convierte el valor de una celda a BigDecimal de forma segura.
      */
-    private java.math.BigDecimal parsearCelda(Object valor) {
+    private BigDecimal parsearCelda(Object valor) {
         if (valor == null || valor.toString().trim().isEmpty()) {
-            return java.math.BigDecimal.ZERO;
+            return BigDecimal.ZERO;
         }
         try {
             // Cambiamos coma por punto por si el usuario teclea formato europeo
-            return new java.math.BigDecimal(valor.toString().replace(",", "."));
+            return new BigDecimal(valor.toString().replace(",", "."));
         } catch (NumberFormatException ex) {
             return java.math.BigDecimal.ZERO;
         }
     }
 
+    
     /**
      * Recalcula el "Total" de una fila específica en la tabla de Mano de Obra
      */
@@ -522,13 +533,14 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
         javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaManoObra.getModel();
         
         // Columnas: [0] Desc, [1] Horas, [2] Precio/Hora, [3] Total
-        java.math.BigDecimal horas = parsearCelda(modelo.getValueAt(fila, 1));
-        java.math.BigDecimal precio = parsearCelda(modelo.getValueAt(fila, 2));
+        BigDecimal horas = parsearCelda(modelo.getValueAt(fila, 1));
+        BigDecimal precio = parsearCelda(modelo.getValueAt(fila, 2));
         
-        java.math.BigDecimal subtotal = horas.multiply(precio);
+        BigDecimal subtotal = horas.multiply(precio);
         modelo.setValueAt(subtotal.toString(), fila, 3); // Actualizamos la columna Total
     }
 
+    
     /**
      * Recalcula el "Total" de una fila específica en la tabla de Materiales
      */
@@ -536,18 +548,19 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
         javax.swing.table.DefaultTableModel modelo = (javax.swing.table.DefaultTableModel) tablaMateriales.getModel();
         
         // Columnas: [0] Ref, [1] Concepto, [2] Cantidad, [3] Precio, [4] Total
-        java.math.BigDecimal cantidad = parsearCelda(modelo.getValueAt(fila, 2));
-        java.math.BigDecimal precio = parsearCelda(modelo.getValueAt(fila, 3));
+        BigDecimal cantidad = parsearCelda(modelo.getValueAt(fila, 2));
+        BigDecimal precio = parsearCelda(modelo.getValueAt(fila, 3));
         
-        java.math.BigDecimal subtotal = cantidad.multiply(precio);
+        BigDecimal subtotal = cantidad.multiply(precio);
         modelo.setValueAt(subtotal.toString(), fila, 4); // Actualizamos la columna Total
     }
 
+    
     /**
      * Recorre ambas tablas, suma los totales y actualiza los JTextField inferiores.
      */
     private void calcularTotalesGlobales() {
-        java.math.BigDecimal baseImponible = java.math.BigDecimal.ZERO;
+        BigDecimal baseImponible = java.math.BigDecimal.ZERO;
 
         // Sumar Mano de Obra (leemos la columna 3: Total)
         javax.swing.table.DefaultTableModel modManoObra = (javax.swing.table.DefaultTableModel) tablaManoObra.getModel();
@@ -555,17 +568,17 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
             baseImponible = baseImponible.add(parsearCelda(modManoObra.getValueAt(i, 3)));
         }
 
-        // Sumar Materiales (leemos la columna 4: Total)
+        // Sumamos Materiales (leemos la columna 4: Total)
         javax.swing.table.DefaultTableModel modMateriales = (javax.swing.table.DefaultTableModel) tablaMateriales.getModel();
         for (int i = 0; i < modMateriales.getRowCount(); i++) {
             baseImponible = baseImponible.add(parsearCelda(modMateriales.getValueAt(i, 4)));
         }
 
-        // Calcular IVA (21%) y Total
-        java.math.BigDecimal iva = baseImponible.multiply(new java.math.BigDecimal("0.21"));
-        java.math.BigDecimal totalGeneral = baseImponible.add(iva);
+        // Calculamos el IVA (21%) y Total
+        BigDecimal iva = baseImponible.multiply(new java.math.BigDecimal("0.21"));
+        BigDecimal totalGeneral = baseImponible.add(iva);
 
-        // Formatear a 2 decimales y mostrar en la interfaz
+        // Formateamos a 2 decimales y mostramos en la interfaz
         // Usamos String.format para asegurar que siempre haya 2 decimales visualmente
         txtBase.setText(String.format("%.2f", baseImponible));
         txtIva.setText(String.format("%.2f", iva));

@@ -8,13 +8,17 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @author joseluis
+ * Gestiona la información de los proveedores en la base de datos.
+ * Permite registrar, listar, editar y dar de baja a las empresas o 
+ * distribuidores que suministran piezas y materiales al taller.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ProveedorDAO {
     
@@ -62,7 +66,7 @@ public class ProveedorDAO {
     
     
     /**
-     * Obtiene todos los clientes activos.
+     * Obtiene todos los proveedores activos.
      * @return 
      */
     public List<ProveedorVO> listar() {
@@ -90,7 +94,7 @@ public class ProveedorDAO {
     
     
     /**
-     * Busca un cliente por su DNI.
+     * Busca un proveedor por su CIF.
      */
     public ProveedorVO buscarPorCif(String cif) {
         Connection conn = null;
@@ -115,8 +119,9 @@ public class ProveedorDAO {
         return proveedor;
     }
     
+    
     /**
-     * Actualiza los datos de un cliente.
+     * Actualiza los datos de un proveedor.
      */
     public boolean modificar(ProveedorVO proveedor) {
         Connection conn = null;
@@ -147,7 +152,7 @@ public class ProveedorDAO {
     
     
     /**
-     * Realiza un borrado lógico (desactiva el cliente).
+     * Realiza un borrado lógico (desactiva el proveedor).
      * @param dni
      * @return 
      */

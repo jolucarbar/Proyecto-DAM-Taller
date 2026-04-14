@@ -1,5 +1,15 @@
 package com.joseluis.apptaller.modelo.vo;
 
+
+/**
+ * Clase que representa a un vehículo registrado en el taller.
+ * Almacena sus datos técnicos (bastidor, matrícula, marca, modelo) y lo vincula 
+ * con su propietario para facilitar la gestión de reparaciones y presupuestos.
+ *
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
+ */
 public class VehiculoVO {
     
     private String bastidor;   

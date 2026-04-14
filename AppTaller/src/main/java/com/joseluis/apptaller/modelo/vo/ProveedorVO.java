@@ -4,8 +4,13 @@ package com.joseluis.apptaller.modelo.vo;
 import java.time.LocalDate;
 
 /**
+ * Clase que representa a un proveedor o distribuidor de recambios del taller.
+ * Almacena sus datos fiscales (CIF), información de contacto y página web, 
+ * facilitando el transporte de esta información hacia y desde la base de datos.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ProveedorVO {
      
@@ -20,7 +25,7 @@ public class ProveedorVO {
     private LocalDate created_at;
 
     public ProveedorVO() {
-        this.activo = true; // Todo cliente nuevo nace activo por defecto
+        this.activo = true; // Todo proveedor nuevo nace activo por defecto
     }
     
     public ProveedorVO(String cif, String nombre, String direccion, String telefono, String email, String contacto, String web, boolean activo, LocalDate created_at) {
@@ -107,7 +112,5 @@ public class ProveedorVO {
     public void setCreated_at(LocalDate created_at) {
         this.created_at = created_at;
     }
-    
-    
     
 }

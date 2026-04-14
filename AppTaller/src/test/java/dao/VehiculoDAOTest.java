@@ -2,7 +2,6 @@ package com.joseluis.apptaller.modelo.dao;
 
 import com.joseluis.apptaller.modelo.vo.VehiculoVO;
 import com.joseluis.apptaller.modelo.vo.ClienteVO;
-import com.joseluis.apptaller.persistencia.Conexion; // Necesario para limpieza física
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.util.List;
@@ -24,7 +23,7 @@ public class VehiculoDAOTest {
         vehiculoDAO = new VehiculoDAO();
         clienteDAO = new ClienteDAO();
 
-        // 1. LIMPIEZA FÍSICA (CRÍTICO PARA EVITAR ERROR DUPLICATE ENTRY)
+        // 1. Limpiamos para evitar error de entrada duplicada
         limpiarDatosDePrueba();
 
         // 2. Aseguramos que existe el Cliente
@@ -74,7 +73,7 @@ public class VehiculoDAOTest {
                 stmtV.executeUpdate();
             }
             
-            // PASO 3: Borramos el cliente de prueba asociado para dejar la BD 100% limpia
+            // PASO 3: Borramos el cliente de prueba asociado para dejar la BD limpia
             String sqlCliente = "DELETE FROM clientes WHERE dni_cif = '12345678Z'"; 
             try (PreparedStatement stmtC = conn.prepareStatement(sqlCliente)) {
                 stmtC.executeUpdate();

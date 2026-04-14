@@ -5,8 +5,14 @@ import com.joseluis.apptaller.modelo.vo.ProveedorVO;
 import javax.swing.JOptionPane;
 
 /**
+ * Ventana de diálogo dedicada a la creación y edición de fichas de proveedores.
+ * Permite registrar la información fiscal (CIF) y los datos de contacto, 
+ * reutilizando la misma estructura de la interfaz (mediante sobrecarga de constructores) 
+ * para gestionar tanto las nuevas altas como la actualización de proveedores existentes.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogNuevoProveedor extends javax.swing.JDialog {
     
@@ -16,9 +22,9 @@ public class DialogNuevoProveedor extends javax.swing.JDialog {
     private boolean guardado; // Bandera para saber si el usuario pulsó Guardar o Cancelar
 
     /**
-     * Creates new form DialogNuevoCliente
+     * Creates new form DialogNuevoProveedor
      */
-    // Constructor para NUEVO cliente
+    // Constructor para nuevo proveedor
     public DialogNuevoProveedor(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -34,7 +40,8 @@ public class DialogNuevoProveedor extends javax.swing.JDialog {
         this.getRootPane().setDefaultButton(btnGuardar);
     }
     
-    // Constructor sobrecargado para EDITAR un proveedor existente
+    
+    // Constructor sobrecargado para editar un proveedor existente
     public DialogNuevoProveedor(java.awt.Frame parent, boolean modal, ProveedorVO proveedorAEditar) {
         this(parent, modal); // Llama al constructor por defecto
         setTitle("Editar Proveedor");
@@ -51,14 +58,15 @@ public class DialogNuevoProveedor extends javax.swing.JDialog {
         
     }
     
+    
     private void guardar() {
-        // 1. Validaciones básicas de interfaz
+        // Validaciones básicas de interfaz
         if (txtCif.getText().trim().isEmpty() || txtNombre.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "El CIF y el Nombre son obligatorios.", "Campos incompletos", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
-        // 2. Construimos el VO con los datos del formulario
+        // Construimos el VO con los datos del formulario
         proveedor = new ProveedorVO();
         proveedor.setCif(txtCif.getText().trim());
         proveedor.setNombre(txtNombre.getText().trim());
@@ -71,7 +79,7 @@ public class DialogNuevoProveedor extends javax.swing.JDialog {
         proveedor.setCreated_at(java.time.LocalDate.now());
         
         
-        // 3. Marcamos como exitoso y cerramos
+        // Marcamos como exitoso y cerramos
         this.guardado = true;
         this.dispose();
     }

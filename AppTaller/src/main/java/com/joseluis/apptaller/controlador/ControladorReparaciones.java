@@ -3,13 +3,23 @@ package com.joseluis.apptaller.controlador;
 
 import com.joseluis.apptaller.modelo.dao.ReparacionDAO;
 import com.joseluis.apptaller.modelo.vo.ReparacionVO;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.table.DefaultTableModel;
 
 /**
- * Controlador que gestiona la lógica de negocio de las reparaciones.
- * 
- * @author joseluis
+ * Controlador encargado de gestionar la lógica de negocio del módulo de Reparaciones.
+ * Se encarga de conectar la interfaz visual de las reparaciones con la base
+ * de datos (ReparacionDAO), creando órdenes de reparación y cambiando sus estados,
+ * asignando mecánicos a la reparación, muestra el desglose de piezas, mano de 
+ * obra y el historial del coche y calcula las sumas, base imponible e IVA 
+ * listos para la factura.
+ *  
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ControladorReparaciones {
     private final ReparacionDAO reparacionDAO;
@@ -29,6 +39,7 @@ public class ControladorReparaciones {
         }
     }
 
+    
     /**
      * Procesa el registro de una nueva reparación con validaciones previas.
      */
@@ -37,9 +48,10 @@ public class ControladorReparaciones {
     
             rep.setVehiculoBastidor(rep.getVehiculoBastidor().toUpperCase());
 
-            // Llamamos al método transaccional que copia los detalles
+            // Llamamos al método que copia los detalles
             return reparacionDAO.insertarConDetalles(rep);
     }
+    
     
     /**
      * Función que devuelva un objeto con todas las estadísticas necesarias 
@@ -49,7 +61,7 @@ public class ControladorReparaciones {
     public java.util.Map<String, Integer> obtenerEstadisticas() {
         java.util.Map<String, Integer> stats = new java.util.HashMap<>();
 
-        // Contamos en BD y guardamos el resultado con una clave clara
+        // Contamos en BD y guardamos el resultado en una clave 
         stats.put("Urgente", reparacionDAO.contarPorPrioridad("Urgente"));
         stats.put("Alta", reparacionDAO.contarPorPrioridad("Alta"));
         stats.put("Normal", reparacionDAO.contarPorPrioridad("Normal"));
@@ -58,6 +70,7 @@ public class ControladorReparaciones {
 
         return stats;
     }
+    
     
     /**
      * Filtra la tblReparaciones según el estado seleccionado en el cbxFiltrarEstado
@@ -69,6 +82,7 @@ public class ControladorReparaciones {
             modelo.addRow(fila);
         }
     }
+    
     
     /**
      * Método para cambiar el estado de reparación de un vehículo.
@@ -154,24 +168,25 @@ public class ControladorReparaciones {
     /**
      * Calcula los impuestos y devuelve los textos formateados para la vista.
      */
-    public java.util.Map<String, String> calcularYFormatearCostos(int idReparacion) {
+    public Map<String, String> calcularYFormatearCostos(int idReparacion) {
         // Pedimos los datos al DAO
-        java.util.Map<String, java.math.BigDecimal> costos = reparacionDAO.obtenerCostos(idReparacion);
+        Map<String, BigDecimal> costos = reparacionDAO.obtenerCostos(idReparacion);
         
-        java.math.BigDecimal totalMO = costos.getOrDefault("mano_obra", java.math.BigDecimal.ZERO);
-        java.math.BigDecimal totalPiezas = costos.getOrDefault("piezas", java.math.BigDecimal.ZERO);
+        // Usamos BigDecimal porque garantiza precisión matemática exacta
+        BigDecimal totalMO = costos.getOrDefault("mano_obra", BigDecimal.ZERO);
+        BigDecimal totalPiezas = costos.getOrDefault("piezas", BigDecimal.ZERO);
         
         // Matemáticas de facturación
-        java.math.BigDecimal baseImponible = totalMO.add(totalPiezas);
+        BigDecimal baseImponible = totalMO.add(totalPiezas);
         // Multiplicamos por 0.21 para sacar el IVA
-        java.math.BigDecimal iva = baseImponible.multiply(new java.math.BigDecimal("0.21")); 
-        java.math.BigDecimal total = baseImponible.add(iva);
+        BigDecimal iva = baseImponible.multiply(new java.math.BigDecimal("0.21")); 
+        BigDecimal total = baseImponible.add(iva);
         
         // Formateo (Ej: 1.250,50 €)
         java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0.00 €");
         
         // Empaquetamos para la vista
-        java.util.Map<String, String> resultado = new java.util.HashMap<>();
+        Map<String, String> resultado = new HashMap<>();
         resultado.put("mano_obra", df.format(totalMO));
         resultado.put("piezas", df.format(totalPiezas));
         resultado.put("base", df.format(baseImponible));
@@ -190,7 +205,7 @@ public class ControladorReparaciones {
         modelo.setRowCount(0);
         
         // Pedimos los datos al DAO
-        java.util.List<Object[]> historial = reparacionDAO.obtenerHistorialVehiculo(idReparacion);
+        List<Object[]> historial = reparacionDAO.obtenerHistorialVehiculo(idReparacion);
         
         // Rellenamos la vista
         for (Object[] fila : historial) {

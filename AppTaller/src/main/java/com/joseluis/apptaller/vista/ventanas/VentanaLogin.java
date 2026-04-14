@@ -1,13 +1,22 @@
 
 package com.joseluis.apptaller.vista.ventanas;
 
+import com.joseluis.apptaller.modelo.dao.UsuarioDAO;
+import com.joseluis.apptaller.modelo.vo.UsuarioVO;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import mdlaf.MaterialLookAndFeel;
 import mdlaf.themes.MaterialLiteTheme;
+
 /**
+ * Ventana principal de autenticación del sistema (Login).
+ * Constituye el punto de acceso seguro a la aplicación, encargándose de recoger 
+ * las credenciales del usuario, validarlas contra la base de datos a través del DAO 
+ * correspondiente y dar paso a la ventana principal si la identificación es exitosa.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class VentanaLogin extends javax.swing.JFrame {
 
@@ -30,25 +39,27 @@ public class VentanaLogin extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel1 = new javax.swing.JPanel();
-        etqUsuario = new javax.swing.JLabel();
+        panelContenedor = new javax.swing.JPanel();
+        lblUsuario = new javax.swing.JLabel();
         txtUsuario = new javax.swing.JTextField();
-        etqPassword = new javax.swing.JLabel();
+        lblPassword = new javax.swing.JLabel();
         txtPassword = new javax.swing.JPasswordField();
         btnAcceder = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        lblLogo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        etqUsuario.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
-        etqUsuario.setText("Usuario");
+        lblUsuario.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblUsuario.setText("Usuario");
 
         txtUsuario.setColumns(5);
         txtUsuario.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
 
-        etqPassword.setText("Contraseña");
+        lblPassword.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblPassword.setText("Contraseña");
 
         txtPassword.setColumns(5);
+        txtPassword.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         txtPassword.setText("jPasswordField1");
         txtPassword.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
@@ -61,6 +72,7 @@ public class VentanaLogin extends javax.swing.JFrame {
             }
         });
 
+        btnAcceder.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         btnAcceder.setText("Acceder");
         btnAcceder.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -68,67 +80,69 @@ public class VentanaLogin extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setIcon(new javax.swing.ImageIcon("/home/joseluis/NetBeansProjects/APPTaller/src/main/resources/images/logo_apptaller_small.png")); // NOI18N
+        lblLogo.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblLogo.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logo_apptaller_small.png"))); // NOI18N
 
-        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-        jPanel1.setLayout(jPanel1Layout);
-        jPanel1Layout.setHorizontalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+        javax.swing.GroupLayout panelContenedorLayout = new javax.swing.GroupLayout(panelContenedor);
+        panelContenedor.setLayout(panelContenedorLayout);
+        panelContenedorLayout.setHorizontalGroup(
+            panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelContenedorLayout.createSequentialGroup()
                 .addGap(38, 38, 38)
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(etqPassword)
-                    .addComponent(etqUsuario)
+                .addGroup(panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(lblPassword)
+                    .addComponent(lblUsuario)
                     .addComponent(txtUsuario)
                     .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 44, Short.MAX_VALUE)
-                .addComponent(jLabel1)
+                .addComponent(lblLogo)
                 .addContainerGap())
-            .addGroup(jPanel1Layout.createSequentialGroup()
+            .addGroup(panelContenedorLayout.createSequentialGroup()
                 .addGap(149, 149, 149)
                 .addComponent(btnAcceder)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        jPanel1Layout.setVerticalGroup(
-            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
+        panelContenedorLayout.setVerticalGroup(
+            panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelContenedorLayout.createSequentialGroup()
+                .addGroup(panelContenedorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelContenedorLayout.createSequentialGroup()
                         .addGap(39, 39, 39)
-                        .addComponent(etqUsuario)
+                        .addComponent(lblUsuario)
                         .addGap(18, 18, 18)
                         .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(36, 36, 36)
-                        .addComponent(etqPassword)
+                        .addComponent(lblPassword)
                         .addGap(18, 18, 18)
                         .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jLabel1))
+                    .addComponent(lblLogo))
                 .addGap(71, 71, 71)
                 .addComponent(btnAcceder)
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addContainerGap(42, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelContenedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(panelContenedor, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
     private void btnAccederActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAccederActionPerformed
         
-        // 1. Capturar datos de la vista
+        // Capturamos datos de la vista
         String user = txtUsuario.getText();
         String pass = new String(txtPassword.getPassword()); // JPasswordField devuelve char[]
 
-        // 2. Validaciones básicas de interfaz 
+        // Validaciones básicas de interfaz 
         if (user.isEmpty() || pass.isEmpty()) {
             javax.swing.JOptionPane.showMessageDialog(this, 
                 "Por favor, introduce usuario y contraseña.", 
@@ -137,11 +151,11 @@ public class VentanaLogin extends javax.swing.JFrame {
             return;
         }
 
-        // 3. Llamada al Backend (DAO)
-        com.joseluis.apptaller.modelo.dao.UsuarioDAO dao = new com.joseluis.apptaller.modelo.dao.UsuarioDAO();
-        com.joseluis.apptaller.modelo.vo.UsuarioVO usuarioLogueado = dao.autenticar(user, pass);
+        // Llamada al Backend (DAO)
+        UsuarioDAO dao = new UsuarioDAO();
+        UsuarioVO usuarioLogueado = dao.autenticar(user, pass);
 
-        // 4. Decisión basada en la respuesta de la BBDD
+        // Decisión basada en la respuesta de la BBDD
         if (usuarioLogueado != null) {
             // A. Login Correcto
             // Opcional: Mostrar mensaje de bienvenida
@@ -149,7 +163,6 @@ public class VentanaLogin extends javax.swing.JFrame {
 
             // Abrir la ventana principal
             VentanaPrincipal principal = new VentanaPrincipal();
-            // TODO: Podríamos pasarle el 'usuarioLogueado' a la ventana principal para controlar permisos
             principal.setVisible(true);
             
             // Cerrar esta ventana de login
@@ -162,17 +175,19 @@ public class VentanaLogin extends javax.swing.JFrame {
                 "Error de Acceso", 
                 javax.swing.JOptionPane.ERROR_MESSAGE);
             
-            // Limpiar el campo de contraseña por seguridad y dar foco
+            // Limpiamos el campo de contraseña por seguridad y dar foco
             txtPassword.setText("");
             txtPassword.requestFocus();
         }
         
     }//GEN-LAST:event_btnAccederActionPerformed
 
+    
     private void txtPasswordMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_txtPasswordMouseClicked
         txtPassword.setText("");
     }//GEN-LAST:event_txtPasswordMouseClicked
 
+    
     private void txtPasswordFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txtPasswordFocusGained
         txtPassword.setText("");
     }//GEN-LAST:event_txtPasswordFocusGained
@@ -199,10 +214,10 @@ public class VentanaLogin extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAcceder;
-    private javax.swing.JLabel etqPassword;
-    private javax.swing.JLabel etqUsuario;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JPanel jPanel1;
+    private javax.swing.JLabel lblLogo;
+    private javax.swing.JLabel lblPassword;
+    private javax.swing.JLabel lblUsuario;
+    private javax.swing.JPanel panelContenedor;
     private javax.swing.JPasswordField txtPassword;
     private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables

@@ -3,14 +3,11 @@ package com.joseluis.apptaller.modelo.dao;
 import com.joseluis.apptaller.modelo.vo.ProductoVO;
 import com.joseluis.apptaller.persistencia.Conexion;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 public class ProductoDAOTest {
 

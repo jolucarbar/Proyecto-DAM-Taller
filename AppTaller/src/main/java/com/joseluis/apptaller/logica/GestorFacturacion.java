@@ -1,10 +1,12 @@
 package com.joseluis.apptaller.logica;
 
 import com.joseluis.apptaller.modelo.dao.FacturaDAO;
+import com.joseluis.apptaller.modelo.dao.ReparacionDAO;
 import com.joseluis.apptaller.modelo.vo.DetalleFactura;
 import com.joseluis.apptaller.modelo.vo.FacturaVO;
 import java.time.LocalDate;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +19,10 @@ import net.sf.jasperreports.view.JasperViewer;
 /**
  * Gestiona la lógica de negocio para la emisión de facturas.
  * Centraliza los cálculos para no sobrecargar el DAO ni la Vista.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class GestorFacturacion {
     
@@ -28,7 +34,7 @@ public class GestorFacturacion {
     }
 
     /**
-     * Construye un objeto FacturaVO precalculado a partir de una Reparación finalizada.
+     * Construye un objeto FacturaVO a partir de una Reparación finalizada.
      */
     public FacturaVO prepararFacturaDesdeReparacion(int idReparacion, int idPresupuesto, String clienteDni, String bastidor, double totalManoObra, double totalProductos) {
         
@@ -57,6 +63,7 @@ public class GestorFacturacion {
         return factura;
     }
     
+    
     // Utilidad de redondeo a 2 decimales
     private double redondear(double valor) {
         return Math.round(valor * 100.0) / 100.0;
@@ -71,7 +78,7 @@ public class GestorFacturacion {
             return false;
         }
         
-        // Delegamos al Modelo (DAO)
+        // Mandamos al Modelo (DAO)
         return facturaDAO.insertar(factura);
     }
     
@@ -83,7 +90,7 @@ public class GestorFacturacion {
      */
     public void generarInformePDF(FacturaVO factura, List<DetalleFactura> detalles) {
         try {
-            // 1. Cargar el reporte compilado (.jasper) y el logo desde la carpeta resources
+            // Cargar el reporte compilado (.jasper) y el logo desde la carpeta resources
             InputStream reportStream = getClass().getResourceAsStream("/informes/FacturaTaller.jasper");
             InputStream logoStream = getClass().getResourceAsStream("/images/logo_apptaller_small.png");
 
@@ -92,12 +99,12 @@ public class GestorFacturacion {
                 return;
             }
 
-            // 2. Mapear los Parámetros (Los $P{} de la cabecera y totales)
+            // Mapear los Parámetros (Los $P{} de la cabecera y totales)
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("PARAM_LOGO", logoStream); 
             parametros.put("PARAM_NUM_FACTURA", factura.getNumeroFactura());
             
-            // Validamos que el nombre no sea nulo, si lo es, ponemos "Desconocido"
+            // Validamos que el nombre no sea nulo; si lo es, ponemos "Desconocido"
             String nombreCliente = (factura.getClienteNombre() != null) ? factura.getClienteNombre() : "Cliente Desconocido";
             parametros.put("PARAM_CLIENTE", nombreCliente); 
             
@@ -110,13 +117,13 @@ public class GestorFacturacion {
             parametros.put("PARAM_BASE_IMPONIBLE", baseImponible);
             parametros.put("PARAM_TOTAL", factura.getTotalCobrado());
 
-            // 3. Fuente de datos para la tabla (Los $F{} de la banda Detail)
+            // Fuente de datos para la tabla (Los $F{} de la banda Detail)
             JRBeanCollectionDataSource dataSource = new JRBeanCollectionDataSource(detalles);
 
-            // 4. Llenar el reporte (Fusionar diseño + datos)
+            // Llenar el reporte (Fusionar diseño + datos)
             JasperPrint jp = JasperFillManager.fillReport(reportStream, parametros, dataSource);
 
-            // 5. Mostrar el visor de Jasper (Permite ver, imprimir directamente o guardar como PDF)
+            // Mostrar el visor de Jasper (Permite ver, imprimir directamente o guardar como PDF)
             // El 'false' evita que al cerrar el PDF se cierre también la aplicación entera.
             JasperViewer.viewReport(jp, false);
 
@@ -132,10 +139,10 @@ public class GestorFacturacion {
      * en líneas de detalle para imprimir la factura.
      */
     public java.util.List<DetalleFactura> obtenerDetallesParaFactura(int idReparacion) {
-        java.util.List<DetalleFactura> detalles = new java.util.ArrayList<>();
-        com.joseluis.apptaller.modelo.dao.ReparacionDAO repDao = new com.joseluis.apptaller.modelo.dao.ReparacionDAO();
+        List<DetalleFactura> detalles = new ArrayList<>();
+        ReparacionDAO repDao = new ReparacionDAO();
         
-        // 1. Añadir líneas de Mano de Obra
+        // Añadir líneas de Mano de Obra
         for (Object[] mo : repDao.obtenerTrabajosRealizados(idReparacion)) {
             String desc = "Mano de Obra: " + mo[0].toString();
             double cantidad = Double.parseDouble(mo[2].toString());
@@ -146,7 +153,7 @@ public class GestorFacturacion {
             detalles.add(new DetalleFactura(desc, cantidad, precio, subtotal));
         }
         
-        // 2. Añadir líneas de Piezas / Materiales
+        // Añadir líneas de Piezas / Materiales
         for (Object[] prod : repDao.obtenerPiezasUtilizadas(idReparacion)) {
             String desc = "Recambio: " + prod[0].toString() + " - " + prod[1].toString();
             double cantidad = Double.parseDouble(prod[2].toString());

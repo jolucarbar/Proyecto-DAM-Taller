@@ -8,7 +8,14 @@ import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.view.JasperViewer;
 
 /**
- * Clase de utilidad para centralizar la generación de documentos PDF.
+ * Clase de utilidad encargada de la generación y visualización de informes.
+ * Utiliza la librería JasperReports para compilar plantillas (.jrxml), inyectar
+ * parámetros (como logos o identificadores) y mostrar documentos oficiales 
+ * listos para imprimir o exportar a PDF.
+ *
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class GeneradorInformes {
 
@@ -42,7 +49,7 @@ public class GeneradorInformes {
             JasperPrint jasperPrint = JasperFillManager.fillReport(
                     report, 
                     parametros, 
-                    com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection()
+                    Conexion.getInstancia().getConnection()
             );
 
             // Mostrar el visor

@@ -7,8 +7,14 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 /**
+ * Ventana de diálogo para el registro y modificación de vehículos en el sistema.
+ * Captura los datos técnicos (bastidor, matrícula, marca, modelo) y permite 
+ * vincular el vehículo a un cliente existente mediante un menú desplegable.
+ * Reutiliza la misma interfaz para altas nuevas y ediciones de vehículos.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogNuevoVehiculo extends javax.swing.JDialog {
     
@@ -29,29 +35,40 @@ public class DialogNuevoVehiculo extends javax.swing.JDialog {
         cargarClientesEnCombo(clientesActivos);
         
         // Listeners
-        btnGuardar.addActionListener(e -> guardar());
-        btnCancelar.addActionListener(e -> cancelar());
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                guardar();
+            }
+        });
         
-        // UX: Botón por defecto al pulsar Intro
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelar();
+            }
+        });
+        
+        // Botón por defecto al pulsar Intro
         this.getRootPane().setDefaultButton(btnGuardar);
         
     }
     
-    // Constructor sobrecargado para EDITAR un vehículo existente
+    // Constructor sobrecargado para editar un vehículo existente
     public DialogNuevoVehiculo(java.awt.Frame parent, boolean modal, java.util.List<ClienteVO>clientesActivos, VehiculoVO vehiculoAEditar) {
         this(parent, modal, clientesActivos); // Llama al constructor por defecto que inicializa todo
         setTitle("Editar Vehículo");
         
-        // 1. Volcamos los datos en los campos de texto
+        // Volcamos los datos en los campos de texto
         txtBastidor.setText(vehiculoAEditar.getBastidor());
-        txtBastidor.setEditable(false); // BLOQUEAMOS la clave primaria para que no la rompan
+        txtBastidor.setEditable(false); // Bloqueamos la clave primaria para que no la rompan
         txtMatricula.setText(vehiculoAEditar.getMatricula());
         txtMarca.setText(vehiculoAEditar.getMarca());
         txtModelo.setText(vehiculoAEditar.getModelo());
         txtColor.setText(vehiculoAEditar.getColor());
         txtAnio.setText(String.valueOf(vehiculoAEditar.getAnioFabricacion()));
         
-        // 2. Buscamos y seleccionamos al dueño correcto en el desplegable (JComboBox)
+        // Buscamos y seleccionamos al dueño correcto en el desplegable (JComboBox)
         String dniDueño = vehiculoAEditar.getDniPropietario();
         for (int i = 0; i < cbxClientes.getItemCount(); i++) {
             String item = (String) cbxClientes.getItemAt(i);
@@ -325,6 +342,7 @@ public class DialogNuevoVehiculo extends javax.swing.JDialog {
     private javax.swing.JTextField txtModelo;
     // End of variables declaration//GEN-END:variables
 
+    
     private void cargarClientesEnCombo(List<ClienteVO> clientes) {
         cbxClientes.removeAllItems();
         if (clientes.isEmpty()) {
@@ -335,22 +353,23 @@ public class DialogNuevoVehiculo extends javax.swing.JDialog {
         for (ClienteVO c : clientes) {
         // Guardamos DNI y Nombre separados por un guion
         cbxClientes.addItem(c.getDni() + " - " + c.getNombre());
-}
+        }
     }
 
+    
     private void guardar() {
-        // 1. Validaciones básicas
+        // Validaciones básicas
         if (txtMatricula.getText().trim().isEmpty() || txtBastidor.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "La Matrícula y el Bastidor son obligatorios.", 
                     "Aviso", JOptionPane.WARNING_MESSAGE);
         return;
         }
         
-        // 2. Extraer el DNI del JComboBox (cortamos la cadena por el " - " y cogemos la primera parte
+        // Extraemos el DNI del JComboBox (cortamos la cadena por el " - " y cogemos la primera parte
         String clienteSeleccionado = (String) cbxClientes.getSelectedItem();
         String dniPropietario = clienteSeleccionado.split(" - ")[0];
         
-        // 3. Empaquetar el VehiculoVO
+        // Empaquetamos el VehiculoVO
         vehiculo = new VehiculoVO();
         vehiculo.setBastidor(txtBastidor.getText().trim());
         vehiculo.setMatricula(txtMatricula.getText().trim().toUpperCase()); // Matrículas siempre en mayúsculas
@@ -360,7 +379,7 @@ public class DialogNuevoVehiculo extends javax.swing.JDialog {
         vehiculo.setAnioFabricacion(Integer.parseInt(txtAnio.getText().trim()));
         vehiculo.setDniPropietario(dniPropietario);
         
-        // 4. Cerramos
+        // Cerramos
         this.guardado = true;
         this.dispose();
     }

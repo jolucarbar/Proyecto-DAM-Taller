@@ -1,9 +1,5 @@
 package com.joseluis.apptaller.modelo.dao;
 
-/**
- * Esta clase se encarga de controlar quién entra en la aplicación y registrar cuándo lo hace.
- */
-
 import com.joseluis.apptaller.modelo.vo.UsuarioVO;
 import com.joseluis.apptaller.persistencia.Conexion;
 import java.sql.Connection;
@@ -13,6 +9,16 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+
+/**
+ * Gestiona la seguridad y el acceso de los usuarios al sistema.
+ * Se encarga de verificar las credenciales durante el inicio de sesión (Login)
+ * y de registrar automáticamente la fecha y hora del último acceso al taller.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
+ */
 public class UsuarioDAO {
 
     // SQL para buscar usuario activo
@@ -20,6 +26,7 @@ public class UsuarioDAO {
     // SQL para actualizar la fecha de último acceso
     private static final String SQL_UPDATE_ACCESO = "UPDATE usuarios SET ultimo_acceso = ? WHERE id_usuario = ?";
 
+    
     /**
      * Intenta loguear al usuario.
      * @return UsuarioVO si es correcto, null si falla.
@@ -34,7 +41,7 @@ public class UsuarioDAO {
             conn = Conexion.getInstancia().getConnection();
             stmt = conn.prepareStatement(SQL_LOGIN);
             stmt.setString(1, user);
-            stmt.setString(2, pass); // TODO: Más adelante implementaremos hash real (SHA-256/Bcrypt)
+            stmt.setString(2, pass); // Más adelante implementaremos hash real (SHA-256/Bcrypt)
 
             rs = stmt.executeQuery();
 
@@ -59,7 +66,7 @@ public class UsuarioDAO {
         } catch (SQLException e) {
             System.err.println("Error en login: " + e.getMessage());
         } finally {
-            // Cerramos recursos pero NO la conexión (es Singleton)
+            // Cerramos recursos pero no la conexión 
             try { if (rs != null) rs.close(); } catch (SQLException e) {}
             try { if (stmt != null) stmt.close(); } catch (SQLException e) {}
         }
@@ -67,6 +74,7 @@ public class UsuarioDAO {
         return usuario;
     }
 
+    
     /**
      * Actualiza el campo ultimo_acceso del usuario
      */

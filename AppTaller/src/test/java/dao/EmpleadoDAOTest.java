@@ -22,8 +22,6 @@ public class EmpleadoDAOTest {
         
         limpiarDatosDePrueba();
 
-        // AQUÍ ESTÁ EL CAMBIO: El segundo parámetro ahora es 0 (usuario_id = 0)
-        // De esta forma, EmpleadoDAO insertará un NULL en la base de datos.
         testEmpleado = new EmpleadoVO(2, 0, DNI_TEST, "Juan", "Gómez Pérez", "600123456", "juan@email.com", "Calle Baja", "Mecánico", LocalDate.of(2021, 10, 28), LocalDate.of(2025, 5, 28), (float) 22000.0);
     }
 

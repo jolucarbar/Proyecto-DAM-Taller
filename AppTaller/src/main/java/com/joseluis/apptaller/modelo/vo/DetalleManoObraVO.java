@@ -4,16 +4,21 @@ package com.joseluis.apptaller.modelo.vo;
 import java.math.BigDecimal;
 
 /**
- * Value Object para la tabla detalle_mano_obra de Presupuestos.
- * @author joseluis
+ * Clase que almacena la información de los servicios de mano de obra.
+ * Guarda las horas trabajadas y las tarifas aplicadas a cada tarea
+ * dentro de un presupuesto o reparación.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DetalleManoObraVO {
     private Integer idDetalle;
     private Integer idPresupuesto;
     private String descripcionTrabajo;
-    private BigDecimal tiempoEmpleadoHoras;
+    private BigDecimal tiempoEmpleadoHoras;  // BigDecimal por precisión matemática en los cálculos
     private BigDecimal tarifaPorHora;
-    private BigDecimal subtotal; // En BD es GENERATED ALWAYS, pero lo necesitamos para la Vista
+    private BigDecimal subtotal; 
 
     public DetalleManoObraVO() {}
 

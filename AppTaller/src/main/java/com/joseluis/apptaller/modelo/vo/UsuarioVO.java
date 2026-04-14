@@ -1,12 +1,18 @@
 
 package com.joseluis.apptaller.modelo.vo;
 
-/**
- * Representa a un empleado o administrador que puede iniciar sesión en el sistema.
- */
-
 import java.time.LocalDateTime;
 
+
+/**
+ * Clase que representa a un usuario con acceso al sistema del taller.
+ * Almacena sus credenciales de autenticación, el rol asignado para la gestión 
+ * de permisos (Administrador o Empleado) y el registro temporal de su última conexión.
+ *
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
+ */
 public class UsuarioVO {
     private int idUsuario;
     private String username;

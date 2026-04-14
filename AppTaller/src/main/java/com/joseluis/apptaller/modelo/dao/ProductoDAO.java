@@ -8,11 +8,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
-* DAO para la gestión de productos e inventario.
-* Implementa control de stock y alertas de stock bajo.
-* 
-*  @author Jose Luis Cárdenas Barroso
-*/
+ * Gestiona el inventario de piezas y materiales en la base de datos.
+ * Permite registrar, editar, eliminar y consultar los productos, además de 
+ * llevar el control del stock y detectar cuándo un artículo está bajo mínimos.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
+ */
 public class ProductoDAO {
     
 // Consultas SQL  
@@ -32,7 +35,11 @@ public class ProductoDAO {
    
     // Consulta para la vista de stock bajo definida en el script
     private final String SQL_STOCK_BAJO = "SELECT * FROM vw_productos_stock_bajo";
+    
+    // Actualiza el stock de un producto
+    private final String SQL_UPDATE_STOCK = "UPDATE productos SET cantidad_stock = cantidad_stock + ? WHERE id_producto = ?";
 
+    
     /**
      * Registra un nuevo producto en la base de datos.
      */
@@ -58,6 +65,7 @@ public class ProductoDAO {
         }
     }
 
+    
     /**
      * Lista todos los productos activos para la tabla principal.
      */
@@ -94,15 +102,16 @@ public class ProductoDAO {
         return lista;
     }
 
+    
     /**
      * Actualiza el stock de forma atómica (usado por reparaciones).
      * @param id Identificador del producto
      * @param cantidad Cantidad a sumar (positiva) o restar (negativa)
      */
     public boolean actualizarStock(String id, int cantidad) {
-        String sql = "UPDATE productos SET cantidad_stock = cantidad_stock + ? WHERE id_producto = ?";
+        
         try (Connection conn = Conexion.getInstancia().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(SQL_UPDATE_STOCK)) {
             stmt.setInt(1, cantidad);
             stmt.setString(2, id);
             return stmt.executeUpdate() > 0;
@@ -112,6 +121,7 @@ public class ProductoDAO {
         }
     }
 
+    
     /**
      * Mapea una fila de la base de datos a un objeto VO.
      */
@@ -132,6 +142,7 @@ public class ProductoDAO {
         return p;
     }
 
+    
     public boolean eliminar(String idProducto) {
         Connection conn = null;
         PreparedStatement stmt = null;
@@ -147,6 +158,7 @@ public class ProductoDAO {
             close(stmt);
         }
     }
+    
     
     public boolean modificar(ProductoVO p) {
     try (Connection conn = Conexion.getInstancia().getConnection();
@@ -176,6 +188,7 @@ public class ProductoDAO {
         try { if(stmt != null) stmt.close(); } catch(SQLException e){}
     }
 
+    
     public ProductoVO buscarPorIU(String id) {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }

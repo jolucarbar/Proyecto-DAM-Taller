@@ -3,21 +3,33 @@ package com.joseluis.apptaller.modelo.dao;
 
 import com.joseluis.apptaller.modelo.vo.ReparacionVO;
 import com.joseluis.apptaller.persistencia.Conexion;
+import java.math.BigDecimal;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
- *
- * @author joseluis
+ * Se encarga de toda la conexión con la base de datos relacionada con las reparaciones.
+ * Permite registrar nuevas órdenes, asignar mecánicos, actualizar estados, copiar datos 
+ * desde un presupuesto y calcular los costes totales de piezas y mano de obra.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ReparacionDAO {
     // Consultas SQL centralizadas
-    private final String SQL_INSERT = "INSERT INTO reparaciones (vehiculo_bastidor, cliente_dni, "
-            + "empleado_asignado_id, fecha_entrada, kilometraje_entrada, nivel_combustible, "
-            + "estado, prioridad, diagnostico, observaciones) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    private final String SQL_INSERT = "INSERT INTO reparaciones (vehiculo_bastidor, cliente_dni, empleado_asignado_id, id_presupuesto, "
+                    + "fecha_entrada, kilometraje_entrada, nivel_combustible, estado, prioridad, diagnostico, observaciones) "
+                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
+    
+    
+    
     private final String SQL_SELECT_TABLE = 
             "SELECT r.id_reparacion, v.matricula, c.nombre, e.nombre, r.prioridad, r.estado, r.fecha_entrada " +
             "FROM reparaciones r " +
@@ -90,6 +102,18 @@ public class ReparacionDAO {
    // Actualiza el estado de una reparación tras finalizarse
    private final String SQL_UPDATE_ESTADO_REPARACION = "UPDATE reparaciones SET estado = 'ENTREGADA' WHERE id_reparacion = ?";
    
+   // Copia los detalles de la mano de obra desde el presupuesto
+   private final String SQL_COPY_MO = "INSERT INTO reparacion_detalle_mano_obra (id_reparacion, empleado_id, descripcion_trabajo, tiempo_empleado_horas, tarifa_por_hora) "
+                    + "SELECT ?, ?, descripcion_trabajo, tiempo_empleado_horas, tarifa_por_hora "
+                    + "FROM detalle_mano_obra WHERE id_presupuesto = ?";
+   
+   // Copia los detalles de los productos desde el presupuesto
+   private final String SQL_COPY_PRODUCTOS = "INSERT INTO reparacion_detalle_productos (id_reparacion, id_producto, cantidad_usada, precio_venta_unitario) "
+                    + "SELECT ?, id_producto, cantidad_usada, precio_venta_unitario "
+                    + "FROM detalle_productos WHERE id_presupuesto = ?";
+   
+   
+   
    
    
    
@@ -104,12 +128,8 @@ public class ReparacionDAO {
             conn = Conexion.getInstancia().getConnection();
             conn.setAutoCommit(false); // Iniciamos transacción
 
-            // 1. Insertar Cabecera de Reparación
-            String sqlHeader = "INSERT INTO reparaciones (vehiculo_bastidor, cliente_dni, empleado_asignado_id, id_presupuesto, "
-                    + "fecha_entrada, kilometraje_entrada, nivel_combustible, estado, prioridad, diagnostico, observaciones) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
-            psHeader = conn.prepareStatement(sqlHeader, Statement.RETURN_GENERATED_KEYS);
+            // Insertar Cabecera de Reparación
+            psHeader = conn.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
             psHeader.setString(1, rep.getVehiculoBastidor());
             psHeader.setString(2, rep.getClienteDni());
             psHeader.setInt(3, rep.getEmpleadoAsignadoId());
@@ -132,25 +152,15 @@ public class ReparacionDAO {
                 throw new SQLException("No se pudo obtener el ID de la nueva reparación.");
             }
 
-            // 2. COPIAR MANO DE OBRA DESDE EL PRESUPUESTO
-            // Pasamos de 'detalle_mano_obra' a 'reparacion_detalle_mano_obra'
-            String sqlCopyMO = "INSERT INTO reparacion_detalle_mano_obra (id_reparacion, empleado_id, descripcion_trabajo, tiempo_empleado_horas, tarifa_por_hora) "
-                    + "SELECT ?, ?, descripcion_trabajo, tiempo_empleado_horas, tarifa_por_hora "
-                    + "FROM detalle_mano_obra WHERE id_presupuesto = ?";
-
-            psCopyMO = conn.prepareStatement(sqlCopyMO);
+            // Copiar mano de obra desde el presupuesto
+            psCopyMO = conn.prepareStatement(SQL_COPY_MO);
             psCopyMO.setInt(1, idNuevaReparacion);
             psCopyMO.setInt(2, rep.getEmpleadoAsignadoId()); // Asignamos el mecánico actual a todas las líneas
             psCopyMO.setInt(3, rep.getIdPresupuesto());
             psCopyMO.executeUpdate();
 
-            // 3. COPIAR PRODUCTOS DESDE EL PRESUPUESTO
-            // Pasamos de 'detalle_productos' a 'reparacion_detalle_productos'
-            String sqlCopyProd = "INSERT INTO reparacion_detalle_productos (id_reparacion, id_producto, cantidad_usada, precio_venta_unitario) "
-                    + "SELECT ?, id_producto, cantidad_usada, precio_venta_unitario "
-                    + "FROM detalle_productos WHERE id_presupuesto = ?";
-
-            psCopyProd = conn.prepareStatement(sqlCopyProd);
+            // Copiar productos desde el presupuesto
+            psCopyProd = conn.prepareStatement(SQL_COPY_PRODUCTOS);
             psCopyProd.setInt(1, idNuevaReparacion);
             psCopyProd.setInt(2, rep.getIdPresupuesto());
             psCopyProd.executeUpdate();
@@ -216,7 +226,7 @@ public class ReparacionDAO {
      */
     public int contarPorPrioridad(String prioridad) {
         try (Connection conn = Conexion.getInstancia().getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_COUNT)) {
+            PreparedStatement ps = conn.prepareStatement(SQL_COUNT)) {
             ps.setString(1, prioridad);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) return rs.getInt(1);
@@ -225,6 +235,7 @@ public class ReparacionDAO {
         return 0;
     }
     
+    
     /**
      * Método para filtrar los vehiculos en reparaciones por estado
      * 
@@ -232,7 +243,7 @@ public class ReparacionDAO {
      * @return 
      */
     public List<Object[]> obtenerListaFiltrada(String estado) {
-        // Si eligen "TODOS", reutilizamos el método que ya tienes
+        // Si eligen "TODOS", reutilizamos el método que ya existe
         if (estado.equals("TODOS")) {
             return obtenerListaParaTabla(); 
         }
@@ -267,9 +278,9 @@ public class ReparacionDAO {
         return datos;
     }
     
+    
     public boolean actualizarEstado(int idReparacion, String nuevoEstado) {
         
-
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
 
@@ -306,11 +317,9 @@ public class ReparacionDAO {
     /**
      * Obtiene la ficha completa de una reparación cruzando datos con Clientes, Vehículos y Empleados.
      */
-    public java.util.Map<String, String> obtenerFichaCompleta(int idReparacion) {
-        java.util.Map<String, String> ficha = new java.util.HashMap<>();
+    public Map<String, String> obtenerFichaCompleta(int idReparacion) {
+        Map<String, String> ficha = new HashMap<>();
         
-        
-
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_DETALLES_REPARACION)) {
             
@@ -374,11 +383,8 @@ public class ReparacionDAO {
     /**
      * Obtiene la lista de trabajos (mano de obra) de una reparación.
      */
-    /**
-     * Obtiene la lista de trabajos (mano de obra) reales de una reparación.
-     */
-    public java.util.List<Object[]> obtenerTrabajosRealizados(int idReparacion) {
-        java.util.List<Object[]> lista = new java.util.ArrayList<>();
+    public List<Object[]> obtenerTrabajosRealizados(int idReparacion) {
+        List<Object[]> lista = new ArrayList<>();
         
 
         try (Connection conn = Conexion.getInstancia().getConnection();
@@ -388,7 +394,7 @@ public class ReparacionDAO {
             
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // Mapeamos a las 5 columnas de tu JTable visual: 
+                    // Extrae cada fila de la BD, le aplica formato (ej. €) y la empaqueta para mostrarla en el JTable. 
                     // [Concepto, Mecánico, Horas, Precio/Hora, Total]
                     lista.add(new Object[]{
                         rs.getString("descripcion_trabajo"),
@@ -409,11 +415,9 @@ public class ReparacionDAO {
     /**
      * Obtiene la lista de piezas (productos) reales utilizados en una reparación.
      */
-    public java.util.List<Object[]> obtenerPiezasUtilizadas(int idReparacion) {
-        java.util.List<Object[]> lista = new java.util.ArrayList<>();
+    public List<Object[]> obtenerPiezasUtilizadas(int idReparacion) {
+        List<Object[]> lista = new ArrayList<>();
         
-        
-
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_PIEZAS_REPARACION)) {
             
@@ -439,9 +443,10 @@ public class ReparacionDAO {
     
     /**
      * Obtiene los sumatorios de costos (mano de obra y piezas) de una reparación.
+     * Usamos BigDecimal para una mayor precisión matemática
      */
-    public java.util.Map<String, java.math.BigDecimal> obtenerCostos(int idReparacion) {
-        java.util.Map<String, java.math.BigDecimal> costos = new java.util.HashMap<>();
+    public Map<String, BigDecimal> obtenerCostos(int idReparacion) {
+        Map<String, BigDecimal> costos = new HashMap<>();
         
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_COSTE_TOTAL)) {
@@ -465,8 +470,8 @@ public class ReparacionDAO {
     /**
      * Obtiene el historial de todas las visitas al taller del vehículo asociado a una reparación.
      */
-    public java.util.List<Object[]> obtenerHistorialVehiculo(int idReparacion) {
-        java.util.List<Object[]> lista = new java.util.ArrayList<>();
+    public List<Object[]> obtenerHistorialVehiculo(int idReparacion) {
+        List<Object[]> lista = new ArrayList<>();
         
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_HISTORIAL_REPARACIONES)) {
@@ -474,8 +479,8 @@ public class ReparacionDAO {
             ps.setInt(1, idReparacion);
             
             try (ResultSet rs = ps.executeQuery()) {
-                // Formateador para que la fecha se vea limpia (Ej: 26/12/2025)
-                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+                // Formateamos para que la fecha se vea limpia (Ej: 26/12/2025)
+                SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                 
                 while (rs.next()) {
                     // Si no hay fecha (no debería pasar), ponemos N/A. Si la hay, la formateamos.
@@ -484,7 +489,7 @@ public class ReparacionDAO {
                         fechaLimpia = sdf.format(rs.getTimestamp("fecha_entrada"));
                     }
                     
-                    // Mapeamos a las 4 columnas de tu JTable visual: 
+                    // Extrae cada fila de la BD y la empaqueta para mostrarla en el JTable.  
                     // [Fecha, Estado, Usuario, Notas]
                     lista.add(new Object[]{
                         fechaLimpia,
@@ -522,12 +527,12 @@ public class ReparacionDAO {
         } catch (SQLException e) {
             System.err.println("Error al calcular total mano de obra: " + e.getMessage());
         } finally {
-            // Usa tu método close() auxiliar que ya tienes en tus DAOs
             close(stmt, rs); 
         }
         return 0.0;
     }
 
+    
     /**
      * Calcula el importe total de los productos/piezas para una reparación específica.
      */
@@ -578,12 +583,12 @@ public class ReparacionDAO {
         }
     }
     
-    
-    // ... otros métodos como calcularTotalProductos ...
 
     /**
-     * Obtiene el DNI del cliente y el Bastidor del vehículo asociados a una reparación.
+     * Método que obtiene el DNI del cliente y el Bastidor del vehículo asociados a una reparación,
+     * que se usará para generar la factura correspondiente a esos datos.
      * Retorna un array donde [0] es el DNI y [1] es el Bastidor.
+     * 
      */
     public String[] obtenerDniYBastidor(int idReparacion) {
         String sql = "SELECT cliente_dni, vehiculo_bastidor FROM reparaciones WHERE id_reparacion = ?";
@@ -605,6 +610,4 @@ public class ReparacionDAO {
         return new String[]{"", ""}; 
     }
 
- 
-    
 }

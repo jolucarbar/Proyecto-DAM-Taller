@@ -32,10 +32,10 @@ public class ConexionTest {
     public void testConexionExitosa() {
         System.out.println("Prueba: Verificar conexión a apptaller_db");
         
-        // 1. Verificamos que el objeto connection no sea null
+        // Verificamos que el objeto connection no sea null
         assertNotNull(connection, "La conexión no debería ser nula");
         
-        // 2. Verificamos que la conexión esté válida (abierta)
+        // Verificamos que la conexión esté válida (abierta)
         try {
             assertFalse(connection.isClosed(), "La conexión debería estar abierta");
         } catch (SQLException e) {

@@ -13,8 +13,15 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
- * @author joseluis
+ * Controlador que gestiona la interacción del usuario con el inventario del taller.
+ * Coordina las operaciones CRUD de los productos y mantiene sincronizada la 
+ * tabla visual con la base de datos MySQL.
+ * Actúa como intermediario entre la vista (VentanaPrincipal y diálogos asociados) y la 
+ * capa de acceso a datos (ProductoDAO y ProveedorDAO).
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ControladorProductos implements ActionListener {
     private final VentanaPrincipal vista;
@@ -44,6 +51,7 @@ public class ControladorProductos implements ActionListener {
         }
     }
 
+    
     private void initTabla() {
         // Celdas no editables directamente
         modeloTabla = new DefaultTableModel() {
@@ -60,6 +68,7 @@ public class ControladorProductos implements ActionListener {
         vista.getTblProductos().setRowHeight(30);
     }
 
+    
     private void initListeners() {
         // Escuchamos los botones
         vista.getBtnNuevoProducto().addActionListener(this);
@@ -77,34 +86,36 @@ public class ControladorProductos implements ActionListener {
         });
     }
 
+    
     private void cargarProductos() {
-    modeloTabla.setRowCount(0);
-    List<ProductoVO> lista = modeloDAO.listar();
-    for (ProductoVO p : lista) {
-        Object[] fila = {
-            p.getIdProducto(),
-            p.getNombre(),
-            p.getDescripcion(),
-            p.getCategoria(),
-            p.getCantidadStock(),
-            p.getStockMinimo(),
-            p.getPrecioCompra(),
-            p.getPrecioUnitario(12.99F),
-            p.getProveedorCif(),
-            p.getCreated_at()
-        };
-        modeloTabla.addRow(fila);
+        modeloTabla.setRowCount(0);
+        List<ProductoVO> lista = modeloDAO.listar();
+        for (ProductoVO p : lista) {
+            Object[] fila = {
+                p.getIdProducto(),
+                p.getNombre(),
+                p.getDescripcion(),
+                p.getCategoria(),
+                p.getCantidadStock(),
+                p.getStockMinimo(),
+                p.getPrecioCompra(),
+                p.getPrecioUnitario(12.99F),
+                p.getProveedorCif(),
+                p.getCreated_at()
+            };
+            modeloTabla.addRow(fila);
+        }
     }
-}
+    
     
     private void abrirDialogoNuevoProducto() {
         DialogNuevoProducto dialog = new DialogNuevoProducto(vista, true);
         
-        // 1. Cargar los proveedores antes de mostrar el diálogo
+        // Cargamos los proveedores antes de mostrar el diálogo
         ProveedorDAO provDAO = new ProveedorDAO();
         dialog.cargarProveedores(provDAO.listar());
         
-        // 2. Configurar el listener de guardado
+        // Configuramos el listener de guardado
         dialog.getBtnGuardar().addActionListener(e -> {
             try {
                 ProductoVO p = dialog.guardarDatos();
@@ -122,44 +133,50 @@ public class ControladorProductos implements ActionListener {
         });
         
         dialog.setVisible(true);
-}
+    }
 
-private void editarProductoSeleccionado() {
-    int fila = vista.getTblProductos().getSelectedRow();
+    
+    private void editarProductoSeleccionado() {
+        int fila = vista.getTblProductos().getSelectedRow();
         if (fila != -1) {
             String id = (String) modeloTabla.getValueAt(fila, 0);
             ProductoVO p = obtenerProductoDeLaLista(id); 
-            
+
             DialogNuevoProducto dialog = new DialogNuevoProducto(vista, true);
-            
-            // 1. Cargar proveedores de la BD
+
+            // Cargamos proveedores de la BD
             ProveedorDAO provDAO = new ProveedorDAO();
             dialog.cargarProveedores(provDAO.listar());
-            
-            // 2. Cargar los datos del producto     
+
+            // Cargamos los datos del producto     
             dialog.cargarDatos(p);
-            
-            dialog.getBtnGuardar().addActionListener(e -> {
-                try {
-                    ProductoVO pEditado = dialog.guardarDatos();
-                    pEditado.validar();
-                    if (modeloDAO.modificar(pEditado)) {
-                        JOptionPane.showMessageDialog(dialog, "Producto modificado con éxito.");
-                        dialog.dispose();
-                        cargarProductos();
-                    } else {
-                        JOptionPane.showMessageDialog(dialog, "Error al actualizar en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+
+            dialog.getBtnGuardar().addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    try {
+                        ProductoVO pEditado = dialog.guardarDatos();
+                        pEditado.validar();
+                        if (modeloDAO.modificar(pEditado)) {
+                            JOptionPane.showMessageDialog(dialog, "Producto modificado con éxito.");
+                            dialog.dispose();
+                            cargarProductos();
+                        } else {
+                            JOptionPane.showMessageDialog(dialog, "Error al actualizar en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
                     }
-                } catch (Exception ex) {
-                    JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage(), "Validación", JOptionPane.WARNING_MESSAGE);
                 }
             });
+            
             dialog.setVisible(true);
         } else {
             JOptionPane.showMessageDialog(vista, "Seleccione un producto para editar.", "Aviso", JOptionPane.WARNING_MESSAGE);
         }
-}
+    }
 
+    
     private void eliminarProductoSeleccionado() {
         int filaSelec = vista.getTblProductos().getSelectedRow();
         if (filaSelec != -1) {

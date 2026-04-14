@@ -3,10 +3,13 @@ package com.joseluis.apptaller.modelo.vo;
 import java.time.LocalDate;
 
 /**
- * Representa una factura emitida por el taller.
- * Refleja la estructura de la tabla Facturas en la base de datos.
- * 
+ * Clase que representa el documento contable de una factura en el sistema.
+ * Contiene toda la información fiscal, importes, impuestos y datos relacionales 
+ * necesarios para la emisión legal del cobro por los servicios del taller.
+ *
  * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class FacturaVO {
     private int idFactura;

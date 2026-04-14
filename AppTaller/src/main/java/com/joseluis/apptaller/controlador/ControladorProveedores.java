@@ -12,8 +12,13 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
- * @author joseluis
+ * Controlador encargado de gestionar la lógica de negocio del módulo de Proveedores.
+ * Actúa como intermediario entre la interfaz gráfica (VentanaPrincipal y diálogos) 
+ * y la capa de acceso a datos (ProveedorDAO).
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ControladorProveedores implements ActionListener{
 
@@ -56,11 +61,11 @@ public class ControladorProveedores implements ActionListener{
         vista.getBtnEliminarProveedor().addActionListener(this);
         vista.getBtnBuscarProveedor().addActionListener(this);
         
-        // --- AÑADIMOS EL DOBLE CLIC PARA EDITAR ---
+        // Doble click para editar
         vista.getTblProveedores().addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (e.getClickCount() == 2) { // Si es doble clic
+                if (e.getClickCount() == 2) { // Si es doble click
                     editarProveedorSeleccionado();
                 }
             }
@@ -105,25 +110,25 @@ public class ControladorProveedores implements ActionListener{
     private void editarProveedorSeleccionado() {
         int filaSelec = vista.getTblProveedores().getSelectedRow();
         if (filaSelec != -1) {
-            // 1. Obtenemos el CIF de la fila seleccionada
+            // Obtenemos el CIF de la fila seleccionada
             String cif = (String) modeloTabla.getValueAt(filaSelec, 0);
             
-            // 2. Buscamos el proveedor completo en la base de datos usando el DAO
+            // Buscamos el proveedor completo en la base de datos usando el DAO
             ProveedorVO proveedorAEditar = modeloDAO.buscarPorCif(cif);
             
             if (proveedorAEditar != null) {
-                // 3. Abrimos el diálogo usando el constructor sobrecargado 
+                // Abrimos el diálogo usando el constructor sobrecargado 
                 DialogNuevoProveedor dialog = new DialogNuevoProveedor(vista, true, proveedorAEditar);
                 dialog.setVisible(true);
                 
-                // 4. Al cerrar, comprobamos si pulsó guardar
+                // Al cerrar, comprobamos si pulsó guardar
                 if (dialog.isGuardado()) {
                     ProveedorVO proveedorModificado = dialog.getProveedor();
                     // Al ser modificación, no alteramos la fecha de registro original ni el estado activo
                     proveedorModificado.setCreated_at(proveedorAEditar.getCreated_at());
                     proveedorModificado.setActivo(proveedorAEditar.isActivo());
                     
-                    // 5. Mandamos actualizar a MySQL
+                    // Mandamos actualizar a MySQL
                     if (modeloDAO.modificar(proveedorModificado)) {
                         javax.swing.JOptionPane.showMessageDialog(vista, "Proveedor actualizado con éxito.");
                         cargarProveedores(); // Refrescamos la tabla
@@ -135,18 +140,19 @@ public class ControladorProveedores implements ActionListener{
         }
     }
 
+    
     private void abrirDialogoNuevoProveedor() {
-        // 1. Abrimos el modal visual
+        // Abrimos el dialog
         DialogNuevoProveedor dialog = new DialogNuevoProveedor(vista, true);
         dialog.setVisible(true); // La aplicación se "pausa" aquí hasta que el usuario cierra la ventana
                 
-        // 2. Cuando el diálogo se cierra, comprobamos si el usuario pulsó el botón "Guardar"
+        // Cuando el diálogo se cierra, comprobamos si el usuario pulsó el botón "Guardar"
         if (dialog.isGuardado()) {
             
-            // 3. Le pedimos al diálogo los datos que ha introducido el usuario
+            // Le pedimos al diálogo los datos que ha introducido el usuario
             ProveedorVO nuevoProveedor = dialog.getProveedor();
             
-            // 4. Se los pasamos al DAO para que haga el INSERT en MySQL
+            // Se los pasamos al DAO para que haga el INSERT en MySQL
             if (modeloDAO.insertar(nuevoProveedor)) {
                 JOptionPane.showMessageDialog(vista, "Proveedor guardado con éxito.");
                 cargarProveedores(); // Recargamos la tabla visual para que aparezca el nuevo registro

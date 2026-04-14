@@ -1,11 +1,20 @@
 
 package com.joseluis.apptaller.vista.dialogos;
 
+import com.joseluis.apptaller.controlador.ControladorReparaciones;
+import com.joseluis.apptaller.modelo.dao.ReparacionDAO;
+import java.util.Map;
 import javax.swing.UIManager;
 
 /**
+ * Ventana de diálogo multisección que muestra la ficha completa de una reparación.
+ * Organiza mediante pestañas la información del cliente, vehículo, trabajos realizados,
+ * piezas, resumen de costes e historial. Además, incluye un modo de edición que 
+ * delega el guardado de los cambios en el controlador siguiendo el patrón MVC.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogDetallesReparacion extends javax.swing.JDialog {
 
@@ -570,9 +579,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
 
     private void btnEditarDetalleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEditarDetalleActionPerformed
         if (!modoEdicion) {
-            // ==========================================
-            // 1. LÓGICA PURA DE VISTA (Modo Edición)
-            // ==========================================
+            // Lógica para la vista
             bloquearCampos(false); 
             
             txtIdReparacion.setEditable(false);
@@ -591,22 +598,20 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
             modoEdicion = true;
             
         } else {
-            // ==========================================
-            // 2. PATRÓN MVC (Delegar en el Controlador)
-            // ==========================================
+            // Patrón MVC (delega en el controlador)
             
-            // A) Recoger textos crudos (La vista no procesa nada)
+            // Recogemos los datos de los JTextField
             String estadoStr = txtEstado.getText().trim();
             String prioridadStr = txtPrioridad.getText().trim();
             String combustibleStr = txtCombustible.getText().trim();
             String kilometrajeCrudo = txtKilometraje.getText(); // Se manda tal cual
             String diagnosticoStr = txtaResumen.getText().trim();
             
-            // B) Instanciar el controlador y delegar la responsabilidad
-            com.joseluis.apptaller.controlador.ControladorReparaciones ctrl = new com.joseluis.apptaller.controlador.ControladorReparaciones();
+            // Instanciamos el controlador y delegamos la responsabilidad
+            ControladorReparaciones ctrl = new ControladorReparaciones();
             boolean exito = ctrl.guardarCambiosFicha(idReparacionActual, estadoStr, prioridadStr, combustibleStr, kilometrajeCrudo, diagnosticoStr);
             
-            // C) Reaccionar visualmente a la respuesta del controlador
+            // Reaccionamos visualmente a la respuesta del controlador
             if (exito) {
                 javax.swing.JOptionPane.showMessageDialog(this, "Reparación actualizada correctamente.");
                 
@@ -727,8 +732,8 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
         this.idReparacionActual = idReparacion;
 
         // Obtener los datos del DAO
-        com.joseluis.apptaller.modelo.dao.ReparacionDAO dao = new com.joseluis.apptaller.modelo.dao.ReparacionDAO();
-        java.util.Map<String, String> ficha = dao.obtenerFichaCompleta(idReparacion);
+        ReparacionDAO dao = new ReparacionDAO();
+        Map<String, String> ficha = dao.obtenerFichaCompleta(idReparacion);
 
         if (ficha == null || ficha.isEmpty()) {
             System.out.println(">>> VISTA: El Map de datos llegó vacío desde el DAO.");
@@ -740,16 +745,16 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
         // ID Principal (Arriba)
         txtIdReparacion.setText(ficha.get("id")); 
 
-        // --- PANEL CLIENTE ---
+        // Panel CLIENTE 
         txtCliente.setText(ficha.get("cliente_nombre"));
         txtTelefono.setText(ficha.get("cliente_telefono"));
 
-        // --- PANEL VEHÍCULO ---
+        // Panel VEHÍCULO 
         txtMarca.setText(ficha.get("vehiculo_marca"));
         txtModelo.setText(ficha.get("vehiculo_modelo"));
         txtMatricula.setText(ficha.get("vehiculo_matricula"));
 
-        // --- PANEL DETALLES DE REPARACIÓN ---
+        // Panel DETALLES DE REPARACIÓN 
         txtEstado.setText(ficha.get("estado").toUpperCase());
         txtPrioridad.setText(ficha.get("prioridad"));
         txtCombustible.setText(ficha.get("combustible"));
@@ -757,11 +762,11 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
         txtFechaEntrada.setText(ficha.get("fechaEntrada")); 
         txtMecanico.setText(ficha.get("mecanico"));
 
-        // --- DESCRIPCIÓN (Diagnóstico del cliente) ---
+        // Descripcion
         txtaResumen.setText(ficha.get("diagnostico"));
         
-        // CARGAR TABLA DE TRABAJOS REALIZADOS
-        com.joseluis.apptaller.controlador.ControladorReparaciones ctrl = new com.joseluis.apptaller.controlador.ControladorReparaciones();
+        // Cargamos la tabla de trabajos realizados
+        ControladorReparaciones ctrl = new ControladorReparaciones();
     
         // Obtenemos el modelo de la tabla 'tblTrabajos'
         javax.swing.table.DefaultTableModel modeloTrabajos = (javax.swing.table.DefaultTableModel) tblTrabajos.getModel();
@@ -769,14 +774,14 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
         // Llamamos al controlador para que la rellene
         ctrl.cargarTablaTrabajos(idReparacion, modeloTrabajos);
         
-        // CARGAR TABLA DE PIEZAS UTILIZADAS
+        // Cargamos la tabla de piezas utilizadas
         // Obtenemos el modelo de la tabla 'tblPiezas'
         javax.swing.table.DefaultTableModel modeloPiezas = (javax.swing.table.DefaultTableModel) tblPiezas.getModel();
 
         // Llamamos al controlador usando la misma instancia 'ctrl' que ya creamos arriba
         ctrl.cargarTablaPiezas(idReparacion, modeloPiezas);
         
-        // CARGAR PESTAÑA DE COSTOS
+        // Cargamos la pestaña de Costos
         java.util.Map<String, String> costosFormateados = ctrl.calcularYFormatearCostos(idReparacion);
 
         txtTotalManoObra.setText(costosFormateados.get("mano_obra"));
@@ -792,7 +797,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
         txtIVA.setEditable(false);
         txtTotal.setEditable(false);
         
-        // CARGAR TABLA DE HISTORIAL DEL VEHÍCULO
+        // Cargamos tabla del historial del vehículo
         // Obtenemos el modelo de la tabla 'tblHistorial'
         javax.swing.table.DefaultTableModel modeloHistorial = (javax.swing.table.DefaultTableModel) tblHistorial.getModel();
 
@@ -804,6 +809,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
         bloquearCampos(true);
     }
 
+    
     // Método de apoyo para bloquear/desbloquear todo de golpe
     private void bloquearCampos(boolean bloquear) {
         boolean editable = !bloquear;

@@ -7,8 +7,14 @@ import java.time.LocalDate;
 import javax.swing.JOptionPane;
 
 /**
+ * Ventana de diálogo destinada al registro y modificación de empleados.
+ * Permite gestionar los datos personales, de contacto, el cargo y el salario base, 
+ * reutilizando la vista gráfica de manera inteligente para mantener los IDs internos 
+ * y las fechas de alta/baja intactas durante las ediciones.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogNuevoEmpleado extends javax.swing.JDialog {
     
@@ -23,7 +29,7 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
     private int idEmpleadoOriginal = 0;
     private int usuarioIdOriginal = 0; // 
     
-    // --- CONSTRUCTOR 1: PARA ALTA NUEVA ---
+    // Constructor para alta nueva
     public DialogNuevoEmpleado(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
@@ -31,12 +37,23 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
         setTitle("Nuevo Empleado");
         this.guardado = false;
        
-        btnGuardar.addActionListener(e -> guardar());
-        btnCancelar.addActionListener(e -> cancelar());
+        btnGuardar.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                guardar();
+            }
+        });
+        
+        btnCancelar.addActionListener(new java.awt.event.ActionListener() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                cancelar();
+            }
+        });
         this.getRootPane().setDefaultButton(btnGuardar);
     }
     
-     // --- CONSTRUCTOR 2: PARA EDICIÓN ---
+     // Constructor para edición
     public DialogNuevoEmpleado(java.awt.Frame parent, boolean modal, EmpleadoVO empleadoAEditar) {
         this(parent, modal);
         setTitle("Editar Empleado");
@@ -59,7 +76,8 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
         cbxCargo.setSelectedItem(empleadoAEditar.getCargo());
     }
     
-     // --- LÓGICA DE GUARDAR ---
+    
+     // Lógica de guardar
     private void guardar() {
         if (txtDni.getText().trim().isEmpty() || txtNombre.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "El DNI y el Nombre son obligatorios.", "Aviso", JOptionPane.WARNING_MESSAGE);
@@ -77,7 +95,7 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
             return;
         }
 
-        // Empaquetar el EmpleadoVO con TODOS sus campos
+        // Empaquetamos el EmpleadoVO con todos sus campos
         empleado = new EmpleadoVO();
        
         // Restauramos los IDs internos
@@ -104,12 +122,16 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
         this.dispose();
     }
     
+    
      private void cancelar() {
         this.guardado = false;
         this.dispose();
     }
      
+     
     public boolean isGuardado() { return guardado; }
+    
+    
     public EmpleadoVO getEmpleado() { return empleado; }
 
     /**

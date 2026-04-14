@@ -13,8 +13,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @author joseluis
+ * Gestiona los datos de los empleados en la base de datos (altas, bajas, 
+ * modificaciones y consultas).
+ * También permite buscar específicamente a los mecánicos disponibles en el taller.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class EmpleadoDAO {
     // Consultas SQL
@@ -224,10 +229,9 @@ public class EmpleadoDAO {
         return e;
      }
     
+    
     // Métodos auxiliares para cerrar recursos
-    private void close(PreparedStatement stmt) { 
-        close(stmt, null); 
-    }
+    private void close(PreparedStatement stmt) { close(stmt, null); }
     private void close(PreparedStatement stmt, ResultSet rs) {
         try { if(rs != null) rs.close(); } catch(SQLException e){}
         try { if(stmt != null) stmt.close(); } catch(SQLException e){}
@@ -238,8 +242,6 @@ public class EmpleadoDAO {
     public List<EmpleadoVO> listarMecanicosActivos() {
         List<EmpleadoVO> lista = new ArrayList<>();
         // Filtramos por activo = true y que su cargo contenga la palabra mecánico
-        
-        
         try (Connection conn = Conexion.getInstancia().getConnection();
              PreparedStatement ps = conn.prepareStatement(SQL_FILTRAR_MECANICO);
              ResultSet rs = ps.executeQuery()) {

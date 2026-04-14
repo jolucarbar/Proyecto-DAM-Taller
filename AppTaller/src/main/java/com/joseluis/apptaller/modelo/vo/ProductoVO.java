@@ -1,19 +1,18 @@
 
 package com.joseluis.apptaller.modelo.vo;
 
-import com.joseluis.apptaller.persistencia.Conexion;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.Date;
 
-/**
-* Representa un producto o pieza del inventario del taller.
-* 
-* Incluye validaciones de negocio para asegurar la integridad de los datos.
-*  @author Jose Luis Cárdenas Barroso
-*/
 
+/**
+ * Clase que representa un producto o pieza de recambio en el inventario del taller.
+ * Almacena la información de stock, precios y ubicación, e incluye lógica de validación
+ * interna para garantizar la consistencia de los datos antes de guardarlos.
+ *
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
+ */
 public class ProductoVO {
     // Atributos basados en la estructura de la tabla 'productos'
     private String idProducto;      // PK: Referencia o Código de barras
@@ -36,6 +35,7 @@ public class ProductoVO {
         this.stockMinimo = 5; // Valor por defecto en SQL
     }
 
+    
     // --- MÉTODOS DE VALIDACIÓN DE NEGOCIO ---
 
     /**
@@ -57,8 +57,6 @@ public class ProductoVO {
         }
     }
     
-    
-    
 
     /**
      * Comprueba si el producto necesita reposición inmediata.
@@ -68,9 +66,6 @@ public class ProductoVO {
         return this.cantidadStock <= this.stockMinimo;
     }
 
-    
-
-    
     
     // --- GETTERS Y SETTERS ---
 

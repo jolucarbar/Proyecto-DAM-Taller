@@ -7,8 +7,14 @@ import com.joseluis.apptaller.modelo.vo.FacturaVO;
 import javax.swing.JOptionPane;
 
 /**
+ * Ventana de diálogo encargada de la emisión y registro de nuevas facturas.
+ * Muestra el resumen económico de una reparación finalizada, permite seleccionar 
+ * el método de pago y delega el guardado en base de datos y la generación del PDF 
+ * al gestor de facturación correspondiente.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogGenerarFactura extends javax.swing.JDialog {
     
@@ -16,14 +22,7 @@ public class DialogGenerarFactura extends javax.swing.JDialog {
 
     private GestorFacturacion gestorFacturacion;
     private FacturaVO facturaEnProceso;
-    
-    private int idReparacion;
-    private int idPresupuesto;
-    private String clienteDni;
-    private String bastidor;
-    private double totalManoObra;
-    private double totalProductos;
-    
+       
 
     
     public DialogGenerarFactura(java.awt.Frame parent, boolean modal, int idReparacion, 
@@ -39,30 +38,7 @@ public class DialogGenerarFactura extends javax.swing.JDialog {
         // Preparamos los datos iniciales
         prepararDatos(idReparacion, idPresupuesto, clienteDni, bastidor, totalManoObra, totalProductos);
 }
-    
-    
-    /**
-     * Constructor modificado para recibir los datos de la reparación.
-     */
-   /* public DialogGenerarFactura(java.awt.Frame parent, boolean modal, 
-        int idReparacion, int idPresupuesto, 
-        String clienteDni, String bastidor, 
-        double totalManoObra, double totalProductos) {
-        super(parent, modal);
-        initComponents();
-        
-        // Configuraciones visuales extra
-        this.setLocationRelativeTo(parent);
-        this.setResizable(false);
-        
-        // Inicializar lógica
-        this.gestorFacturacion = new GestorFacturacion();
-        
-        // Preparar la factura con los datos recibidos
-        prepararDatos(idReparacion, idPresupuesto, clienteDni, bastidor, totalManoObra, totalProductos);
-    }
-*/
-    
+  
     
     private void prepararDatos(int idReparacion, int idPresupuesto, String clienteDni, String bastidor, double mo, double prod) {
         // El gestor realiza los cálculos de IVA y totales
@@ -386,34 +362,34 @@ public class DialogGenerarFactura extends javax.swing.JDialog {
 
     private void btnGenerarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGenerarActionPerformed
         try {
-            // 1. Validar selección de método de pago
+            // Validamos selección de método de pago
             String metodo = cbxMetodoPago.getSelectedItem().toString();
             facturaEnProceso.setMetodoPago(metodo);
             facturaEnProceso.setObservaciones(txaObservaciones.getText());
 
             facturaEnProceso.setUsuarioEmisor(1); 
 
-            // 2. Guardar en Base de Datos
+            // Guardamos en Base de Datos
             boolean exito = gestorFacturacion.registrarNuevaFactura(facturaEnProceso);
 
             if (exito) {
                 JOptionPane.showMessageDialog(this, "Factura generada y registrada con éxito.", 
                         "Éxito", JOptionPane.INFORMATION_MESSAGE);
 
-                // 3. Preguntar si desea imprimir el PDF (opcional)
+                // Preguntamos si desea imprimir el PDF 
                 int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea visualizar/imprimir la factura en PDF?", 
                         "Imprimir", JOptionPane.YES_NO_OPTION);
 
                 if (respuesta == JOptionPane.YES_OPTION) {
-                    // 1. Obtenemos las líneas reales de la reparación
+                    // Obtenemos las líneas reales de la reparación
                     java.util.List<com.joseluis.apptaller.modelo.vo.DetalleFactura> lineasDetalle = 
                         gestorFacturacion.obtenerDetallesParaFactura(facturaEnProceso.getIdReparacion());
 
-                    // 2. Imprimimos el PDF con datos
+                    // Imprimimos el PDF con datos
                     gestorFacturacion.generarInformePDF(facturaEnProceso, lineasDetalle);
                 }
 
-                this.dispose(); // Cerramos el modal
+                this.dispose(); // Cerramos el dialog
             } else {
                 JOptionPane.showMessageDialog(this, "Error al guardar la factura en la base de datos.", 
                         "Error", JOptionPane.ERROR_MESSAGE);

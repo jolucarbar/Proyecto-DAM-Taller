@@ -6,8 +6,14 @@ import com.joseluis.apptaller.modelo.vo.ProductoVO;
 import java.util.List;
 
 /**
+ * Ventana de diálogo para la gestión del inventario de piezas y recambios.
+ * Permite registrar nuevos productos o modificar los existentes, controlando
+ * niveles de stock, precios de compra/venta y vinculando cada artículo con 
+ * su proveedor correspondiente mediante un selector dinámico.
  *
- * @author joseluis
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DialogNuevoProducto extends javax.swing.JDialog {
     
@@ -30,7 +36,7 @@ public class DialogNuevoProducto extends javax.swing.JDialog {
         txtPrecioCompra.setText(String.valueOf(p.getPrecioCompra()));
         txtPVP.setText(String.valueOf(p.getPrecioUnitario(12.99F)));
         
-        // Buscar y seleccionar el proveedor actual en el ComboBox
+        // Buscamos y seleccionamos el proveedor actual en el ComboBox
         if (p.getProveedorCif() != null) {
             for (int i = 0; i < cbxProveedores.getItemCount(); i++) {
                 String item = cbxProveedores.getItemAt(i);
@@ -42,8 +48,8 @@ public class DialogNuevoProducto extends javax.swing.JDialog {
         }
 }
 
-public ProductoVO guardarDatos() {
-    ProductoVO p = new ProductoVO();
+    public ProductoVO guardarDatos() {
+        ProductoVO p = new ProductoVO();
         p.setIdProducto(txtId.getText());
         p.setNombre(txtNombre.getText());
         p.setDescripcion(txtDescripcion.getText());
@@ -52,8 +58,8 @@ public ProductoVO guardarDatos() {
         p.setStockMinimo(Integer.parseInt(txtStockMinimo.getText()));
         p.setPrecioCompra(Double.parseDouble(txtPrecioCompra.getText()));
         p.setPrecioUnitario(Double.parseDouble(txtPVP.getText()));
-        
-        // Extraer el CIF del ComboBox (la parte antes del " - ")
+
+        // Extraemos el CIF del ComboBox (la parte antes del " - ")
         if (cbxProveedores.getSelectedIndex() > 0) {
             String provSeleccionado = cbxProveedores.getSelectedItem().toString();
             String cif = provSeleccionado.split(" - ")[0]; 
@@ -61,13 +67,14 @@ public ProductoVO guardarDatos() {
         } else {
             throw new IllegalArgumentException("Debe seleccionar un proveedor válido.");
         }
-        
-        return p;
-}
 
-public javax.swing.JButton getBtnGuardar() {
-    return btnGuardar;
-}
+        return p;
+    }
+
+    
+    public javax.swing.JButton getBtnGuardar() {
+        return btnGuardar;
+    }
     
 
     /**
@@ -364,14 +371,12 @@ public javax.swing.JButton getBtnGuardar() {
      * @param proveedores
      */
     public void cargarProveedores(List<ProveedorVO> proveedores) {
-        cbxProveedores.removeAllItems(); // Limpiar items por defecto
+        cbxProveedores.removeAllItems(); // Limpiamos items por defecto
         cbxProveedores.addItem("Seleccione un proveedor..."); // Opción por defecto
         
         for (ProveedorVO prov : proveedores) {
             cbxProveedores.addItem(prov.getCif() + " - " + prov.getNombre());
         }
     }
-
-    
 
 }

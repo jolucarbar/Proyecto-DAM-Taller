@@ -2,8 +2,13 @@
 package com.joseluis.apptaller.modelo.vo;
 
 /**
- *
- * @author joseluis
+ * Representa cada una de las líneas individuales de una factura.
+ * Contiene el desglose de los conceptos, cantidades y precios necesarios 
+ * para generar el informe visual y el cálculo de subtotales.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DetalleFactura {
     private final String descripcion;

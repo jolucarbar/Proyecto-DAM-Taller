@@ -4,17 +4,22 @@ package com.joseluis.apptaller.modelo.vo;
 import java.math.BigDecimal;
 
 /**
- * Value Object para la tabla detalle_productos de Presupuestos.
- * @author joseluis
+ * Clase que representa el desglose de materiales o piezas en un presupuesto.
+ * Almacena las cantidades, precios y descuentos aplicados a cada producto,
+ * calculando el subtotal necesario para la visualización del usuario.
+ *
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class DetalleProductoVO {
     private Integer idPresupuesto;
     private String idProducto;
     private String nombreProducto; // Dato extraído mediante JOIN para la tabla visual
     private int cantidadUsada;
-    private BigDecimal precioVentaUnitario;
+    private BigDecimal precioVentaUnitario;  // BigDecimal para mayor precicsión en cálculos matemáticos
     private BigDecimal descuento;
-    private BigDecimal subtotal; // En BD es GENERATED ALWAYS
+    private BigDecimal subtotal; 
 
     public DetalleProductoVO() {}
 

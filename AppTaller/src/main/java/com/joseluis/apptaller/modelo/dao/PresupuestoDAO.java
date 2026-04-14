@@ -11,11 +11,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Data Access Object para la gestión de Presupuestos y sus líneas de detalle.
- * Implementa control de transacciones SQL.
- * @author joseluis
+ * Gestiona toda la información de los presupuestos en la base de datos.
+ * Guarda de forma segura el presupuesto junto con las piezas y la mano de obra, 
+ * y permite listarlos, borrarlos o cambiar su estado (Pendiente, Aprobado, etc.).
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class PresupuestoDAO {
 
@@ -59,7 +65,8 @@ public class PresupuestoDAO {
 
     /**
      * Guarda un presupuesto completo (Cabecera + Tareas + Materiales) usando una Transacción.
-     * * @param presupuesto Objeto completo con sus listas de detalles llenas.
+     * 
+     * @param presupuesto Objeto completo con sus listas de detalles llenas.
      * @return true si se guardó todo correctamente, false si hubo rollback.
      */
     public boolean insertarPresupuestoCompleto(PresupuestoVO presupuesto) {
@@ -70,15 +77,13 @@ public class PresupuestoDAO {
         ResultSet rsKeys = null;
 
         try {
-            // Obtenemos la conexión singleton
+            // Obtenemos la conexión 
             conn = Conexion.getInstancia().getConnection();
             
-            // Desactivamos el auto-commit para iniciar la Transacción
+            // Desactivamos el auto-commit para iniciar la transacción
             conn.setAutoCommit(false);
 
-            // ==========================================================
-            // PASO A: INSERTAR CABECERA
-            // ==========================================================
+            // Insertamos  en presupuestos
             // Usamos RETURN_GENERATED_KEYS para obtener el ID que MySQL le asigne al presupuesto
             psCabecera = conn.prepareStatement(SQL_INSERT_CABECERA, Statement.RETURN_GENERATED_KEYS);
             psCabecera.setString(1, presupuesto.getVehiculoBastidor());
@@ -103,9 +108,7 @@ public class PresupuestoDAO {
                 throw new SQLException("Fallo al obtener el ID del presupuesto.");
             }
 
-            // ==========================================================
-            // PASO B: INSERTAR LÍNEAS DE MANO DE OBRA
-            // ==========================================================
+            // Insertamos las líneas de la mano de obra en detalle_mano_obra
             if (!presupuesto.getLineasManoObra().isEmpty()) {
                 psManoObra = conn.prepareStatement(SQL_INSERT_MANO_OBRA);
                 for (DetalleManoObraVO mo : presupuesto.getLineasManoObra()) {
@@ -119,9 +122,7 @@ public class PresupuestoDAO {
                 psManoObra.executeBatch();
             }
 
-            // ==========================================================
-            // PASO C: INSERTAR LÍNEAS DE PRODUCTOS/MATERIALES
-            // ==========================================================
+            // Insertamos las líneas de los productos en detalle_productos
             if (!presupuesto.getLineasProductos().isEmpty()) {
                 psProductos = conn.prepareStatement(SQL_INSERT_PRODUCTO);
                 for (DetalleProductoVO prod : presupuesto.getLineasProductos()) {
@@ -136,15 +137,13 @@ public class PresupuestoDAO {
                 psProductos.executeBatch();
             }
 
-            // ==========================================================
-            // PASO D: CONFIRMAR TRANSACCIÓN (COMMIT)
-            // ==========================================================
+            
             // Si llegamos hasta aquí, nada falló. Le decimos a MySQL que aplique los cambios.
             conn.commit();
             return true;
 
         } catch (SQLException ex) {
-            // SI ALGO FALLA, DESHACEMOS TODO (ROLLBACK)
+            // Si algo falla, deshacemos todo (ROLLBACK)
             System.err.println("Error en la transacción de Presupuesto. Se realizará Rollback. Motivo: " + ex.getMessage());
             try {
                 if (conn != null) {
@@ -175,12 +174,12 @@ public class PresupuestoDAO {
     /**
      * Obtiene la lista de presupuestos formateada para la tabla visual.
      */
-    public java.util.List<Object[]> listarParaTabla() {
-        java.util.List<Object[]> lista = new java.util.ArrayList<>();
+    public List<Object[]> listarParaTabla() {
+        List<Object[]> lista = new ArrayList<>();
                    
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(SQL_LISTAR_PRESUPUESTOS);
-             java.sql.ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_LISTAR_PRESUPUESTOS);
+             ResultSet rs = ps.executeQuery()) {
             
             while (rs.next()) {
                 lista.add(new Object[]{
@@ -205,25 +204,25 @@ public class PresupuestoDAO {
      * @return true si se eliminó con éxito, false en caso de error.
      */
     public boolean eliminarPresupuesto(int idPresupuesto) {
-        java.sql.Connection conn = null;
+        Connection conn = null;
         try {
-            conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
+            conn = Conexion.getInstancia().getConnection();
             conn.setAutoCommit(false); // Iniciamos transacción
 
             // Borrar mano de obra asociada
-            try (java.sql.PreparedStatement ps1 = conn.prepareStatement("DELETE FROM detalle_mano_obra WHERE id_presupuesto = ?")) {
+            try (PreparedStatement ps1 = conn.prepareStatement("DELETE FROM detalle_mano_obra WHERE id_presupuesto = ?")) {
                 ps1.setInt(1, idPresupuesto);
                 ps1.executeUpdate();
             }
 
             // Borrar materiales asociados
-            try (java.sql.PreparedStatement ps2 = conn.prepareStatement("DELETE FROM detalle_productos WHERE id_presupuesto = ?")) {
+            try (PreparedStatement ps2 = conn.prepareStatement("DELETE FROM detalle_productos WHERE id_presupuesto = ?")) {
                 ps2.setInt(1, idPresupuesto);
                 ps2.executeUpdate();
             }
 
             // Borrar la cabecera del presupuesto
-            try (java.sql.PreparedStatement ps3 = conn.prepareStatement("DELETE FROM presupuestos WHERE id_presupuesto = ?")) {
+            try (PreparedStatement ps3 = conn.prepareStatement("DELETE FROM presupuestos WHERE id_presupuesto = ?")) {
                 ps3.setInt(1, idPresupuesto);
                 int filasAfectadas = ps3.executeUpdate();
                 
@@ -254,12 +253,12 @@ public class PresupuestoDAO {
     /**
      * Obtiene las líneas de mano de obra de un presupuesto específico.
      */
-    public java.util.List<DetalleManoObraVO> obtenerManoObraPorPresupuesto(int idPresupuesto) {
-        java.util.List<DetalleManoObraVO> lista = new java.util.ArrayList<>();
+    public List<DetalleManoObraVO> obtenerManoObraPorPresupuesto(int idPresupuesto) {
+        List<DetalleManoObraVO> lista = new java.util.ArrayList<>();
         
         
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(SQL_MANO_OBRA)) {
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement ps = conn.prepareStatement(SQL_MANO_OBRA)) {
             ps.setInt(1, idPresupuesto);
             try (java.sql.ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -278,16 +277,16 @@ public class PresupuestoDAO {
         }
         return lista;
     }
-
+    
+    
     /**
      * Obtiene las líneas de productos/materiales de un presupuesto específico.
      */
-    public java.util.List<DetalleProductoVO> obtenerProductosPorPresupuesto(int idPresupuesto) {
-        java.util.List<DetalleProductoVO> lista = new java.util.ArrayList<>();
+    public List<DetalleProductoVO> obtenerProductosPorPresupuesto(int idPresupuesto) {
+        List<DetalleProductoVO> lista = new ArrayList<>();
         
-        
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(SQL_SELECT_PRODUCTO)) {
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement ps = conn.prepareStatement(SQL_SELECT_PRODUCTO)) {
             ps.setInt(1, idPresupuesto);
             try (java.sql.ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -312,11 +311,11 @@ public class PresupuestoDAO {
     /**
      * Obtiene la cabecera de un presupuesto por su ID.
      */
-    public com.joseluis.apptaller.modelo.vo.PresupuestoVO obtenerPresupuestoPorId(int idPresupuesto) {
-        com.joseluis.apptaller.modelo.vo.PresupuestoVO p = null;
+    public PresupuestoVO obtenerPresupuestoPorId(int idPresupuesto) {
+        PresupuestoVO p = null;
         
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(SQL_CABECERA_PRESUPUESTO)) {
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement ps = conn.prepareStatement(SQL_CABECERA_PRESUPUESTO)) {
              
             ps.setInt(1, idPresupuesto);
             try (java.sql.ResultSet rs = ps.executeQuery()) {
@@ -347,8 +346,8 @@ public class PresupuestoDAO {
      */
     public boolean actualizarEstado(int idPresupuesto, String nuevoEstado) {
         
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
+        try (Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
+            PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
             
             ps.setString(1, nuevoEstado);
             ps.setInt(2, idPresupuesto);

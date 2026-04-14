@@ -1,14 +1,5 @@
 package com.joseluis.apptaller.persistencia;
 
-/**
- * Implementa el patrón de diseño Singleton para gestionar de forma centralizada y 
- * eficiente el acceso al servidor de base de datos MySQL.
- */
-
-/**
- *
- * @author Jose Luis Cárdenas Barroso
- */
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -17,9 +8,13 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
- * Gestión de la conexión a la base de datos apptaller_db
- * Patrón Singleton para garantizar que solo exista una instancia de la conexión activa en memoria, 
- * evitando saturar el servidor MySQL con múltiples conexiones innecesarias cada vez que se hace una consulta.
+ * Gestiona la conexión de la aplicación con la base de datos MySQL.
+ * Utiliza el patrón de diseño Singleton para garantizar que solo exista una 
+ * única conexión activa en todo momento, optimizando los recursos del sistema.
+ *
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class Conexion {
     private static Conexion instancia;

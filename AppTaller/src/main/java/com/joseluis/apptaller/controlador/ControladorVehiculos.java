@@ -14,8 +14,13 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
- * @author joseluis
+ * Controlador encargado de gestionar el módulo de Vehículos.
+ * Conecta la interfaz visual con la base de datos para permitir listar, añadir, 
+ * editar y eliminar los coches asociados a los clientes del taller.
+ * 
+ * @author José Luis Cárdenas Barroso
+ * @info Proyecto Intermodular del Grado Superior DAM
+ * @institution IES Augustóbriga
  */
 public class ControladorVehiculos implements ActionListener {
     private final VentanaPrincipal vista;
@@ -30,6 +35,7 @@ public class ControladorVehiculos implements ActionListener {
         initListeners();
         cargarVehiculos();  // Carga los vehículos al arancar
     }
+    
     
     private void initTabla() {
         // Celdas no editables directamente
@@ -46,6 +52,7 @@ public class ControladorVehiculos implements ActionListener {
         vista.getTblVehiculo().setModel(modeloTabla);
         vista.getTblVehiculo().setRowHeight(30);
     }
+    
     
     private void initListeners() {
         // Escuchamos los botones
@@ -64,6 +71,7 @@ public class ControladorVehiculos implements ActionListener {
         });
     }
 
+    
     private void cargarVehiculos() {
         modeloTabla.setRowCount(0); // Limpiar tabla
         List<VehiculoVO> lista = modeloDAO.listar();
@@ -80,6 +88,7 @@ public class ControladorVehiculos implements ActionListener {
         vista.getTblVehiculo().revalidate();
         vista.getTblVehiculo().repaint();
     }
+    
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -93,20 +102,21 @@ public class ControladorVehiculos implements ActionListener {
         }
     }
     
+    
     private void abrirDialogoNuevoVehiculo() {
-       // 1. Pedimos la lista de clientes activos para pasársela al diálogo
+       // Pedimos la lista de clientes activos para pasársela al diálogo
         ClienteDAO clienteDAO = new ClienteDAO();
         List<ClienteVO> clientesActivos = clienteDAO.listar();
         
-        // 2. Abrimos el diálogo pasándole la lista
+        // Abrimos el diálogo pasándole la lista
         DialogNuevoVehiculo dialog = new DialogNuevoVehiculo(vista, true, clientesActivos);
         dialog.setVisible(true); // Se pausa aquí hasta que el usuario cierra
         
-        // 3. Cuando se cierra, comprobamos si guardó
+        // Cuando se cierra, comprobamos si guardó
         if (dialog.isGuardado()) {
             VehiculoVO nuevoVehiculo = dialog.getVehiculo();
             
-            // 4. Mandamos a la Base de Datos
+            // Mandamos a la Base de Datos
             if (modeloDAO.insertar(nuevoVehiculo)) {
                 JOptionPane.showMessageDialog(vista, "Vehículo registrado con éxito.");
                 cargarVehiculos(); // Refrescamos la tabla
@@ -117,29 +127,30 @@ public class ControladorVehiculos implements ActionListener {
         } 
     }
     
+    
     private void editarVehiculoSeleccionado() {
         int filaSelec = vista.getTblVehiculo().getSelectedRow();
         if (filaSelec != -1) {
-            // 1. Obtenemos el Bastidor de la fila seleccionada (que está en la columna 0)
+            // Obtenemos el Bastidor de la fila seleccionada (que está en la columna 0)
             String bastidor = (String) modeloTabla.getValueAt(filaSelec, 0);
             
-            // 2. Buscamos el vehículo completo en la BD
+            // Buscamos el vehículo completo en la BD
             VehiculoVO vehiculoAEditar = modeloDAO.buscarPorBastidor(bastidor);
             if (vehiculoAEditar != null) {
-                // 3. Cargamos los clientes para el desplegable
+                // Cargamos los clientes para el desplegable
                 ClienteDAO clienteDAO = new ClienteDAO();
                 List<ClienteVO> clientesActivos = clienteDAO.listar();
         
-                // 4. Abrimos el modal en modo EDICIÓN
+                // Abrimos el modal en modo EDICIÓN
                 DialogNuevoVehiculo dialog = new DialogNuevoVehiculo(vista, true, clientesActivos,
                 vehiculoAEditar);
                 dialog.setVisible(true);
         
-                // 5. Al cerrar, si el usuario pulsó Guardar, hacemos el UPDATE
+                // Al cerrar, si el usuario pulsó Guardar, hacemos el UPDATE
                 if (dialog.isGuardado()) {
                     VehiculoVO vehiculoModificado = dialog.getVehiculo();
                    
-                    // Interceptamos la respuesta en una variable antes del IF
+                    // Cargamos la respuesta en una variable antes del IF
                     boolean resultadoDAO = modeloDAO.modificar(vehiculoModificado);
                    
                     if (resultadoDAO) {
@@ -153,6 +164,7 @@ public class ControladorVehiculos implements ActionListener {
             }
         }
     }
+    
     
     private void eliminarVehiculoSeleccionado() {
         int filaSelec = vista.getTblVehiculo().getSelectedRow();
