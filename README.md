@@ -61,13 +61,34 @@ El proyecto sigue una arquitectura MVC (Modelo-Vista-Controlador) robusta:
 
 ## 6. Estado actual de desarrollo
 
-A día de hoy, el proyecto ha completado su Fase 1: Diseño de Interfaz y Experiencia de Usuario (UI/UX).
+Actualmente, el proyecto se encuentra en fase de Beta Avanzada (rama develop). La arquitectura base está completamente consolidada y todos los módulos críticos de negocio se encuentran operativos e integrados.
 
-   * Interfaz de Usuario: Implementada al 100% con Java Swing y el wrapper material-ui-swing, ofreciendo una estética moderna bajo          los principios de Material Design.
-   * Navegación: Estructura de ventana única (Single Window) gestionada mediante CardLayout para una navegación fluida entre módulos       (Dashboard, Clientes, Reparaciones, etc.).
-   * Componentes Avanzados: Diseñados más de 10 cuadros de diálogo técnicos (JDialog) para operaciones específicas como recepción de       vehículos con sliders de combustible y gestión detallada de reparaciones.
+Funcionalidades Completadas
+
+   * Arquitectura de Software: Implementación estricta del patrón MVC (Modelo-Vista-Controlador) apoyado en los patrones de diseño DAO/VO y Singleton para garantizar una conexión a base de datos (MySQL) robusta y escalable.
+
+   * Seguridad y Acceso: Sistema de autenticación de usuarios (Login) validado contra la base de datos.
+
+   * Módulos de Gestión Base: Interfaces de usuario y lógica de negocio (Altas, modificaciones y consultas) operativas para las entidades principales: Clientes, Vehículos, Proveedores, Productos/Recambios y Empleados.
+
+   * Gestión de Taller: Flujo de trabajo completo para la recepción de vehículos, registro de inspecciones (kilometraje, combustible, diagnósticos) y generación de Órdenes de Reparación con asignación de mecánicos.
+
+   * Módulo Económico: Sistema interactivo para la creación de Presupuestos (con recálculo dinámico de subtotales, mano de obra e IVA) y su posterior conversión automática a Facturas registradas.
+
+   * Reportes y Documentación: Integración de la librería JasperReports para la generación y exportación de documentos oficiales (Facturas y Presupuestos) en formato PDF.
+
+   * Interfaz de Usuario (UX/UI): Capa de presentación intuitiva impulsada por MaterialLookAndFeel, con validaciones de campos, bloqueos lógicos de edición y navegación fluida por pestañas.
 
 
 ## 7. Próximos objetivos
-   * Arquitectura DAO: Desarrollo de las clases de acceso a datos para mapear las tablas de apptaller_db a objetos Java (VO/POJO).
-   * Seguridad: Implementación del sistema de login real contra la base de datos con control de roles (Administrador/Empleado).
+   De cara a la presentación y entrega final del proyecto (Release Candidate), el desarrollo se centrará en:
+
+   * Finalización del Módulo de Gestión de Stock e Inventario. Actualmente se está implementando la lógica para automatizar el descuento de piezas al facturar y el sistema de alertas para umbrales mínimos de reposición
+   
+   * Refactorización y limpieza de código muerto (Dead Code).
+
+   * Pruebas integrales (Testing) de todos los flujos de extremo a extremo.
+
+   * Empaquetado final de la aplicación en un ejecutable .jar.
+
+   * Redacción del manual de usuario y finalización de la memoria técnica del proyecto.
