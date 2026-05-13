@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.swing.JDialog;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.swing.JRViewer;
 import net.sf.jasperreports.view.JasperViewer;
 
 /**
@@ -112,6 +114,10 @@ public class GestorFacturacion {
             String dniCliente = (factura.getClienteDni() != null) ? factura.getClienteDni() : "Sin DNI";
             parametros.put("PARAM_DNI", dniCliente);
             
+            // Validamos la matrícula del vehículo
+            String matricula = (factura.getVehiculoMatricula() != null) ? factura.getVehiculoMatricula() : "Desconocida";
+            parametros.put("PARAM_MATRICULA", matricula);
+            
             // Calculamos la base imponible dividiendo el total entre 1.21 (IVA 21%)
             double baseImponible = factura.getTotalCobrado() / 1.21;
             parametros.put("PARAM_BASE_IMPONIBLE", baseImponible);
@@ -124,8 +130,24 @@ public class GestorFacturacion {
             JasperPrint jp = JasperFillManager.fillReport(reportStream, parametros, dataSource);
 
             // Mostrar el visor de Jasper (Permite ver, imprimir directamente o guardar como PDF)
-            // El 'false' evita que al cerrar el PDF se cierre también la aplicación entera.
-            JasperViewer.viewReport(jp, false);
+            /*
+            * FIX: Resolución de superposición de ventanas (Z-Index).
+            * JasperViewer utiliza internamente un JFrame, el cual es relegado a un segundo plano
+            * por el sistema operativo cuando existe un JDialog modal activo (ej. DialogHistorialCliente).
+            * Para mantener la jerarquía de ventanas de Swing y respetar la arquitectura de la app,
+            * se extrae el panel puro (JRViewer) y se encapsula dentro de un JDialog modal propio.
+            * Esto garantiza que el PDF se renderice siempre en primer plano y bloquee el flujo
+            * hasta que el usuario termine de visualizar o imprimir la factura.
+            */
+            JRViewer visorPanel = new JRViewer(jp);
+            JDialog dialogVisor = new JDialog();
+            dialogVisor.setModal(true);
+            dialogVisor.setTitle("Factura - App Mi Taller");
+            dialogVisor.setSize(950, 750);
+            dialogVisor.setLocationRelativeTo(null);
+            dialogVisor.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            dialogVisor.getContentPane().add(visorPanel);
+            dialogVisor.setVisible(true);
 
         } catch (JRException e) {
             System.err.println("Error de JasperReports al generar la factura: " + e.getMessage());
@@ -138,7 +160,7 @@ public class GestorFacturacion {
      * Recopila la mano de obra y los materiales de una reparación y los convierte
      * en líneas de detalle para imprimir la factura.
      */
-    public java.util.List<DetalleFactura> obtenerDetallesParaFactura(int idReparacion) {
+    public List<DetalleFactura> obtenerDetallesParaFactura(int idReparacion) {
         List<DetalleFactura> detalles = new ArrayList<>();
         ReparacionDAO repDao = new ReparacionDAO();
         
@@ -166,5 +188,42 @@ public class GestorFacturacion {
         return detalles;
     }
     
+    
+    
+     /**
+     * Busca una factura por su ID en la BD, obtiene sus detalles y genera el PDF.
+     * @param idFactura El ID interno de la factura a imprimir.
+     * @throws Exception Si la factura no existe o hay un error al generar el PDF.
+     */
+    public void visualizarFacturaGenerica(int idFactura) throws Exception {
+        FacturaDAO facturaDAO = new FacturaDAO();
+        FacturaVO factura = facturaDAO.obtenerPorId(idFactura);
+       
+        if (factura != null) {
+            // Obtenemos los detalles (mano de obra y piezas) de la reparación asociada
+            List<DetalleFactura> detalles = obtenerDetallesParaFactura(factura.getIdReparacion());
+           
+            // Lanzamos el visor de JasperReports
+            generarInformePDF(factura, detalles);
+        } else {
+            throw new Exception("No se ha podido recuperar la información de la factura en la base de datos.");
+        }
+    }
+    
+    
+    public void visualizarFacturaGenerica(String numeroFactura) throws Exception {
+        FacturaDAO facturaDAO = new FacturaDAO();
+        FacturaVO factura = facturaDAO.obtenerPorNumero(numeroFactura);
+       
+        if (factura != null) {
+            // Obtenemos los detalles (mano de obra y piezas) de la reparación asociada
+            List<DetalleFactura> detalles = obtenerDetallesParaFactura(factura.getIdReparacion());
+           
+            // Lanzamos el visor de JasperReports
+            generarInformePDF(factura, detalles);
+        } else {
+            throw new Exception("No se ha podido recuperar la información de la factura en la base de datos.");
+        }
+    }
     
 }

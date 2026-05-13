@@ -28,7 +28,7 @@ public class ProveedorDAO {
     private final String SQL_SELECT_BY_CIF = "SELECT * FROM proveedores WHERE cif = ? AND activo = 1";
     private final String SQL_UPDATE = "UPDATE proveedores SET cif=?, nombre=?, direccion=?, telefono=?, email=?, contacto=?, web=?, activo=?, created_at=? WHERE cif=?";
     private final String SQL_DELETE = "UPDATE proveedores SET activo = 0 WHERE cif = ?"; // Borrado lógico, no físico
-    
+    private final String SQL_SELECT_BUSQUEDA = "SELECT * FROM proveedores WHERE cif LIKE ? OR nombre LIKE ?";
     
     /**
      * Inserta un nuevo proveedor en la base de datos.
@@ -119,6 +119,33 @@ public class ProveedorDAO {
         return proveedor;
     }
     
+    /**
+     * Método para buscasr proveedor por CIF. Como pueden ser varios los resultados
+     * devueltos, se crea List, y no se usa el método para buscar ya existente.
+     * @param busqueda El texto que ha escrito el usuario
+     * @return lista con los resultados obtenidos
+     */
+    public List<ProveedorVO> busquedaPorCif(String busqueda) {
+        List<ProveedorVO> lista = new ArrayList<>();
+
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BUSQUEDA);)
+             {
+            String busquedaFormateada = "%" + busqueda + "%";
+            stmt.setString(1, busquedaFormateada); // para el cif
+            stmt.setString(2, busquedaFormateada); // para el nombre
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearProveedor(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar proveedor: " + e.getMessage());
+        } 
+        return lista;
+    }
+    
+    
     
     /**
      * Actualiza los datos de un proveedor.
@@ -140,6 +167,7 @@ public class ProveedorDAO {
             stmt.setBoolean(8, proveedor.isActivo());
             // Convertir LocalDate a java.sql.Date
             stmt.setDate(9, Date.valueOf(proveedor.getCreated_at()));
+            stmt.setString(10, proveedor.getCif());
 
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {

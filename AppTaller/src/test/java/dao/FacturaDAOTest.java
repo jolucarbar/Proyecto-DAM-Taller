@@ -12,6 +12,8 @@ import java.sql.Statement;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  * Pruebas de integración para FacturaDAO.
@@ -43,6 +45,24 @@ public class FacturaDAOTest {
         }
     }
 
+    @BeforeEach
+    void setUp() {
+        // 1. Limpiar tablas en orden inverso a las FK para evitar bloqueos
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            stmt.execute("SET FOREIGN_KEY_CHECKS = 0");
+            stmt.execute("TRUNCATE TABLE facturas");
+            stmt.execute("TRUNCATE TABLE reparaciones");
+            // Insertar una reparación de prueba para que la factura tenga a qué apuntar
+            stmt.execute("INSERT INTO reparaciones (id_reparacion, vehiculo_bastidor, cliente_dni, ...) VALUES (1, ...)");
+            stmt.execute("SET FOREIGN_KEY_CHECKS = 1");
+
+        } catch (SQLException e) {
+            fail("Error preparando el entorno de pruebas: " + e.getMessage());
+        }
+    }
+    
     @AfterEach
     public void tearDown() {
         try (Connection conn = Conexion.getInstancia().getConnection();

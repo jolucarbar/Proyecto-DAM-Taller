@@ -7,6 +7,7 @@
 	<parameter name="PARAM_TOTAL" class="java.lang.Double"/>
 	<parameter name="PARAM_DNI" class="java.lang.String"/>
 	<parameter name="PARAM_BASE_IMPONIBLE" class="java.lang.Double"/>
+	<parameter name="PARAM_MATRICULA" class="java.lang.String"/>
 	<query language="sql"><![CDATA[]]></query>
 	<field name="descripcion" class="java.lang.String"/>
 	<field name="cantidad" class="java.lang.Double"/>
@@ -47,6 +48,12 @@ CIF: B-12345678
 		</element>
 		<element kind="textField" uuid="992065ec-0040-4147-b2cd-54bccfc6bf2f" x="80" y="40" width="178" height="17">
 			<expression><![CDATA[$P{PARAM_DNI}]]></expression>
+		</element>
+		<element kind="textField" uuid="fec22c11-f174-4a4a-84c0-5822f67f4131" x="390" y="12" width="140" height="18">
+			<expression><![CDATA[$P{PARAM_MATRICULA}]]></expression>
+		</element>
+		<element kind="staticText" uuid="04401674-e6f6-4c28-902b-d03055096aa3" x="300" y="12" width="65" height="18">
+			<text><![CDATA[Matrícula: ]]></text>
 		</element>
 	</pageHeader>
 	<columnHeader height="30" splitType="Stretch">

@@ -22,22 +22,42 @@ import java.util.List;
  */
 public class FacturaDAO {
 
-    // Consultas SQL basadas en la estructura de la tabla Facturas
     private final String SQL_INSERT = "INSERT INTO facturas (numero_factura, id_reparacion, id_presupuesto, "
             + "cliente_dni, vehiculo_bastidor, fecha_emision, fecha_vencimiento, base_imponible, iva, "
             + "total_cobrado, metodo_pago, estado, observaciones, usuario_emisor) "
             + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    
-    private final String SQL_SELECT_ALL = "SELECT f.*, c.nombre AS cliente_nombre " +
-        "FROM facturas f " +
-        "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif " +
-        "ORDER BY f.fecha_emision DESC";
-    
-    private final String SQL_SELECT_BY_NUMERO = "SELECT * FROM facturas WHERE numero_factura = ?";
+           
+    private final String SQL_SELECT_ALL = "SELECT f.*, c.nombre AS cliente_nombre, v.matricula " +
+            "FROM facturas f " +
+            "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif " +
+            "LEFT JOIN vehiculos v ON f.vehiculo_bastidor = v.bastidor " +
+            "ORDER BY f.fecha_emision DESC";
+           
+    private final String SQL_SELECT_POR_NUMERO = "SELECT f.*, c.nombre AS cliente_nombre, v.matricula "
+            + "FROM facturas f "
+            + "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif "
+            + "LEFT JOIN vehiculos v ON f.vehiculo_bastidor = v.bastidor "
+            + "WHERE f.numero_factura = ?";
 
-    
-    // Actualiza el estado de una factura
     private final String SQL_UPDATE_ESTADO = "UPDATE facturas SET estado = ? WHERE id_factura = ?";
+
+    private final String SQL_SELECT_POR_CLIENTE = "SELECT f.*, c.nombre AS cliente_nombre, v.matricula "
+            + "FROM facturas f "
+            + "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif "
+            + "LEFT JOIN vehiculos v ON f.vehiculo_bastidor = v.bastidor "
+            + "WHERE f.cliente_dni = ? ORDER BY f.fecha_emision DESC";
+
+    private final String SQL_SELECT_POR_ID = "SELECT f.*, c.nombre AS cliente_nombre, v.matricula " +
+            "FROM facturas f " +
+            "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif " +
+            "LEFT JOIN vehiculos v ON f.vehiculo_bastidor = v.bastidor " +
+            "WHERE f.id_factura = ?";
+
+    private final String SQL_BUSCAR_FACTURA = "SELECT f.*, c.nombre AS cliente_nombre, v.matricula " +
+            "FROM facturas f "
+            + "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif "
+            + "LEFT JOIN vehiculos v ON f.vehiculo_bastidor = v.bastidor "
+            + "WHERE f.id_factura LIKE ? OR f.fecha_emision LIKE ? OR c.nombre LIKE ? OR v.matricula LIKE ?";
     
     
     
@@ -50,7 +70,6 @@ public class FacturaDAO {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            System.out.println(">>> DEBUG FACTURA - DNI: [" + factura.getClienteDni() + "] | Bastidor: [" + factura.getVehiculoBastidor() + "]");
             conn = Conexion.getInstancia().getConnection();  
             stmt = conn.prepareStatement(SQL_INSERT);
 
@@ -91,24 +110,19 @@ public class FacturaDAO {
      * Genera un listado de todas las facturas registradas.
      */
     public List<FacturaVO> listar() {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-        List<FacturaVO> lista = new ArrayList<>();
+       List<FacturaVO> lista = new ArrayList<>();
 
-        try {
-            conn = Conexion.getInstancia().getConnection();
-            stmt = conn.prepareStatement(SQL_SELECT_ALL);
-            rs = stmt.executeQuery();
-
-            while (rs.next()) {
-                lista.add(mapearFactura(rs));
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_ALL)) {
+            
+            try(ResultSet rs = stmt.executeQuery();) {
+                while (rs.next()) {
+                    lista.add(mapearFactura(rs));
+                }
             }
         } catch (SQLException e) {
             System.err.println("Error al listar facturas: " + e.getMessage());
-        } finally {
-            close(stmt, rs);
-        }
+        } 
         return lista;
     }
 
@@ -130,6 +144,8 @@ public class FacturaDAO {
         }
         
         f.setTotalCobrado(rs.getDouble("total_cobrado"));
+        f.setBaseImponible(rs.getDouble("base_imponible"));
+        f.setIva(rs.getDouble("iva"));
         f.setEstado(rs.getString("estado"));
         
         // Intentamos leer 'cliente_nombre'.
@@ -138,7 +154,13 @@ public class FacturaDAO {
         } catch (SQLException e) {
             f.setClienteNombre("Desconocido");
         }
-               
+        
+        // Intentamos leer la matrícula
+        try {
+            f.setVehiculoMatricula(rs.getString("matricula"));
+        } catch(SQLException e) {
+            f.setVehiculoMatricula("Desconocido");
+        }      
         return f;
     }
 
@@ -197,13 +219,9 @@ public class FacturaDAO {
     * Recupera una factura completa por su ID, incluyendo el nombre del cliente.
     */
    public FacturaVO obtenerPorId(int idFactura) {
-       String sql = "SELECT f.*, c.nombre AS cliente_nombre " +
-                    "FROM facturas f " +
-                    "LEFT JOIN clientes c ON f.cliente_dni = c.dni_cif " +
-                    "WHERE f.id_factura = ?";
-
+       
        try (Connection conn = Conexion.getInstancia().getConnection();
-            PreparedStatement ps = conn.prepareStatement(sql)) {
+            PreparedStatement ps = conn.prepareStatement(SQL_SELECT_POR_ID)) {
 
            ps.setInt(1, idFactura);
            try (ResultSet rs = ps.executeQuery()) {
@@ -223,9 +241,8 @@ public class FacturaDAO {
      */
     public boolean actualizarEstado(int idFactura, String nuevoEstado) {
         
-        
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_UPDATE_ESTADO)) {
             
             ps.setString(1, nuevoEstado);
             ps.setInt(2, idFactura);
@@ -237,5 +254,70 @@ public class FacturaDAO {
         }
     }
    
+    
+    
+    public List<FacturaVO> listarPorCliente(String dniCliente) {
+        List<FacturaVO> lista = new ArrayList<>();
+        
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_POR_CLIENTE)) {
+            stmt.setString(1, dniCliente);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearFactura(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar facturas por cliente: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    
+    /**
+    * Recupera una factura completa por su número de factura, incluyendo el nombre del cliente.
+    */
+    public FacturaVO obtenerPorNumero(String numeroFactura) {
+        FacturaVO factura = null;
+        
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_POR_NUMERO)) {
+            
+            stmt.setString(1, numeroFactura);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                   return mapearFactura(rs);                    
+                }
+            }
+            
+        } catch (SQLException e) {
+             System.err.println("Error al obtener factura por su número: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public List<FacturaVO> buscarFactura(String busqueda) {
+        List<FacturaVO> lista = new ArrayList<>();
+        try(Connection conn = Conexion.getInstancia().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(SQL_BUSCAR_FACTURA)) {
+            
+            String busquedaFormateada = "%" + busqueda + "%";
+            stmt.setString(1, busquedaFormateada); // para el nº de factura
+            stmt.setString(2, busquedaFormateada); // para la fecha
+            stmt.setString(3, busquedaFormateada); // para el nombre
+            stmt.setString(4, busquedaFormateada); // para la matrícula del vehículo
+            
+            try(ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearFactura(rs));
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error al buscar factura: " + e.getMessage());
+        }
+        return lista;
+    }
    
 }

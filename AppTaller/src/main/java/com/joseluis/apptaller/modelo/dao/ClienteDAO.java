@@ -26,7 +26,9 @@ public class ClienteDAO {
     private final String SQL_SELECT_BY_DNI = "SELECT * FROM clientes WHERE dni_cif = ? AND activo = 1";
     private final String SQL_UPDATE = "UPDATE clientes SET nombre=?, telefono=?, email=?, direccion=? WHERE dni_cif=?";
     private final String SQL_DELETE = "UPDATE clientes SET activo = 0 WHERE dni_cif = ?"; // Borrado lógico, no físico
-
+    private final String SQL_LISTAR_TODOS = "SELECT * FROM clientes WHERE activo = 1 ORDER BY nombre ASC";
+    private final String SQL_BUSCAR_CLIENTE = "SELECT * FROM clientes WHERE dni_cif LIKE ? OR nombre LIKE ?";
+        
     
     /**
      * Inserta un nuevo cliente en la base de datos.
@@ -188,21 +190,45 @@ public class ClienteDAO {
     
     
     /**
-     * Obtiene la lista de todos los clientes activos.
+     * Obtiene la lista de todos los clientes activos ordenados por nombre.
      */
-    public java.util.List<com.joseluis.apptaller.modelo.vo.ClienteVO> listarTodos() {
-        java.util.List<com.joseluis.apptaller.modelo.vo.ClienteVO> lista = new java.util.ArrayList<>();
-        String sql = "SELECT * FROM clientes WHERE activo = TRUE ORDER BY nombre ASC";
+    public List<ClienteVO> listarTodos() {
+        List<ClienteVO> lista = new ArrayList<>();
         
-        try (java.sql.Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             java.sql.PreparedStatement stmt = conn.prepareStatement(sql);
-             java.sql.ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_LISTAR_TODOS);
+             ResultSet rs = stmt.executeQuery()) {
             
             while (rs.next()) {
                 lista.add(mapearCliente(rs)); 
             }
-        } catch (java.sql.SQLException e) {
+        } catch (SQLException e) {
             System.err.println("Error al listar todos los clientes: " + e.getMessage());
+        }
+        return lista;
+    }
+
+    
+    /**
+     * Método que busca un cliente por su DNI que recibe por parámetro.
+     * @param busqueda
+     * @return lista con el cliente
+     */
+    public List<ClienteVO> buscarCliente(String busqueda) {
+        List<ClienteVO> lista = new ArrayList<>();
+        
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_BUSCAR_CLIENTE)) {
+            String busquedaFormateada = "%" + busqueda + "%";
+            stmt.setString(1, busquedaFormateada);  // para el dni
+            stmt.setString(2, busquedaFormateada);  // para el nombre
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearCliente(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar por dni: " + e.getMessage());
         }
         return lista;
     }

@@ -19,15 +19,19 @@ import java.util.List;
 public class VehiculoDAO {
 
     private final String SQL_INSERT = "INSERT INTO vehiculos (bastidor, matricula, marca, modelo, anio_fabricacion, color, propietario_actual_dni, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    private final String SQL_SELECT_ALL = "SELECT * FROM vehiculos WHERE activo = 1";
+    private final String SQL_SELECT_ALL = "SELECT v.*, c.nombre AS nombre_propietario FROM vehiculos v LEFT JOIN clientes c ON v.propietario_actual_dni = c.dni_cif WHERE v.activo= 1";
     // Aunque bastidor es PK, mantenemos búsqueda por matrícula que es lo habitual en talleres
-    private final String SQL_SELECT_BY_MATRICULA = "SELECT * FROM vehiculos WHERE matricula = ? AND activo = 1";
-    private final String SQL_SELECT_BY_CLIENTE = "SELECT * FROM vehiculos WHERE propietario_actual_dni = ? AND activo = 1";
+    private final String SQL_SELECT_POR_MATRICULA = "SELECT v.*, c.nombre as nombre_propietario "
+            + "FROM vehiculos v LEFT JOIN clientes c ON v.propietario_actual_dni = c.dni_cif "
+            + "WHERE v.matricula LIKE ? OR v.bastidor LIKE ? AND v.activo = 1";
+    private final String SQL_SELECT_BY_CLIENTE = "SELECT v.*, c.nombre AS nombre_propietario "
+        + "FROM vehiculos v LEFT JOIN clientes c ON v.propietario_actual_dni = c.dni_cif "
+        + "WHERE v.propietario_actual_dni = ? AND v.activo = 1";
     
     private final String SQL_UPDATE = "UPDATE vehiculos SET marca=?, modelo=?, anio_fabricacion=?, color=?, propietario_actual_dni=? WHERE matricula=?"; // Actualizamos buscando por matrícula
     private final String SQL_DELETE = "UPDATE vehiculos SET activo = 0 WHERE matricula = ?";
 
-    // Selecciona por bastidor
+    // Selecciona por bastidor (por si es necesario en un futuro)
     private final String SQL_SELECT_BASTIDOR = "SELECT * FROM vehiculos WHERE bastidor = ?";
     
     // Actualiza por bastidor
@@ -111,6 +115,7 @@ public class VehiculoDAO {
         v.setAnioFabricacion(rs.getInt("anio_fabricacion"));  // Columna BD -> Método VO
         v.setColor(rs.getString("color"));
         v.setDniPropietario(rs.getString("propietario_actual_dni")); // Columna BD -> Método VO
+        v.setNombrePropietario(rs.getString("nombre_propietario"));
         
         // Verificamos si la columna activo existe 
         try {
@@ -122,6 +127,13 @@ public class VehiculoDAO {
         return v;
     }
 
+    
+    /**
+     * Método que busca un vehículo por su bastidor.
+     * También se emplea para buscar por matrícula.
+     * @param bastidor
+     * @return 
+     */
     public VehiculoVO buscarPorBastidor(String bastidor) {
         VehiculoVO vehiculo = null;
         
@@ -130,7 +142,7 @@ public class VehiculoDAO {
            
             stmt.setString(1, bastidor);
            
-            try (java.sql.ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     vehiculo = new VehiculoVO();
                     vehiculo.setBastidor(rs.getString("bastidor"));
@@ -142,12 +154,14 @@ public class VehiculoDAO {
                     vehiculo.setDniPropietario(rs.getString("propietario_actual_dni"));
                 }
             }
-        } catch (java.sql.SQLException e) {
+        } catch (SQLException e) {
             System.err.println("Error al buscar vehículo por bastidor: " + e.getMessage());
         }
        
         return vehiculo;
     }
+    
+    
 
     
     public boolean modificar(VehiculoVO vehiculo) {
@@ -173,9 +187,31 @@ public class VehiculoDAO {
             
             //return filasAfectadas >= 0; // Si es mayor que 0, se actualizó con éxito
            
-        } catch (java.sql.SQLException e) {
+        } catch (SQLException e) {
             System.err.println("Error al modificar vehículo: " + e.getMessage());
             return false;
         }
     }
+
+    public List<VehiculoVO> buscarPorMatricula(String busqueda) {
+       List<VehiculoVO> vehiculo = new ArrayList<>();
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_POR_MATRICULA)) {
+           
+            String busquedaFormateada = "%" + busqueda + "%";
+            stmt.setString(1, busquedaFormateada);
+            stmt.setString(2, busquedaFormateada);
+           try (ResultSet rs = stmt.executeQuery()) {
+               while (rs.next()) {
+                   vehiculo.add(mapearVehiculo(rs));
+               }
+           }
+           
+        } catch (SQLException e) {
+            System.err.println("Error al buscar por matrícula: " + e.getMessage());
+        }
+       return vehiculo;     
+    }
+    
+    
 }

@@ -61,6 +61,20 @@ public class PresupuestoDAO {
     // Actualiza el estado de un presupuesto
     private final String SQL_UPDATE_ESTADO = "UPDATE presupuestos SET estado = ? WHERE id_presupuesto = ?";
     
+    // Busca presupuestos por cliente
+    private final String SQL_SELECT_POR_CLIENTE =  "SELECT p.*, v.matricula " +
+                    "FROM presupuestos p " +
+                    "INNER JOIN vehiculos v ON p.vehiculo_bastidor = v.bastidor " +
+                    "INNER JOIN clientes c ON v.propietario_actual_dni = c.dni_cif " +
+                    "WHERE c.dni_cif = ? ORDER BY p.fecha_emision DESC";
+
+    // Consulta que busca presupuestos por ID, nombre del cliente o matrícula
+    private final String SQL_BUSCAR_PRESUPUESTO = "SELECT p.id_presupuesto, p.fecha_emision, c.nombre, v.matricula, p.total_estimado, p.estado " +
+                     "FROM presupuestos p " +
+                     "LEFT JOIN clientes c ON p.cliente_dni = c.dni_cif " +
+                     "LEFT JOIN vehiculos v ON p.vehiculo_bastidor = v.bastidor " +
+                     "WHERE p.id_presupuesto LIKE ? OR c.nombre LIKE ? OR v.matricula LIKE ? " +
+                     "ORDER BY p.fecha_emision DESC";
     
 
     /**
@@ -172,14 +186,14 @@ public class PresupuestoDAO {
     
     
     /**
-     * Obtiene la lista de presupuestos formateada para la tabla visual.
+     * Obtiene la lista de presupuestos para la tabla de panelPresupuestos.
      */
     public List<Object[]> listarParaTabla() {
         List<Object[]> lista = new ArrayList<>();
                    
-        try (Connection conn = com.joseluis.apptaller.persistencia.Conexion.getInstancia().getConnection();
-             PreparedStatement ps = conn.prepareStatement(SQL_LISTAR_PRESUPUESTOS);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_LISTAR_PRESUPUESTOS); 
+            ResultSet rs = ps.executeQuery()) {
             
             while (rs.next()) {
                 lista.add(new Object[]{
@@ -320,7 +334,7 @@ public class PresupuestoDAO {
             ps.setInt(1, idPresupuesto);
             try (java.sql.ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    p = new com.joseluis.apptaller.modelo.vo.PresupuestoVO();
+                    p = new PresupuestoVO();
                     p.setIdPresupuesto(rs.getInt("id_presupuesto"));
                     p.setClienteDni(rs.getString("cliente_dni"));
                     p.setVehiculoBastidor(rs.getString("vehiculo_bastidor"));
@@ -359,5 +373,68 @@ public class PresupuestoDAO {
         }
     }
     
+    /**
+     * Método que sirve para buscar los presupuestos de un deteminado cliente.
+     * Estos presupuestos se usarán en el DialogHistorialCliente
+     */
+    public List<PresupuestoVO> listarPorCliente(String dni) {
+        List<PresupuestoVO> lista = new ArrayList<>();
+        
+        try(Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_POR_CLIENTE)) {
+            stmt.setString(1, dni);
+            try(ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearPresupuesto(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar presupuestos por cliente: " + e.getMessage());
+        }
+        return lista;
+    }
+    
+    
+    private PresupuestoVO mapearPresupuesto (ResultSet rs) throws SQLException {
+        PresupuestoVO presupuesto = new PresupuestoVO();
+                    
+        presupuesto.setIdPresupuesto(rs.getInt("id_presupuesto"));
+        presupuesto.setFechaEmision(rs.getDate("fecha_emision").toLocalDate());
+        presupuesto.setMatriculaVehiculo(rs.getString("matricula"));
+        presupuesto.setTotalEstimado(rs.getBigDecimal("total_estimado"));
+        presupuesto.setEstado(rs.getString("estado"));
+
+        return(presupuesto);
+        
+    }
+
+    public List<Object[]> buscarPresupuesto(String busqueda) {
+        List<Object[]> lista = new ArrayList<>();
+        try(Connection conn = Conexion.getInstancia().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(SQL_BUSCAR_PRESUPUESTO)) {
+            
+            String busquedaFormateada = "%" + busqueda + "%";
+            stmt.setString(1, busquedaFormateada); // para el ID
+            stmt.setString(2, busquedaFormateada); // para el nombre del cliente
+            stmt.setString(3, busquedaFormateada); // para la matrícula
+            
+            try(ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                     lista.add(new Object[]{
+                    "PRE-" + rs.getInt("id_presupuesto"),
+                    rs.getDate("fecha_emision"),
+                    rs.getString("nombre") != null ? rs.getString("nombre") : "Desconocido",
+                    rs.getString("matricula") != null ? rs.getString("matricula") : "Desconocido",
+                    rs.getBigDecimal("total_estimado") + " €",
+                    rs.getString("estado")
+                    });
+                }
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error al buscar presupuesto: " + e.getMessage());
+        }
+        return lista;
+    }
     
 }

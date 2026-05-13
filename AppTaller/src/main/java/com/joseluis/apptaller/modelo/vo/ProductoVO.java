@@ -15,7 +15,7 @@ import java.util.Date;
  */
 public class ProductoVO {
     // Atributos basados en la estructura de la tabla 'productos'
-    private String idProducto;      // PK: Referencia o Código de barras
+    private String idProducto;      
     private String nombre;
     private String descripcion;
     private String categoria;

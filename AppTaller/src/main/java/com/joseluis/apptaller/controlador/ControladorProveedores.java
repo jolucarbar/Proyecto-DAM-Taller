@@ -60,6 +60,7 @@ public class ControladorProveedores implements ActionListener{
         vista.getBtnNuevoProveedor().addActionListener(this);
         vista.getBtnEliminarProveedor().addActionListener(this);
         vista.getBtnBuscarProveedor().addActionListener(this);
+        vista.getBtnRecargarProveedores().addActionListener(this);
         
         // Doble click para editar
         vista.getTblProveedores().addMouseListener(new java.awt.event.MouseAdapter() {
@@ -100,8 +101,9 @@ public class ControladorProveedores implements ActionListener{
         } else if (e.getSource() == vista.getBtnEliminarProveedor()) {
             eliminarProveedorSeleccionado();
         } else if (e.getSource() == vista.getBtnBuscarProveedor()) {
-            JOptionPane.showMessageDialog(vista, "Búsqueda en construcción...", "Info",
-            JOptionPane.INFORMATION_MESSAGE);
+            buscarProveedor();
+        } else if (e.getSource() == vista.getBtnRecargarProveedores()) {
+            cargarProveedores();
         }
     }
 
@@ -180,6 +182,42 @@ public class ControladorProveedores implements ActionListener{
             }
         } else {
             JOptionPane.showMessageDialog(vista, "Por favor, seleccione un proveedor de la tabla primero.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void buscarProveedor() {
+        String busqueda = vista.getTxtBuscarProveedores().getText().trim();
+        String placeholder = "Buscar proveedor..."; 
+        if (busqueda.isEmpty() || busqueda.equals(placeholder)) {
+            JOptionPane.showMessageDialog(vista,
+                "Por favor, introduzca un término antes de buscar.",
+                "Aviso de Búsqueda",
+                JOptionPane.WARNING_MESSAGE);
+            vista.getTxtBuscarCliente().requestFocus();
+            return;
+        }
+        modeloTabla.setRowCount(0); // Limpiamos la tabla antes de rellenar
+        List<ProveedorVO> lista = modeloDAO.busquedaPorCif(busqueda);
+        
+        if (lista != null && !lista.isEmpty()) {
+            for (ProveedorVO p : lista) {
+                Object[] fila = new Object[7];
+                fila[0] = p.getCif();
+                fila[1] = p.getNombre();
+                fila[2] = p.getDireccion();
+                fila[3] = p.getTelefono();
+                fila[4] = p.getEmail();
+                fila[5] = p.getContacto();
+                fila[6] = p.getWeb();
+
+                modeloTabla.addRow(fila);
+            }   
+            vista.getTxtBuscarProveedores().setText("");
+        } else {
+            JOptionPane.showMessageDialog(vista, "No se han encontrado proveedores con el CIF " + busqueda, "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            cargarProveedores();
+            vista.getTxtBuscarProveedores().setText("");
         }
     }
     

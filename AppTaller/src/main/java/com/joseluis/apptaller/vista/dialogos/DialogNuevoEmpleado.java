@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 /**
  * Ventana de diálogo destinada al registro y modificación de empleados.
  * Permite gestionar los datos personales, de contacto, el cargo y el salario base, 
- * reutilizando la vista gráfica de manera inteligente para mantener los IDs internos 
+ * reutilizando la vista gráfica para mantener los IDs internos 
  * y las fechas de alta/baja intactas durante las ediciones.
  *
  * @author José Luis Cárdenas Barroso
@@ -60,7 +60,7 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
        
         // Guardamos los IDs internos para no perderlos
         this.idEmpleadoOriginal = empleadoAEditar.getId_empleado();
-        this.usuarioIdOriginal = empleadoAEditar.getUsuario_id();
+        this.usuarioIdOriginal = empleadoAEditar.getUsuarioId();
         this.fechaAltaOriginal = empleadoAEditar.getFecha_alta();
         this.fechaBajaOriginal = empleadoAEditar.getFecha_baja();
        
@@ -117,6 +117,8 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
             empleado.setFecha_alta(LocalDate.now());
         }
         empleado.setFecha_baja(fechaBajaOriginal);
+        empleado.setUsuario(txtUsuario.getText().trim());
+        empleado.setPassword(txtPassword.getText().trim());
 
         this.guardado = true;
         this.dispose();
@@ -133,6 +135,17 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
     
     
     public EmpleadoVO getEmpleado() { return empleado; }
+    
+    public javax.swing.JTextField getTxtUsuario() { return txtUsuario; }
+
+    public javax.swing.JTextField getTxtPassword() { return txtPassword; }
+    
+    /**
+     * Método para obtener el cargo del cbxCargo
+     */
+    public String getRolSeleccionado() {
+        return cbxCargo.getSelectedItem().toString();
+    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -165,6 +178,10 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
         lblSalario = new javax.swing.JLabel();
         txtSalario = new javax.swing.JTextField();
         cbxCargo = new javax.swing.JComboBox<>();
+        lblUsuario = new javax.swing.JLabel();
+        txtUsuario = new javax.swing.JTextField();
+        lblPassword = new javax.swing.JLabel();
+        txtPassword = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Alta / Modificación Cliente");
@@ -206,6 +223,7 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
 
         btnGuardar.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         btnGuardar.setText("Guardar");
+        btnGuardar.addActionListener(this::btnGuardarActionPerformed);
 
         pnlTitulo.setBackground(new java.awt.Color(33, 150, 243));
 
@@ -260,7 +278,20 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
         txtSalario.setColumns(20);
         txtSalario.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
 
+        cbxCargo.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         cbxCargo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Jefe de Taller", "Mecánico", "Administración", "Recepcionista" }));
+
+        lblUsuario.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblUsuario.setText("Usuario");
+
+        txtUsuario.setColumns(20);
+        txtUsuario.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+
+        lblPassword.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
+        lblPassword.setText("Password");
+
+        txtPassword.setColumns(20);
+        txtPassword.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -275,39 +306,46 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
                         .addComponent(pnlTitulo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(44, 44, 44)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(lblApellidos)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(46, 46, 46)
-                                .addComponent(btnCancelar)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(btnGuardar)
-                                .addGap(81, 81, 81))
-                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblTelefono)
+                                    .addComponent(lblDireccion)
+                                    .addComponent(lblNombre)
+                                    .addComponent(lblDNI)
+                                    .addComponent(lblEmail)
+                                    .addComponent(lblCargo))
+                                .addGap(59, 59, 59)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addGroup(layout.createSequentialGroup()
-                                        .addComponent(lblSalario)
-                                        .addGap(42, 42, 42)
-                                        .addComponent(txtSalario))
-                                    .addComponent(lblApellidos)
+                                    .addComponent(txtNombre)
+                                    .addComponent(txtDni)
+                                    .addComponent(txtApellidos)
+                                    .addComponent(txtTelefono)
+                                    .addComponent(txtEmail)
+                                    .addComponent(txtDireccion)
+                                    .addComponent(cbxCargo, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblSalario)
+                                    .addComponent(lblUsuario)
+                                    .addComponent(lblPassword))
+                                .addGap(42, 42, 42)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtSalario)
                                     .addGroup(layout.createSequentialGroup()
                                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                            .addComponent(lblTelefono)
-                                            .addComponent(lblDireccion)
-                                            .addComponent(lblNombre)
-                                            .addComponent(lblDNI)
-                                            .addComponent(lblEmail)
-                                            .addComponent(lblCargo))
-                                        .addGap(59, 59, 59)
-                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                            .addComponent(txtNombre)
-                                            .addComponent(txtDni)
-                                            .addComponent(txtApellidos)
-                                            .addComponent(txtTelefono)
-                                            .addComponent(txtEmail)
-                                            .addComponent(txtDireccion)
-                                            .addComponent(cbxCargo, javax.swing.GroupLayout.PREFERRED_SIZE, 238, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                                .addGap(0, 0, Short.MAX_VALUE)))))
+                                            .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(0, 0, Short.MAX_VALUE)))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
+            .addGroup(layout.createSequentialGroup()
+                .addGap(71, 71, 71)
+                .addComponent(btnCancelar)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnGuardar)
+                .addGap(94, 94, 94))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -347,15 +385,27 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(lblSalario)
                     .addComponent(txtSalario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(33, 33, 33)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblUsuario)
+                    .addComponent(txtUsuario, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblPassword)
+                    .addComponent(txtPassword, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 36, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnCancelar)
                     .addComponent(btnGuardar))
-                .addContainerGap(34, Short.MAX_VALUE))
+                .addGap(31, 31, 31))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnGuardarActionPerformed
 
     /**
      * @param args the command line arguments
@@ -392,9 +442,11 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
     private javax.swing.JLabel lblEmail;
     private javax.swing.JLabel lblLogo;
     private javax.swing.JLabel lblNombre;
+    private javax.swing.JLabel lblPassword;
     private javax.swing.JLabel lblSalario;
     private javax.swing.JLabel lblTelefono;
     private javax.swing.JLabel lblTitulo;
+    private javax.swing.JLabel lblUsuario;
     private javax.swing.JPanel pnlLogo;
     private javax.swing.JPanel pnlTitulo;
     private javax.swing.JTextField txtApellidos;
@@ -402,8 +454,10 @@ public class DialogNuevoEmpleado extends javax.swing.JDialog {
     private javax.swing.JTextField txtDni;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtNombre;
+    private javax.swing.JTextField txtPassword;
     private javax.swing.JTextField txtSalario;
     private javax.swing.JTextField txtTelefono;
+    private javax.swing.JTextField txtUsuario;
     // End of variables declaration//GEN-END:variables
 
 }

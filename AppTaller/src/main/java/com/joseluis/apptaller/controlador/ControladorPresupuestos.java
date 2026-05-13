@@ -1,332 +1,314 @@
+
 package com.joseluis.apptaller.controlador;
 
-import com.joseluis.apptaller.modelo.dao.ClienteDAO;
 import com.joseluis.apptaller.modelo.dao.PresupuestoDAO;
-import com.joseluis.apptaller.modelo.dao.ProductoDAO;
-import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
-import com.joseluis.apptaller.modelo.vo.ClienteVO;
-import com.joseluis.apptaller.modelo.vo.DetalleManoObraVO;
-import com.joseluis.apptaller.modelo.vo.DetalleProductoVO;
-import com.joseluis.apptaller.modelo.vo.PresupuestoVO;
-import com.joseluis.apptaller.modelo.vo.ProductoVO;
-import com.joseluis.apptaller.modelo.vo.VehiculoVO;
+import com.joseluis.apptaller.util.GeneradorInformes;
+import com.joseluis.apptaller.vista.dialogos.DialogDetallesPresupuesto;
+import com.joseluis.apptaller.vista.dialogos.DialogNuevaReparacion;
 import com.joseluis.apptaller.vista.dialogos.DialogNuevoPresupuesto;
-
+import com.joseluis.apptaller.vista.ventanas.VentanaPrincipal;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
-import java.util.List;
+
+
 
 /**
- * Controlador para la gestión de creación de presupuestos.
- * Conecta la Vista (DialogNuevoPresupuesto) con el Modelo (DAO/VO).
- * 
+ * Controlador principal encargado de gestionar el módulo de Presupuestos en la Ventana Principal:
+ * lista los presupuestos históricos, aplica filtros de búsqueda y actúa como
+ * puente o "lanzador" de la interfaz gráfica al pulsar el botón de Nuevo Presupuesto.
+ *
  * @author José Luis Cárdenas Barroso
  * @info Proyecto Intermodular del Grado Superior DAM
  * @institution IES Augustóbriga
  */
-public class ControladorPresupuestos {
-
-    private final DialogNuevoPresupuesto vista;
-    private final PresupuestoDAO dao;
-
-    // Inyectamos la vista y el DAO en el constructor
-    public ControladorPresupuestos(DialogNuevoPresupuesto vista, PresupuestoDAO dao) {
+public class ControladorPresupuestos implements ActionListener {
+    private final VentanaPrincipal vista;
+    private final PresupuestoDAO modeloDAO;
+    private DefaultTableModel modeloTabla;
+    
+    public ControladorPresupuestos (VentanaPrincipal vista, PresupuestoDAO modeloDAO) {
         this.vista = vista;
-        this.dao = dao;
+        this.modeloDAO = modeloDAO;
+        
+        if (this.vista != null) {
+            initListeners();
+            cargarTablaPresupuestos();
+        }
+    }
+    
+
+    private void initListeners() {
+        vista.getBtnNuevoPresupuesto().addActionListener(this);
+        vista.getBtnBuscarPresupuesto().addActionListener(this);
+        vista.getBtnEstadoPresupuesto().addActionListener(this);
+        vista.getBtnEliminarPresupuesto().addActionListener(this);
+        vista.getBtnImprimirPresupuesto().addActionListener(this);
+        vista.getBtnDetallesPresupuesto().addActionListener(this);
+        vista.getBtnCrearOrdenReparacion().addActionListener(this);
+        vista.getBtnRecargarPresupuestos().addActionListener(this);
+    }
+    
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == vista.getBtnNuevoPresupuesto()) {
+            abrirDialogNuevoPresupuesto();
+        } else if (e.getSource() == vista.getBtnBuscarPresupuesto()) {
+            buscarPresupuesto();
+        } else if (e.getSource() == vista.getBtnEstadoPresupuesto()) {
+            cambiarEstado();
+        } 
+         else if (e.getSource() == vista.getBtnEliminarPresupuesto()) {
+            eliminarPresupuesto();
+        }
+         else if (e.getSource() == vista.getBtnImprimirPresupuesto()) {
+            imprimirPresupuesto();
+        } 
+         else if (e.getSource() == vista.getBtnDetallesPresupuesto()) {
+            verDetalles();
+        } 
+         else if (e.getSource() == vista.getBtnCrearOrdenReparacion()) {
+            crearOrdenReparacion();
+        } else if (e.getSource() == vista.getBtnRecargarPresupuestos()) {
+            
+        }
     }
 
-    /**
-     * Método principal llamado por la vista cuando el usuario pulsa "Guardar".
+    
+     /**
+     * Consulta la BD y recarga la tabla de presupuestos.
      */
-    public void guardarPresupuesto() {
-        // Validación básica
-        if (vista.getCbxCliente().getSelectedItem() == null || vista.getCbxVehiculo().getSelectedItem() == null) {
-            mostrarError("Debe seleccionar un Cliente y un Vehículo.");
+    public void cargarTablaPresupuestos() {
+        // Obtenemos el modelo de la tabla y lo limpiamos
+        modeloTabla = (DefaultTableModel) vista.getTblPresupuestos().getModel();
+        modeloTabla.setRowCount(0); // Borra las filas vacías que trae NetBeans por defecto
+
+        List<Object[]> datos = modeloDAO.listarParaTabla();
+
+        // Añadimos los datos fila a fila
+        for (Object[] fila : datos) {
+            modeloTabla.addRow(fila);
+        }
+    }
+    
+    
+    private void abrirDialogNuevoPresupuesto() {
+        DialogNuevoPresupuesto dialog = new DialogNuevoPresupuesto(vista, true);
+        ControladorNuevoPresupuesto ctrlDialog = new ControladorNuevoPresupuesto(dialog, modeloDAO);
+        dialog.setControlador(ctrlDialog);
+        ctrlDialog.inicializar();
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+        cargarTablaPresupuestos(); // Refrescar tras cerrar
+    }
+
+    
+    private void buscarPresupuesto(){
+        String busqueda = vista.getTxtBuscarPresupuesto().getText().trim();
+        String placeholder = "Buscar presupuesto..."; 
+        if (busqueda.isEmpty() || busqueda.equals(placeholder)) {
+            JOptionPane.showMessageDialog(vista,
+                "Por favor, introduzca un término antes de buscar.",
+                "Aviso de Búsqueda",
+                JOptionPane.WARNING_MESSAGE);
+            vista.getTxtBuscarCliente().requestFocus();
+            return;
+        }
+        DefaultTableModel modelo = (DefaultTableModel) vista.getTblPresupuestos().getModel();
+        modelo.setRowCount(0); 
+
+        List<Object[]> lista = modeloDAO.buscarPresupuesto(busqueda);
+        if(lista != null && !lista.isEmpty()){
+            for(Object[] fila : lista) modelo.addRow(fila);
+        } else {
+            JOptionPane.showMessageDialog(vista, "No se encontraron presupuestos para: " + busqueda, "Aviso", JOptionPane.INFORMATION_MESSAGE);
+            cargarTablaPresupuestos(); // Recarga todo si no hay resultados
+            //vista.getTxtBuscarPresupuesto().setText("");
+        }
+        vista.getTxtBuscarPresupuesto().setText("");
+    }
+    
+     
+    private void cambiarEstado() {
+       
+        // Verificamos si hay una fila seleccionada
+        int filaSeleccionada = vista.getTblPresupuestos().getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(null,
+                    "Por favor, selecciona un presupuesto de la tabla.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        DefaultTableModel modManoObra = (DefaultTableModel) vista.getTablaManoObra().getModel();
-        DefaultTableModel modMateriales = (DefaultTableModel) vista.getTablaMateriales().getModel();
-        
-        if (!hayDatosEnTabla(modManoObra) && !hayDatosEnTabla(modMateriales)) {
-             mostrarError("El presupuesto debe contener al menos una Tarea o un Material.");
-             return;
-        }
+        // Obtenemos el ID del presupuesto (Quitando el "PRE-")
+        String idTexto = vista.getTblPresupuestos().getValueAt(filaSeleccionada, 0).toString();
+        int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", "").trim());
 
-        // Creación del modelo (VO)
-        PresupuestoVO presupuesto = new PresupuestoVO();
-        
-        String clienteDni = vista.getCbxCliente().getSelectedItem().toString().split(" - ")[0]; 
-        String vehiculoBastidor = vista.getCbxVehiculo().getSelectedItem().toString().split(" - ")[0]; 
-        
-        presupuesto.setClienteDni(clienteDni);
-        presupuesto.setVehiculoBastidor(vehiculoBastidor);
-        
-        // Convertimos la fecha del JSpinner a LocalDate
-        Date dateObj = (Date) vista.getSpnFecha().getValue();
-        LocalDate fecha = dateObj.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        presupuesto.setFechaEmision(fecha);
-        presupuesto.setFechaValidez(fecha.plusDays(15));
-        
-        presupuesto.setEstado(vista.getCbxEstado().getSelectedItem().toString().toUpperCase());
-        presupuesto.setDescripcionTrabajo(vista.getTxtAveria().getText());
-        presupuesto.setTotalEstimado(parsearCelda(vista.getTxtTotal().getText()));
+        // Mostramos opciones de estado 
+        String[] estados = {"PENDIENTE", "APROBADO", "RECHAZADO"};
 
-        // Cogemos los datos de mano de obra
-        for (int i = 0; i < modManoObra.getRowCount(); i++) {
-            Object desc = modManoObra.getValueAt(i, 0);
-            if (desc != null && !desc.toString().trim().isEmpty()) {
-                BigDecimal horas = parsearCelda(modManoObra.getValueAt(i, 1));
-                BigDecimal precio = parsearCelda(modManoObra.getValueAt(i, 2));
-                presupuesto.addLineaManoObra(new DetalleManoObraVO(desc.toString(), horas, precio));
-            }
-        }
+        // Obtenemos el estado actual para que salga preseleccionado
+        String estadoActual = vista.getTblPresupuestos().getValueAt(filaSeleccionada, 5).toString();
 
-        // Cogemos los datos de materiales
-        for (int i = 0; i < modMateriales.getRowCount(); i++) {
-            Object ref = modMateriales.getValueAt(i, 0);
-            Object concepto = modMateriales.getValueAt(i, 1);
-            if (ref != null && !ref.toString().trim().isEmpty()) {
-                
-                BigDecimal cantidadObj = parsearCelda(modMateriales.getValueAt(i, 2));
-                BigDecimal precio = parsearCelda(modMateriales.getValueAt(i, 3));
-                presupuesto.addLineaProducto(new DetalleProductoVO(
-                    ref.toString(), (concepto != null) ? concepto.toString() : "", 
-                    cantidadObj.intValue(), precio, BigDecimal.ZERO
-                ));
-            }
-        }
+        String nuevoEstado = (String) JOptionPane.showInputDialog(
+                vista,
+                "Selecciona el nuevo estado para el presupuesto " + idTexto + ":",
+                "Actualizar Estado",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                estados,
+                estadoActual
+        );
 
-        boolean exito = dao.insertarPresupuestoCompleto(presupuesto);
+        // Ejecutamos el cambio si el usuario no canceló y el estado es diferente
+        if (nuevoEstado != null && !nuevoEstado.equals(estadoActual)) {
+            //PresupuestoDAO dao = new PresupuestoDAO();
 
-        if (exito) {
-            JOptionPane.showMessageDialog(vista, "Presupuesto guardado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
-            vista.dispose(); // Cerramos la ventana desde el controlador
-        } else {
-            mostrarError("Hubo un error al guardar el presupuesto en la base de datos.");
-        }
-    }
-    
-    
-    /**
-     * Lógica para el botón "Añadir Tarea" (Mano de Obra)
-     */
-    public void aniadirTarea() {
-        // Catálogo rápido de tareas comunes 
-        String[] tareasComunes = {
-            "Mantenimiento General", 
-            "Cambio de Aceite y Filtros", 
-            "Sustitución Pastillas de Freno", 
-            "Cambio Kit Distribución", 
-            "Alineación de Dirección", 
-            "Diagnosis Electrónica", 
-            "Escribir tarea manual..."
-        };
-
-        String seleccion = (String) JOptionPane.showInputDialog(
-                vista, "Seleccione o describa el trabajo a realizar:", 
-                "Catálogo de Mano de Obra", JOptionPane.QUESTION_MESSAGE, 
-                null, tareasComunes, tareasComunes[0]);
-
-        if (seleccion != null) {
-            // Si elige manual, abrimos un popup para que escriba
-            if (seleccion.equals("Escribir tarea manual...")) {
-                seleccion = JOptionPane.showInputDialog(vista, "Introduzca la descripción de la tarea:");
-                if (seleccion == null || seleccion.trim().isEmpty()) return; // El usuario canceló
-            }
-
-            DefaultTableModel modelo = (DefaultTableModel) vista.getTablaManoObra().getModel();
-            int filaVacia = buscarPrimeraFilaVacia(modelo);
-
-            // Insertamos los datos. Por defecto: 1 hora a 40.00€
-            if (filaVacia != -1) {
-                modelo.setValueAt(seleccion, filaVacia, 0); // Descripción
-                modelo.setValueAt("1", filaVacia, 1);       // Horas
-                modelo.setValueAt("40.00", filaVacia, 2);   // Precio/Hora
-                // El listener calculará el subtotal automáticamente
+            if (modeloDAO.actualizarEstado(idPresupuesto, nuevoEstado)) {
+                JOptionPane.showMessageDialog(vista, "Estado actualizado correctamente.");
+                // Recargamos la tabla para que el cambio se vea reflejado inmediatamente
+                cargarTablaPresupuestos();
             } else {
-                // Si no hay filas vacías, añadimos una nueva fila al final
-                modelo.addRow(new Object[]{seleccion, "1", "40.00", "40.00"});
+                JOptionPane.showMessageDialog(vista, "Error al actualizar el estado en la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-        }
-    }
-
-    /**
-     * Lógica para el botón "Añadir Material"
-     * Reutiliza ProductoDAO.listar() para mostrar el catálogo real.
-     */
-    public void aniadirMaterial() {
-        ProductoDAO prodDAO = new ProductoDAO();
+        } 
         
-        List<ProductoVO> productos = prodDAO.listar();
+    }  
 
-        if (productos.isEmpty()) {
-            mostrarError("No hay productos registrados en la base de datos.");
+    private void eliminarPresupuesto() {
+        
+        // Verificamos si hay una fila seleccionada en la tabla
+        int filaSeleccionada = vista.getTblPresupuestos().getSelectedRow();
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(vista,
+                    "Por favor, selecciona un presupuesto de la tabla para eliminarlo.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
-        // Transformamos la lista de objetos en un array de Strings para el JComboBox del JOptionPane
-        String[] arrayCatalogo = new String[productos.size()];
-        for (int i = 0; i < productos.size(); i++) {
-            com.joseluis.apptaller.modelo.vo.ProductoVO p = productos.get(i);
-            // Formato: "P001 - Aceite Motor - 25.50"
-            arrayCatalogo[i] = p.getIdProducto() + " - " + p.getNombre() + " - " + p.getPrecioUnitario(0f); 
-        }
+        // Extraemos el ID de la fila seleccionada (Quitamos el prefijo "PRE-")
+        String idTexto = vista.getTblPresupuestos().getValueAt(filaSeleccionada, 0).toString();
+        int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", ""));
 
-        String seleccion = (String) JOptionPane.showInputDialog(
-                vista, "Seleccione la pieza o repuesto:", 
-                "Catálogo de Productos", JOptionPane.QUESTION_MESSAGE, 
-                null, arrayCatalogo, arrayCatalogo[0]);
+        // Confirmación de seguridad 
+        int confirmacion = JOptionPane.showConfirmDialog(vista,
+                "¿Estás seguro de que deseas eliminar permanentemente el presupuesto " + idTexto + "?\nEsta acción no se puede deshacer.",
+                "Confirmar Eliminación",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
 
-        if (seleccion != null) {
-            // Rompemos el String por los guiones para extraer los datos
-            String[] partes = seleccion.split(" - ");
-            String ref = partes[0].trim();
-            String concepto = partes[1].trim();
-            String precio = partes[2].trim();
+        if (confirmacion == JOptionPane.YES_OPTION) {
+            // Llamamos al DAO para eliminar
+            boolean exito = modeloDAO.eliminarPresupuesto(idPresupuesto);
 
-            DefaultTableModel modelo = (DefaultTableModel) vista.getTablaMateriales().getModel();
-            // Comprobamos si el producto ya está en la tabla
-            boolean productoYaExiste = false;
-            for (int i = 0; i < modelo.getRowCount(); i++) {
-                Object celdaRef = modelo.getValueAt(i, 0);
-                // Si encontramos la misma referencia en la columna 0...
-                if (celdaRef != null && celdaRef.toString().equals(ref)) {
-                    // Sumamos 1 a la cantidad actual
-                    int cantidadActual = Integer.parseInt(modelo.getValueAt(i, 2).toString());
-                    modelo.setValueAt(String.valueOf(cantidadActual + 1), i, 2);
-                    
-                    // El TableModelListener se encargará de recalcular el subtotal automáticamente
-                    productoYaExiste = true;
-                    break;
-                }
+            if (exito) {
+                JOptionPane.showMessageDialog(vista, "Presupuesto eliminado con éxito.");
+                // Recargamos la tabla para que desaparezca visualmente
+                cargarTablaPresupuestos();
+            } else {
+                JOptionPane.showMessageDialog(vista, "Error al eliminar el presupuesto.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
             }
+        } 
+    }
 
-            // Si NO existía, lo añadimos en una fila nueva o vacía
-            if (!productoYaExiste) {
-                int filaVacia = buscarPrimeraFilaVacia(modelo);
-
-                if (filaVacia != -1) {
-                    modelo.setValueAt(ref, filaVacia, 0);       // Referencia
-                    modelo.setValueAt(concepto, filaVacia, 1);  // Concepto
-                    modelo.setValueAt("1", filaVacia, 2);       // Cantidad
-                    modelo.setValueAt(precio, filaVacia, 3);    // Precio Unidad
-                } else {
-                    modelo.addRow(new Object[]{ref, concepto, "1", precio, precio});
-                }
-            }
-    
-        }
+    private void imprimirPresupuesto() {
         
-    }
+        int fila = vista.getTblPresupuestos().getSelectedRow();
 
-    /**
-     * Busca la primera fila de la tabla que tenga la primera columna vacía.
-     */
-    private int buscarPrimeraFilaVacia(DefaultTableModel modelo) {
-        for (int i = 0; i < modelo.getRowCount(); i++) {
-            Object valorCelda = modelo.getValueAt(i, 0);
-            if (valorCelda == null || valorCelda.toString().trim().isEmpty()) {
-                return i; // Hueco encontrado
-            }
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(vista, "Seleccione un presupuesto de la tabla para imprimir.");
+            return;
         }
-        return -1; // Tabla llena
-    }
-    
 
-    // Métodos Auxiliares
-    
-    private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(vista, mensaje, "Aviso", JOptionPane.WARNING_MESSAGE);
-    }
-
-    private boolean hayDatosEnTabla(DefaultTableModel modelo) {
-        for(int i = 0; i < modelo.getRowCount(); i++) {
-             Object valor = modelo.getValueAt(i, 0);
-             if (valor != null && !valor.toString().trim().isEmpty()) {
-                 return true;
-             }
-        }
-        return false;
-    }
-
-    private BigDecimal parsearCelda(Object valor) {
-        if (valor == null || valor.toString().trim().isEmpty()) return BigDecimal.ZERO;
         try {
-            // Cambiamos coma por punto para evitar fallos con teclados numéricos
-            return new BigDecimal(valor.toString().replace(",", "."));
-        } catch (NumberFormatException ex) {
-            return BigDecimal.ZERO;
+            // Extraemos el ID (como hice con los detalles)
+            String idTexto = vista.getTblPresupuestos().getValueAt(fila, 0).toString();
+            int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", "").trim());
+
+            // Llamamos a la utilidad
+            GeneradorInformes.mostrarInformePresupuesto(idPresupuesto);
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(vista, "Error: " + e.getMessage());
         }
+        
     }
 
-    /**
-     * Prepara la vista antes de ser mostrada al usuario.
-     * Carga los datos de la base de datos en los componentes visuales.
-     */
+    private void verDetalles() {
+        
+        // Comprobamos que hay una fila seleccionada
+        int filaSeleccionada = vista.getTblPresupuestos().getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(vista,
+                    "Por favor, selecciona un presupuesto de la tabla para ver sus detalles.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        try {
+            // Extraemos el ID (Quitando el "PRE-")
+            String idTexto = vista.getTblPresupuestos().getValueAt(filaSeleccionada, 0).toString();
+            int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", "").trim());
+
+            // Abrimos el diálogo 
+            DialogDetallesPresupuesto dialog = new DialogDetallesPresupuesto(vista, true);
+
+            // Cargamos los datos y mostramos
+            dialog.cargarDatos(idPresupuesto);
+            dialog.setLocationRelativeTo(vista);
+            dialog.setVisible(true);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(vista,
+                    "Error al abrir los detalles: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+            ex.printStackTrace();
+        } 
+    }
+
+    private void crearOrdenReparacion() {
+        
+        // Comprobamos que hay una fila seleccionada
+        int filaSeleccionada = vista.getTblPresupuestos().getSelectedRow();
+
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(vista,
+                    "Por favor, selecciona un presupuesto para crear la orden de reparación.",
+                    "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        // Comprobamos que el presupuesto esté APROBADO
+        String estado = vista.getTblPresupuestos().getValueAt(filaSeleccionada, 5).toString();
+        if (!estado.equalsIgnoreCase("APROBADO")) {
+            JOptionPane.showMessageDialog(vista,
+                    "Solo puedes iniciar reparaciones de presupuestos que estén en estado APROBADO.",
+                    "Operación no permitida", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            // Extraemos el ID del presupuesto (Quitando el "PRE-")
+            String idTexto = vista.getTblPresupuestos().getValueAt(filaSeleccionada, 0).toString();
+            int idPresupuesto = Integer.parseInt(idTexto.replace("PRE-", "").trim());
+
+            // Abrimos el dialog de Nueva Reparación pasándole el ID
+            DialogNuevaReparacion dialog = new DialogNuevaReparacion(vista, true, idPresupuesto);
+
+            dialog.setVisible(true);
+
+            // Tras crear la orden, salta automáticamente a la pestaña de reparaciones:
+            // btnReparaciones.doClick();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(vista,
+                    "Error al iniciar la reparación: " + ex.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
+        } 
+    }
     
-    public void inicializar() {
-        // Cargamos todos los clientes
-        cargarDesplegableClientes();
-        
-        // Activamos la escucha (cuando cambie el cliente, se cargarán sus coches)
-        configurarEventosDesplegables(); 
-        
-        // El combo de vehículos empieza con un texto de aviso
-        vista.getCbxVehiculo().removeAllItems();
-        vista.getCbxVehiculo().addItem("Seleccione un cliente primero...");
-        
-        // Limpiamos los campos de texto
-        vista.getTxtAveria().setText("");
-        vista.getTxtBase().setText("0.00");
-        vista.getTxtIva().setText("0.00");
-        vista.getTxtTotal().setText("0.00");
-    }
-
-    private void cargarDesplegableClientes() {
-        vista.getCbxCliente().removeAllItems(); 
-        
-       ClienteDAO clienteDAO = new ClienteDAO();
-        
-        List<ClienteVO> clientes = clienteDAO.listarTodos(); 
-        
-        vista.getCbxCliente().setSelectedItem(null); // Evita disparar el evento durante la carga
-        
-        for (ClienteVO c : clientes) {
-            vista.getCbxCliente().addItem(c.getDni() + " - " + c.getNombre());
-        }
-    }
-
-    private void configurarEventosDesplegables() {
-        vista.getCbxCliente().addActionListener(new java.awt.event.ActionListener() {
-            @Override
-            public void actionPerformed(java.awt.event.ActionEvent e) {
-                // Cuando el usuario hace clic en un cliente distinto...
-                if (vista.getCbxCliente().getSelectedItem() != null) {
-                    String dniSeleccionado = vista.getCbxCliente().getSelectedItem().toString().split(" - ")[0];
-                    cargarVehiculosDelCliente(dniSeleccionado);
-                }
-            }
-        });
-    }
-
-    private void cargarVehiculosDelCliente(String dni) {
-        vista.getCbxVehiculo().removeAllItems();
-        
-        VehiculoDAO vehiculoDAO = new VehiculoDAO();
-        
-        List<VehiculoVO> vehiculos = vehiculoDAO.listarPorCliente(dni);
-        
-        if (vehiculos.isEmpty()) {
-            vista.getCbxVehiculo().addItem("Sin vehículos registrados");
-        } else {
-            for (com.joseluis.apptaller.modelo.vo.VehiculoVO v : vehiculos) {
-                vista.getCbxVehiculo().addItem(v.getBastidor() + " - " + v.getMatricula() + " (" + v.getMarca() + ")");
-            }
-        }
-    }
+  
 }

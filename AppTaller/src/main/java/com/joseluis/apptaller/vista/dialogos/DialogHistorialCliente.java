@@ -1,11 +1,18 @@
 
 package com.joseluis.apptaller.vista.dialogos;
 
+import com.joseluis.apptaller.logica.GestorFacturacion;
+import com.joseluis.apptaller.modelo.dao.FacturaDAO;
+import com.joseluis.apptaller.modelo.dao.PresupuestoDAO;
 import javax.swing.UIManager;
 import com.joseluis.apptaller.modelo.vo.ClienteVO;
 import com.joseluis.apptaller.modelo.vo.VehiculoVO;
 import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
+import com.joseluis.apptaller.modelo.vo.FacturaVO;
+import com.joseluis.apptaller.modelo.vo.PresupuestoVO;
 import java.util.List;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -18,7 +25,7 @@ import javax.swing.table.DefaultTableModel;
  * @info Proyecto Intermodular del Grado Superior DAM
  * @institution IES Augustóbriga
  */
-public class DialogHistorialCliente extends javax.swing.JDialog {
+public class DialogHistorialCliente extends JDialog {
     // Añadimos la variable para guardar el cliente
     private ClienteVO cliente;
 
@@ -32,7 +39,7 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
     }
     
     // Creamos un constructor sobrecargado que reciba al cliente
-    public DialogHistorialCliente(java.awt.Frame parent, boolean modal, com.joseluis.apptaller.modelo.vo.ClienteVO cliente) {
+    public DialogHistorialCliente(java.awt.Frame parent, boolean modal, ClienteVO cliente) {
         super(parent, modal);
         this.cliente = cliente; // Guardamos el cliente
         initComponents();
@@ -41,6 +48,8 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
         // Llamamos a los métodos que rellenan los datos
         cargarDatosPersonales();
         cargarVehiculos();
+        cargarPresupuestos(cliente.getDni());
+        cargarFacturas(cliente.getDni());
     }
 
     /**
@@ -52,7 +61,7 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel2 = new javax.swing.JPanel();
+        panelDatosCliente = new javax.swing.JPanel();
         lblIcono = new javax.swing.JLabel();
         lblNombre = new javax.swing.JLabel();
         lblDni = new javax.swing.JLabel();
@@ -61,30 +70,26 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
         lblDNI = new javax.swing.JLabel();
         lblTelefono = new javax.swing.JLabel();
         lblEmail = new javax.swing.JLabel();
-        jTabbedPane2 = new javax.swing.JTabbedPane();
-        jPanel3 = new javax.swing.JPanel();
+        jTabbedPaneCentral = new javax.swing.JTabbedPane();
+        panelVehiculos = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tablaVehiculosCliente = new javax.swing.JTable();
-        jPanel4 = new javax.swing.JPanel();
-        jPanel6 = new javax.swing.JPanel();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
+        panelPresupuestos = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable2 = new javax.swing.JTable();
-        jPanel1 = new javax.swing.JPanel();
-        jPanel8 = new javax.swing.JPanel();
-        jButton7 = new javax.swing.JButton();
-        jButton8 = new javax.swing.JButton();
+        tblPresupuestos = new javax.swing.JTable();
+        panelFacturas = new javax.swing.JPanel();
+        panelBotonFacturas = new javax.swing.JPanel();
+        btnImprimirFactura = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
-        jTable3 = new javax.swing.JTable();
-        jPanel7 = new javax.swing.JPanel();
-        jButton6 = new javax.swing.JButton();
+        tblFacturas = new javax.swing.JTable();
+        panelInferior = new javax.swing.JPanel();
+        btnCerrar = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Ficha Histórica del Cliente");
         setModal(true);
 
-        lblIcono.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/icono_cliente_128.png"))); // NOI18N
+        lblIcono.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/logo_apptaller_small.png"))); // NOI18N
 
         lblNombre.setFont(new java.awt.Font("Roboto", 1, 18)); // NOI18N
 
@@ -103,54 +108,54 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
 
         lblEmail.setText("jLabel1");
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        javax.swing.GroupLayout panelDatosClienteLayout = new javax.swing.GroupLayout(panelDatosCliente);
+        panelDatosCliente.setLayout(panelDatosClienteLayout);
+        panelDatosClienteLayout.setHorizontalGroup(
+            panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelDatosClienteLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lblIcono)
                 .addGap(76, 76, 76)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(lblNombre)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelDatosClienteLayout.createSequentialGroup()
+                        .addGroup(panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblDni)
                             .addComponent(lblTlf)
                             .addComponent(lblMail))
                         .addGap(30, 30, 30)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(lblEmail)
                             .addComponent(lblTelefono)
                             .addComponent(lblDNI))))
                 .addContainerGap(272, Short.MAX_VALUE))
         );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
+        panelDatosClienteLayout.setVerticalGroup(
+            panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelDatosClienteLayout.createSequentialGroup()
                 .addGap(39, 39, 39)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                .addGroup(panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(lblIcono)
-                    .addGroup(jPanel2Layout.createSequentialGroup()
+                    .addGroup(panelDatosClienteLayout.createSequentialGroup()
                         .addComponent(lblNombre)
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblDni)
                             .addComponent(lblDNI))
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblTlf)
                             .addComponent(lblTelefono))
                         .addGap(18, 18, 18)
-                        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addGroup(panelDatosClienteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(lblMail)
                             .addComponent(lblEmail))))
-                .addContainerGap(12, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        getContentPane().add(jPanel2, java.awt.BorderLayout.PAGE_START);
+        getContentPane().add(panelDatosCliente, java.awt.BorderLayout.PAGE_START);
 
-        jPanel3.setLayout(new java.awt.BorderLayout());
+        panelVehiculos.setLayout(new java.awt.BorderLayout());
 
         jScrollPane1.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
 
@@ -167,40 +172,13 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
         ));
         jScrollPane1.setViewportView(tablaVehiculosCliente);
 
-        jPanel3.add(jScrollPane1, java.awt.BorderLayout.CENTER);
+        panelVehiculos.add(jScrollPane1, java.awt.BorderLayout.CENTER);
 
-        jTabbedPane2.addTab("Vehículos", jPanel3);
+        jTabbedPaneCentral.addTab("Vehículos", panelVehiculos);
 
-        jPanel4.setLayout(new java.awt.BorderLayout());
+        panelPresupuestos.setLayout(new java.awt.BorderLayout());
 
-        jButton3.setText("Ver Detalle");
-
-        jButton4.setText("Convertir a Factura");
-
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGap(91, 91, 91)
-                .addComponent(jButton3)
-                .addGap(132, 132, 132)
-                .addComponent(jButton4)
-                .addContainerGap(138, Short.MAX_VALUE))
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGap(35, 35, 35)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton3)
-                    .addComponent(jButton4))
-                .addContainerGap(38, Short.MAX_VALUE))
-        );
-
-        jPanel4.add(jPanel6, java.awt.BorderLayout.PAGE_START);
-
-        jTable2.setModel(new javax.swing.table.DefaultTableModel(
+        tblPresupuestos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -211,42 +189,41 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
                 "Nº Presupuesto", "Fecha", "Vehículo", "Total", "Estado"
             }
         ));
-        jScrollPane2.setViewportView(jTable2);
+        jScrollPane2.setViewportView(tblPresupuestos);
 
-        jPanel4.add(jScrollPane2, java.awt.BorderLayout.CENTER);
+        panelPresupuestos.add(jScrollPane2, java.awt.BorderLayout.CENTER);
 
-        jTabbedPane2.addTab("Presupuestos", jPanel4);
+        jTabbedPaneCentral.addTab("Presupuestos", panelPresupuestos);
 
-        jPanel1.setLayout(new java.awt.BorderLayout());
+        panelFacturas.setLayout(new java.awt.BorderLayout());
 
-        jButton7.setText("Imprimir PDF");
+        btnImprimirFactura.setText("Imprimir PDF");
+        btnImprimirFactura.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImprimirFacturaActionPerformed(evt);
+            }
+        });
 
-        jButton8.setText("Marcar como Pagada");
-
-        javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
-        jPanel8.setLayout(jPanel8Layout);
-        jPanel8Layout.setHorizontalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(125, 125, 125)
-                .addComponent(jButton7)
-                .addGap(76, 76, 76)
-                .addComponent(jButton8)
-                .addContainerGap(139, Short.MAX_VALUE))
+        javax.swing.GroupLayout panelBotonFacturasLayout = new javax.swing.GroupLayout(panelBotonFacturas);
+        panelBotonFacturas.setLayout(panelBotonFacturasLayout);
+        panelBotonFacturasLayout.setHorizontalGroup(
+            panelBotonFacturasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelBotonFacturasLayout.createSequentialGroup()
+                .addGap(219, 219, 219)
+                .addComponent(btnImprimirFactura)
+                .addContainerGap(330, Short.MAX_VALUE))
         );
-        jPanel8Layout.setVerticalGroup(
-            jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel8Layout.createSequentialGroup()
-                .addGap(24, 24, 24)
-                .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton7)
-                    .addComponent(jButton8))
-                .addContainerGap(49, Short.MAX_VALUE))
+        panelBotonFacturasLayout.setVerticalGroup(
+            panelBotonFacturasLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(panelBotonFacturasLayout.createSequentialGroup()
+                .addGap(29, 29, 29)
+                .addComponent(btnImprimirFactura)
+                .addContainerGap(44, Short.MAX_VALUE))
         );
 
-        jPanel1.add(jPanel8, java.awt.BorderLayout.PAGE_START);
+        panelFacturas.add(panelBotonFacturas, java.awt.BorderLayout.PAGE_START);
 
-        jTable3.setModel(new javax.swing.table.DefaultTableModel(
+        tblFacturas.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
                 {null, null, null, null, null, null},
@@ -257,24 +234,52 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
                 "Nº Factura", "Fecha", "Base Imponible", "IVA", "Total", "Estado"
             }
         ));
-        jScrollPane3.setViewportView(jTable3);
+        jScrollPane3.setViewportView(tblFacturas);
 
-        jPanel1.add(jScrollPane3, java.awt.BorderLayout.CENTER);
+        panelFacturas.add(jScrollPane3, java.awt.BorderLayout.CENTER);
 
-        jTabbedPane2.addTab("Facturas", jPanel1);
+        jTabbedPaneCentral.addTab("Facturas", panelFacturas);
 
-        getContentPane().add(jTabbedPane2, java.awt.BorderLayout.CENTER);
+        getContentPane().add(jTabbedPaneCentral, java.awt.BorderLayout.CENTER);
 
-        jPanel7.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
+        panelInferior.setLayout(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT));
 
-        jButton6.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
-        jButton6.setText("Cerrar");
-        jPanel7.add(jButton6);
+        btnCerrar.setFont(new java.awt.Font("Roboto", 0, 12)); // NOI18N
+        btnCerrar.setText("Cerrar");
+        btnCerrar.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCerrarActionPerformed(evt);
+            }
+        });
+        panelInferior.add(btnCerrar);
 
-        getContentPane().add(jPanel7, java.awt.BorderLayout.PAGE_END);
+        getContentPane().add(panelInferior, java.awt.BorderLayout.PAGE_END);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnCerrarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCerrarActionPerformed
+        this.dispose(); // Cierra el JDialog liberando memoria
+    }//GEN-LAST:event_btnCerrarActionPerformed
+
+    private void btnImprimirFacturaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImprimirFacturaActionPerformed
+        int fila = tblFacturas.getSelectedRow();
+        if (fila == -1) {
+            JOptionPane.showMessageDialog(this, "Seleccione una factura del historial para imprimirla.");
+            return;
+        }
+
+        try {
+            String numeroFactura = tblFacturas.getValueAt(fila, 0).toString();
+           
+            GestorFacturacion gestor = new GestorFacturacion();
+            gestor.visualizarFacturaGenerica(numeroFactura);
+           
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error al imprimir la factura: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }//GEN-LAST:event_btnImprimirFacturaActionPerformed
 
     /**
      * @param args the command line arguments
@@ -310,24 +315,12 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton6;
-    private javax.swing.JButton jButton7;
-    private javax.swing.JButton jButton8;
-    private javax.swing.JPanel jPanel1;
-    private javax.swing.JPanel jPanel2;
-    private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel6;
-    private javax.swing.JPanel jPanel7;
-    private javax.swing.JPanel jPanel8;
+    private javax.swing.JButton btnCerrar;
+    private javax.swing.JButton btnImprimirFactura;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTabbedPane jTabbedPane2;
-    private javax.swing.JTable jTable2;
-    private javax.swing.JTable jTable3;
+    private javax.swing.JTabbedPane jTabbedPaneCentral;
     private javax.swing.JLabel lblDNI;
     private javax.swing.JLabel lblDni;
     private javax.swing.JLabel lblEmail;
@@ -336,7 +329,15 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
     private javax.swing.JLabel lblNombre;
     private javax.swing.JLabel lblTelefono;
     private javax.swing.JLabel lblTlf;
+    private javax.swing.JPanel panelBotonFacturas;
+    private javax.swing.JPanel panelDatosCliente;
+    private javax.swing.JPanel panelFacturas;
+    private javax.swing.JPanel panelInferior;
+    private javax.swing.JPanel panelPresupuestos;
+    private javax.swing.JPanel panelVehiculos;
     private javax.swing.JTable tablaVehiculosCliente;
+    private javax.swing.JTable tblFacturas;
+    private javax.swing.JTable tblPresupuestos;
     // End of variables declaration//GEN-END:variables
 
     private void cargarDatosPersonales() {
@@ -358,7 +359,7 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
         modelo.setRowCount(0); // Limpiamos las filas de prueba
 
         // Rellenamos con datos reales
-        for (com.joseluis.apptaller.modelo.vo.VehiculoVO v : vehiculos) {
+        for (VehiculoVO v : vehiculos) {
             Object[] fila = new Object[5];
             fila[0] = v.getMatricula();
             fila[1] = v.getMarca();
@@ -366,6 +367,44 @@ public class DialogHistorialCliente extends javax.swing.JDialog {
             fila[3] = v.getAnioFabricacion();
             fila[4] = "Pendiente..."; // La última visita la calcularemos en la Fase de Reparaciones
             modelo.addRow(fila);
+        }
+    }
+    
+    
+    private void cargarPresupuestos(String dniCliente) {
+        DefaultTableModel modelo = (DefaultTableModel) tblPresupuestos.getModel();
+        modelo.setRowCount(0); // Limpiar tabla
+
+        PresupuestoDAO pDAO = new PresupuestoDAO();
+        List<PresupuestoVO> lista = pDAO.listarPorCliente(dniCliente);
+
+        for (PresupuestoVO p : lista) {
+            modelo.addRow(new Object[]{
+                p.getIdPresupuesto(),
+                p.getFechaEmision(),
+                p.getMatriculaVehiculo(),
+                String.format("%.2f€", p.getTotalEstimado()),
+                p.getEstado()
+            });
+        }
+    }
+    
+    private void cargarFacturas(String dniCliente) {
+        DefaultTableModel modelo = (DefaultTableModel) tblFacturas.getModel();
+        modelo.setRowCount(0);
+
+        FacturaDAO fDAO = new FacturaDAO();
+        List<FacturaVO> lista = fDAO.listarPorCliente(dniCliente);
+
+        for (FacturaVO f : lista) {
+            modelo.addRow(new Object[]{
+                f.getNumeroFactura(),
+                f.getFechaEmision(),
+                String.format("%.2f €", f.getBaseImponible()),
+                String.format("%.2f €", f.getIva()), 
+                String.format("%.2f€", f.getTotalCobrado()),
+                f.getEstado()
+            });
         }
     }
 }

@@ -5,6 +5,7 @@ import com.joseluis.apptaller.modelo.dao.ClienteDAO;
 import com.joseluis.apptaller.modelo.dao.VehiculoDAO;
 import com.joseluis.apptaller.modelo.vo.ClienteVO;
 import com.joseluis.apptaller.modelo.vo.VehiculoVO;
+import com.joseluis.apptaller.vista.dialogos.DialogHistorialVehiculo;
 import com.joseluis.apptaller.vista.dialogos.DialogNuevoVehiculo;
 import com.joseluis.apptaller.vista.ventanas.VentanaPrincipal;
 import java.awt.event.ActionEvent;
@@ -47,7 +48,7 @@ public class ControladorVehiculos implements ActionListener {
         };
         
          // Las columnas definidadse en el GUI, más el DNI del propietario
-        String[] columnas = {"Bastidor", "Matrícula", "Marca", "Modelo", "Color", "DNI Propietario"};
+        String[] columnas = {"Bastidor", "Matrícula", "Marca", "Modelo", "Color", "Propietario"};
         modeloTabla.setColumnIdentifiers(columnas);
         vista.getTblVehiculo().setModel(modeloTabla);
         vista.getTblVehiculo().setRowHeight(30);
@@ -59,6 +60,8 @@ public class ControladorVehiculos implements ActionListener {
         vista.getBtnNuevoVehiculo().addActionListener(this);
         vista.getBtnEliminarVehiculo().addActionListener(this);
         vista.getBtnBuscarVehiculo().addActionListener(this);
+        vista.getBtnRecargarVehiculos().addActionListener(this);
+        vista.getBtnInformeVehiculo().addActionListener(this);
         
         // Escuchamos el doble click en la tabla para editar
         vista.getTblVehiculo().addMouseListener(new java.awt.event.MouseAdapter() {
@@ -82,7 +85,8 @@ public class ControladorVehiculos implements ActionListener {
             fila[2] = v.getMarca();
             fila[3] = v.getModelo();
             fila[4] = v.getColor();
-            fila[5] = v.getDniPropietario();
+            String nombre = v.getNombrePropietario();
+            fila[5] = (nombre != null && !nombre.trim().isEmpty()) ? nombre : "Sin cliente asignado";
             modeloTabla.addRow(fila);
          }
         vista.getTblVehiculo().revalidate();
@@ -97,8 +101,11 @@ public class ControladorVehiculos implements ActionListener {
         } else if (e.getSource() == vista.getBtnEliminarVehiculo()) {
             eliminarVehiculoSeleccionado();
         } else if (e.getSource() == vista.getBtnBuscarVehiculo()) {
-            JOptionPane.showMessageDialog(vista, "Búsqueda en construcción...", "Info",
-            JOptionPane.INFORMATION_MESSAGE);
+            buscarVehiculo();
+        } else if (e.getSource() == vista.getBtnRecargarVehiculos()) {
+            cargarVehiculos();
+        }  else if (e.getSource() == vista.getBtnInformeVehiculo()) {
+            abrirInformeHistorial();
         }
     }
     
@@ -181,6 +188,65 @@ public class ControladorVehiculos implements ActionListener {
             }
         } else {
             JOptionPane.showMessageDialog(vista, "Por favor, seleccione un vehículo de la tabla primero.", "Aviso", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void buscarVehiculo() {
+        String busqueda = vista.getTxtBuscarVehiculo().getText().trim();
+        String placeholder = "Buscar vehículo..."; 
+        if (busqueda.isEmpty() || busqueda.equals(placeholder)) {
+            JOptionPane.showMessageDialog(vista,
+                "Por favor, introduzca un término antes de buscar.",
+                "Aviso de Búsqueda",
+                JOptionPane.WARNING_MESSAGE);
+            vista.getTxtBuscarCliente().requestFocus();
+            return;
+        }
+        modeloTabla.setRowCount(0); // Limpiamos la tabla antes de rellenar
+        List<VehiculoVO> lista = modeloDAO.buscarPorMatricula(busqueda);
+        
+        if (lista != null && !lista.isEmpty()) {
+            for (VehiculoVO v : lista) {
+                Object[] fila = new Object[6];
+                fila[0] = v.getBastidor();
+                fila[1] = v.getMatricula();
+                fila[2] = v.getMarca();
+                fila[3] = v.getModelo();
+                fila[4] = v.getColor();
+                String nombre = v.getNombrePropietario();
+                fila[5] = (nombre != null && !nombre.trim().isEmpty()) ? nombre : "Sin cliente asignado";
+                modeloTabla.addRow(fila);
+             }
+            vista.getTxtBuscarVehiculo().setText("");
+        } else {
+            JOptionPane.showMessageDialog(vista, "No se han encontrado vehículos con la matrícula " + busqueda, "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            cargarVehiculos();
+            vista.getTxtBuscarVehiculo().setText("");
+        }
+        
+    }
+
+    private void abrirInformeHistorial() {
+        int filaSelec = vista.getTblVehiculo().getSelectedRow();
+       
+        if (filaSelec != -1) {
+            // Extraemos los datos de la fila seleccionada (columnas 0, 1, 2 y 3)
+            String bastidor = (String) modeloTabla.getValueAt(filaSelec, 0);
+            String matricula = (String) modeloTabla.getValueAt(filaSelec, 1);
+            String marca = (String) modeloTabla.getValueAt(filaSelec, 2);
+            String modelo = (String) modeloTabla.getValueAt(filaSelec, 3);
+           
+            // Instanciamos el dialog, cargamos datos y lo mostramos
+            DialogHistorialVehiculo dialog = new DialogHistorialVehiculo(vista, true);
+           
+            dialog.cargarDatos(bastidor, matricula, marca, modelo);
+            dialog.setVisible(true);
+           
+        } else {
+            JOptionPane.showMessageDialog(vista,
+                "Por favor, seleccione un vehículo de la tabla para ver su historial.",
+                "Aviso", JOptionPane.WARNING_MESSAGE);
         }
     }
     

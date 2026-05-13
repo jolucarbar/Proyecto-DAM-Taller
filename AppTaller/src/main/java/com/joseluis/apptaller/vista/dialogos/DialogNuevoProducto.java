@@ -112,7 +112,7 @@ public class DialogNuevoProducto extends javax.swing.JDialog {
         cbxProveedores = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        setTitle("Alta / Modificación Cliente");
+        setTitle("Alta / Modificación Productos");
         setModal(true);
 
         lblId.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N

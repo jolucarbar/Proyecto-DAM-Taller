@@ -129,6 +129,7 @@ public class DialogNuevaReparacion extends javax.swing.JDialog {
         jLabel6.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
         jLabel6.setText("Notas");
 
+        txtNotas.setColumns(20);
         txtNotas.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N
 
         spnKm.setFont(new java.awt.Font("Roboto", 0, 13)); // NOI18N

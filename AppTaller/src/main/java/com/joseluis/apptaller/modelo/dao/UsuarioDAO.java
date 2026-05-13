@@ -2,6 +2,7 @@ package com.joseluis.apptaller.modelo.dao;
 
 import com.joseluis.apptaller.modelo.vo.UsuarioVO;
 import com.joseluis.apptaller.persistencia.Conexion;
+import com.joseluis.apptaller.util.SeguridadUtil;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -90,4 +91,50 @@ public class UsuarioDAO {
             System.err.println("No se pudo actualizar el último acceso: " + e.getMessage());
         }
     }
+    
+    
+     public int insertarYObtenerId(UsuarioVO usuario) {
+        int idGenerado = -1;
+        String sql = "INSERT INTO usuarios (username, password_hash, rol) VALUES (?, ?, ?)";
+       
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+            stmt.setString(1, usuario.getUsername());
+            stmt.setString(2, usuario.getPasswordHash());
+            stmt.setString(3, usuario.getRol());
+           
+            int filasAfectadas = stmt.executeUpdate();
+           
+            if (filasAfectadas > 0) {
+                try (java.sql.ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        idGenerado = rs.getInt(1);
+                    }
+                }
+            }
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error al insertar usuario: " + e.getMessage());
+        }
+        return idGenerado;
+    }
+     
+     
+    public boolean validarLogin(String username, String passwordTecleada) {
+        String sql = "SELECT password_hash FROM usuarios WHERE username = ?";
+        try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String hashGuardado = rs.getString("password_hash");
+                    // Verificamos usando Java puro
+                    return SeguridadUtil.verificarPassword(passwordTecleada, hashGuardado);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error en Login: " + e.getMessage());
+        }
+        return false;
+    }
+    
 }

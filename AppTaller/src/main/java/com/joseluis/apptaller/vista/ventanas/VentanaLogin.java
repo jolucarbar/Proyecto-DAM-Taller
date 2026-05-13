@@ -3,6 +3,7 @@ package com.joseluis.apptaller.vista.ventanas;
 
 import com.joseluis.apptaller.modelo.dao.UsuarioDAO;
 import com.joseluis.apptaller.modelo.vo.UsuarioVO;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import mdlaf.MaterialLookAndFeel;
@@ -144,10 +145,10 @@ public class VentanaLogin extends javax.swing.JFrame {
 
         // Validaciones básicas de interfaz 
         if (user.isEmpty() || pass.isEmpty()) {
-            javax.swing.JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this, 
                 "Por favor, introduce usuario y contraseña.", 
                 "Campos vacíos", 
-                javax.swing.JOptionPane.WARNING_MESSAGE);
+                JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -159,10 +160,10 @@ public class VentanaLogin extends javax.swing.JFrame {
         if (usuarioLogueado != null) {
             // A. Login Correcto
             // Opcional: Mostrar mensaje de bienvenida
-            javax.swing.JOptionPane.showMessageDialog(this, "Bienvenido " + usuarioLogueado.getUsername());
+            JOptionPane.showMessageDialog(this, "Bienvenido " + usuarioLogueado.getUsername());
 
             // Abrir la ventana principal
-            VentanaPrincipal principal = new VentanaPrincipal();
+            VentanaPrincipal principal = new VentanaPrincipal(user);
             principal.setVisible(true);
             
             // Cerrar esta ventana de login
@@ -170,7 +171,7 @@ public class VentanaLogin extends javax.swing.JFrame {
             
         } else {
             // B. Login Incorrecto
-            javax.swing.JOptionPane.showMessageDialog(this, 
+            JOptionPane.showMessageDialog(this, 
                 "Credenciales incorrectas.\nVerifica tu usuario y contraseña.", 
                 "Error de Acceso", 
                 javax.swing.JOptionPane.ERROR_MESSAGE);

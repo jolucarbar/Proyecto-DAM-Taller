@@ -25,7 +25,7 @@ public class ProductoDAO {
    
     private final String SQL_SELECT_ALL = "SELECT * FROM productos WHERE activo = TRUE";
    
-    private final String SQL_SELECT_BY_ID = "SELECT * FROM productos WHERE id_producto = ? AND activo = TRUE";
+    private final String SQL_SELECT_BUSCAR = "SELECT * FROM productos WHERE id_producto LIKE ? OR nombre LIKE ? AND activo = TRUE";
    
     private final String SQL_UPDATE = "UPDATE productos SET nombre=?, descripcion=?, categoria=?, "
             + "stock_minimo=?, precio_compra=?, precio_unitario=?, proveedor_cif=?, ubicacion_almacen=? "
@@ -39,6 +39,20 @@ public class ProductoDAO {
     // Actualiza el stock de un producto
     private final String SQL_UPDATE_STOCK = "UPDATE productos SET cantidad_stock = cantidad_stock + ? WHERE id_producto = ?";
 
+    // Actualiza el stock descontando el producto indicado
+    // Hacemos la resta directamente en el motor de base de datos (stock = cantidad_stock - ?)
+    private final String SQL_DESCUENTA_STOCK = "UPDATE productos SET cantidad_stock = cantidad_stock - ? WHERE id_producto = ?";
+    
+    // Selecciona productos con stock por debajo del mínimo
+    // WHERE: comparamos dos columnas de la misma tabla
+    private final String SQL_SELECT_STOCK_BAJO = "SELECT * FROM productos WHERE cantidad_stock <= stock_minimo";
+    
+    // Suma y actualiza el stock de un producto
+    // Utilizamos el motor SQL para sumar de forma atómica y segura
+    private final String SQL_SUMA_STOCK = "UPDATE productos SET cantidad_stock = cantidad_stock + ? WHERE id_producto = ?";
+    
+    
+    
     
     /**
      * Registra un nuevo producto en la base de datos.
@@ -188,8 +202,119 @@ public class ProductoDAO {
         try { if(stmt != null) stmt.close(); } catch(SQLException e){}
     }
 
-    
-    public ProductoVO buscarPorIU(String id) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    /**
+     * Método que busca un producto y devuelve las coincidencias del parámetro.
+     * @param busqueda texto introducido por el usuario
+     * @return lista con los resultados encotrados
+     */
+    public List<ProductoVO> buscarProducto (String busqueda) {
+        List<ProductoVO> lista = new ArrayList<>();
+        try (Connection conn = Conexion.getInstancia().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(SQL_SELECT_BUSCAR)) {
+            
+            String busquedaFormateada = "%" + busqueda + "%";
+            stmt.setString(1, busquedaFormateada);  // para el id_producto
+            stmt.setString(2, busquedaFormateada);  // para el nombre
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearProducto(rs));
+                }
+            } 
+            
+        } catch (SQLException e) {
+            System.err.println("Error al buscar producto: " + e.getMessage());
+        }
+        return lista;
     }
+    
+    
+    
+    /**
+     * Actualiza la cantidad de stock de un producto específico.
+     * Utiliza una resta relativa en SQL para evitar problemas de concurrencia 
+     * si varios mecánicos guardan reparaciones al mismo tiempo.
+     * * @param idProducto El identificador único del recambio.
+     * @param cantidadUsada La cantidad que se ha consumido y se debe restar.
+     * @return true si la actualización fue exitosa, false en caso contrario.
+     */
+    public boolean descontarStock(String idProducto, int cantidadUsada) {
+                
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL_DESCUENTA_STOCK)) {
+            
+            pstmt.setInt(1, cantidadUsada);
+            pstmt.setString(2, idProducto);
+            
+            int filasAfectadas = pstmt.executeUpdate();
+            return filasAfectadas > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Error al descontar stock del producto " + idProducto + ": " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Consulta la base de datos para recuperar únicamente aquellos productos 
+     * cuya cantidad actual es igual o inferior a su stock de seguridad (stock mínimo).
+     * * @return Una lista con los productos que necesitan ser repuestos.
+     */
+    public List<ProductoVO> listarBajoStock() {
+        List<ProductoVO> listaBajoStock = new ArrayList<>();
+        
+        
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL_SELECT_STOCK_BAJO);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            while (rs.next()) {
+                com.joseluis.apptaller.modelo.vo.ProductoVO p = new com.joseluis.apptaller.modelo.vo.ProductoVO();
+                p.setIdProducto(rs.getString("id_producto"));
+                p.setNombre(rs.getString("nombre"));
+                p.setDescripcion(rs.getString("descripcion"));
+                p.setCategoria(rs.getString("categoria"));
+                p.setCantidadStock(rs.getInt("cantidad_stock"));
+                p.setStockMinimo(rs.getInt("stock_minimo"));
+                p.setPrecioCompra(rs.getDouble("precio_compra"));
+                p.setPrecioUnitario(rs.getDouble("precio_unitario"));
+                p.setProveedorCif(rs.getString("proveedor_cif"));
+                
+                listaBajoStock.add(p);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Error al consultar el stock bajo: " + e.getMessage());
+        }
+        
+        return listaBajoStock;
+    }
+    
+    
+     /**
+     * Incrementa la cantidad de stock de un producto específico.
+     * Para recepciones de mercancía de proveedores o ajustes de inventario.
+     * * @param idProducto El identificador único del recambio.
+     * @param cantidadRecibida La cantidad de unidades que entran al almacén.
+     * @return true si la actualización fue exitosa, false en caso contrario.
+     */
+    public boolean sumarStock(String idProducto, int cantidadRecibida) {
+                
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL_SUMA_STOCK)) {
+            
+            pstmt.setInt(1, cantidadRecibida);
+            pstmt.setString(2, idProducto);
+            
+            int filasAfectadas = pstmt.executeUpdate();
+            return filasAfectadas > 0;
+            
+                        
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error al sumar stock del producto " + idProducto + ": " + e.getMessage());
+            return false;
+        }
+        
+    }
+    
 }

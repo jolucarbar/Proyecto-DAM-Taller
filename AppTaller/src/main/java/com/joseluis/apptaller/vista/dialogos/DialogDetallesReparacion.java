@@ -164,7 +164,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
 
         lblCliente.setText("Nombre");
 
-        txtCliente.setColumns(10);
+        txtCliente.setColumns(20);
 
         lblTelefono.setText("Teléfono");
 
@@ -209,7 +209,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
 
         lblMatricula.setText("Matrícula");
 
-        txtMatricula.setColumns(5);
+        txtMatricula.setColumns(10);
 
         javax.swing.GroupLayout pnlVehiculoLayout = new javax.swing.GroupLayout(pnlVehiculo);
         pnlVehiculo.setLayout(pnlVehiculoLayout);
@@ -539,7 +539,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
             .addGroup(pnlCostosLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(pnlResumen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(780, Short.MAX_VALUE))
+                .addContainerGap(787, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("Costos", pnlCostos);
