@@ -1,7 +1,9 @@
 
 package com.joseluis.apptaller.vista.dialogos;
 
-import com.joseluis.apptaller.controlador.ControladorPresupuestos;
+import com.joseluis.apptaller.controlador.ControladorNuevoPresupuesto;
+import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.math.BigDecimal;
 import java.util.logging.Logger;
 
@@ -19,9 +21,9 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
     
     private static final Logger logger = java.util.logging.Logger.getLogger(DialogNuevoPresupuesto.class.getName());
 
-    ControladorPresupuestos controlador;
-
-    public void setControlador(com.joseluis.apptaller.controlador.ControladorPresupuestos controlador) {
+    ControladorNuevoPresupuesto controlador;
+    
+    public void setControlador(ControladorNuevoPresupuesto controlador) {
         this.controlador = controlador; }
     
     /**
@@ -30,6 +32,25 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
     public DialogNuevoPresupuesto(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        
+        // --- PARCHE DE TAMAÑO Y CENTRADO DEFINITIVO ---
+        pack(); // Hace un pre-ajuste básico
+
+        // Obtenemos el tamaño real del monitor del profesor
+        Dimension pantalla = Toolkit.getDefaultToolkit().getScreenSize();
+
+        // Forzamos un ancho generoso: el 75% de la pantalla 
+        int anchoSeguro = Math.max(this.getWidth(), (int) (pantalla.width * 0.75));
+
+        // // Calculamos un alto "seguro" (nunca mayor al 85% del monitor para que no se salga)
+        int altoSeguro = Math.min(this.getHeight(), (int) (pantalla.height * 0.85));
+
+        // Aplicamos tamaño
+        this.setSize(anchoSeguro, altoSeguro);
+
+        // Centramos la ventana
+        this.setLocationRelativeTo(null);
+        
         
         // Aumentamos la velocidad del scroll (por defecto es muy lenta)
         scrollPrincipal.getVerticalScrollBar().setUnitIncrement(16);
@@ -46,7 +67,7 @@ public class DialogNuevoPresupuesto extends javax.swing.JDialog {
         
         configurarListenersTablas();
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

@@ -4,6 +4,7 @@ package com.joseluis.apptaller.controlador;
 import com.joseluis.apptaller.modelo.dao.ProductoDAO;
 import com.joseluis.apptaller.modelo.dao.ProveedorDAO;
 import com.joseluis.apptaller.modelo.vo.ProductoVO;
+import com.joseluis.apptaller.util.RendererStockBajo;
 import com.joseluis.apptaller.vista.dialogos.DialogNuevoProducto;
 import com.joseluis.apptaller.vista.ventanas.VentanaPrincipal;
 import java.awt.event.ActionEvent;
@@ -39,6 +40,26 @@ public class ControladorProductos implements ActionListener {
     }
     
     
+    private void initListeners() {
+        // 1. Escuchamos los botones
+        vista.getBtnNuevoProducto().addActionListener(this);
+        vista.getBtnEliminarProducto().addActionListener(this);
+        vista.getBtnBuscarProducto().addActionListener(this);
+        vista.getBtnAnadirStock().addActionListener(this); 
+        vista.getBtnRecargarProductos().addActionListener(this);
+
+        // 2. Escuchamos el doble click en la tabla (SOLO PARA EDITAR)
+        vista.getTblProductos().addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    editarProductoSeleccionado();
+                }
+            }
+        });
+    }
+    
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == vista.getBtnNuevoProducto()) {
@@ -46,8 +67,11 @@ public class ControladorProductos implements ActionListener {
         } else if (e.getSource() == vista.getBtnEliminarProducto()) {
             eliminarProductoSeleccionado();
         } else if (e.getSource() == vista.getBtnBuscarProducto()) {
-            JOptionPane.showMessageDialog(vista, "Búsqueda en construcción...", "Info",
-            JOptionPane.INFORMATION_MESSAGE);
+            buscarProducto();
+        } else if (e.getSource() == vista.getBtnAnadirStock()) {
+            anadirStockSeleccionado();
+        } else if (e.getSource() == vista.getBtnRecargarProductos()) {
+            cargarProductos();
         }
     }
 
@@ -60,30 +84,16 @@ public class ControladorProductos implements ActionListener {
                 return false;
             }
         };
-        
-         
         String[] columnas = {"ID Producto", "Nombre", "Descripcion", "Categoria", "Stock", "Stock minimo", "Precio compra", "PVP venta", "Proveedor", "Fecha alta"};
         modeloTabla.setColumnIdentifiers(columnas);
         vista.getTblProductos().setModel(modeloTabla);
         vista.getTblProductos().setRowHeight(30);
-    }
 
-    
-    private void initListeners() {
-        // Escuchamos los botones
-        vista.getBtnNuevoProducto().addActionListener(this);
-        vista.getBtnEliminarProducto().addActionListener(this);
-        vista.getBtnBuscarProducto().addActionListener(this);
-        
-        // Escuchamos el doble click en la tabla para editar
-        vista.getTblProductos().addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (e.getClickCount()==2) {
-                    editarProductoSeleccionado();
-                }
-            }
-        });
+        // Le aplicamos el pintor a la tabla del Controlador
+        RendererStockBajo rendererAlarma = new RendererStockBajo(4, 5);
+        for (int i = 0; i < vista.getTblProductos().getColumnCount(); i++) {
+            vista.getTblProductos().getColumnModel().getColumn(i).setCellRenderer(rendererAlarma);
+        }
     }
 
     
@@ -105,6 +115,7 @@ public class ControladorProductos implements ActionListener {
             };
             modeloTabla.addRow(fila);
         }
+        
     }
     
     
@@ -205,5 +216,79 @@ public class ControladorProductos implements ActionListener {
         }
         return null;
     }
+
+    private void anadirStockSeleccionado() {
+        int filaSeleccionada = vista.getTblProductos().getSelectedRow();
+       
+        if (filaSeleccionada == -1) {
+            JOptionPane.showMessageDialog(vista, "Por favor, seleccione un producto de la tabla para añadir stock.", "Aviso", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String idProducto = vista.getTblProductos().getValueAt(filaSeleccionada, 0).toString();
+        String nombreProducto = vista.getTblProductos().getValueAt(filaSeleccionada, 1).toString();
+
+        String input = JOptionPane.showInputDialog(vista, "¿Cuántas unidades de [" + nombreProducto + "] han llegado?", "Recepción", JOptionPane.QUESTION_MESSAGE);
+
+        if (input != null && !input.trim().isEmpty()) {
+            try {
+                int cantidad = Integer.parseInt(input.trim());
+                if (cantidad > 0) {
+                    // Usamos el modeloDAO que ya tienes instanciado en esta clase
+                    if (modeloDAO.sumarStock(idProducto, cantidad)) {
+                        JOptionPane.showMessageDialog(vista, "Stock actualizado correctamente. Se sumaron " + cantidad + " unidades.");
+                        cargarProductos(); // Refresca la tabla
+                        vista.refrescarAlertasStock(); // Apaga alertas rojas
+                    } else {
+                        JOptionPane.showMessageDialog(vista, "Error al actualizar la base de datos.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(vista, "La cantidad debe ser mayor que cero.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(vista, "Introduzca un número entero válido.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void buscarProducto() {
+        String busqueda = vista.getTxtBuscarProductos().getText().trim();
+        String placeholder = "Buscar producto..."; 
+        if (busqueda.isEmpty() || busqueda.equals(placeholder)) {
+            JOptionPane.showMessageDialog(vista,
+                "Por favor, introduzca un término antes de buscar.",
+                "Aviso de Búsqueda",
+                JOptionPane.WARNING_MESSAGE);
+            vista.getTxtBuscarCliente().requestFocus();
+            return;
+        }
+        modeloTabla.setRowCount(0); // Limpiamos la tabla antes de rellenar
+        List<ProductoVO> lista = modeloDAO.buscarProducto(busqueda);
+        
+        if (lista != null && !lista.isEmpty()) {
+            for (ProductoVO p : lista) {
+                Object[] fila = {
+                    p.getIdProducto(),
+                    p.getNombre(),
+                    p.getDescripcion(),
+                    p.getCategoria(),
+                    p.getCantidadStock(),
+                    p.getStockMinimo(),
+                    p.getPrecioCompra(),
+                    p.getPrecioUnitario(12.99F),
+                    p.getProveedorCif(),
+                    p.getCreated_at()
+                };
+            modeloTabla.addRow(fila);
+            }
+            vista.getTxtBuscarProductos().setText("");
+        } else {
+            JOptionPane.showMessageDialog(vista, "No se han encontrado productos con el texto " + busqueda, "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            cargarProductos();
+            vista.getTxtBuscarProductos().setText("");
+        }
+    }
+    
     
 }

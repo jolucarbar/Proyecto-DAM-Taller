@@ -25,13 +25,15 @@ public class EmpleadoVO {
     private LocalDate fecha_alta;
     private LocalDate fecha_baja;
     private float salario_base;
+    private String usuario;
+    private String password;
     private boolean activo;
 
     public EmpleadoVO() {
         this.activo = true;  // Todo empleado nuevo nace activo por defecto
     }
 
-    public EmpleadoVO(int id_empleado, int usuario_id, String dni, String nombre, String apellidos, String telefono, String email, String direccion, String cargo, LocalDate fecha_alta, LocalDate fecha_baja, float salario_base) {
+    public EmpleadoVO(int id_empleado, int usuario_id, String dni, String nombre, String apellidos, String telefono, String email, String direccion, String cargo, String usuario, String password, LocalDate fecha_alta, LocalDate fecha_baja, float salario_base) {
         this.id_empleado = id_empleado;
         this.usuario_id = usuario_id;
         this.dni = dni;
@@ -44,6 +46,8 @@ public class EmpleadoVO {
         this.fecha_alta = fecha_alta;
         this.fecha_baja = fecha_baja;
         this.salario_base = salario_base;
+        this.usuario = usuario;
+        this.password = password;
         this.activo = true;
     }
 
@@ -52,11 +56,13 @@ public class EmpleadoVO {
 
     public void setId_empleado(int id_empleado) { this.id_empleado = id_empleado; }
 
-    public int getUsuario_id() { return usuario_id; }
-
     public void setUsuario_id(int usuario_id) { this.usuario_id = usuario_id; }
 
     public String getDni() { return dni; }
+
+    public void setUsuarioId(Integer usuario_id) { this.usuario_id = usuario_id; }
+    
+    public int getUsuarioId() { return usuario_id; }
 
     public void setDni(String dni) { this.dni = dni; }
 
@@ -89,6 +95,14 @@ public class EmpleadoVO {
     public void setFecha_alta(LocalDate fecha_alta) { this.fecha_alta = fecha_alta; }
 
     public LocalDate getFecha_baja() { return fecha_baja; }
+
+    public String getUsuario() { return usuario; }
+
+    public void setUsuario(String usuario) { this.usuario = usuario; }
+
+    public String getPassword() { return password; }
+
+    public void setPassword(String password) { this.password = password; }
 
     public void setFecha_baja(LocalDate fecha_baja) { this.fecha_baja = fecha_baja; }
 

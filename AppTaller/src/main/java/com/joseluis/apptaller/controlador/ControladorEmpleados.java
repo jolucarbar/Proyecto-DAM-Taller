@@ -2,7 +2,10 @@
 package com.joseluis.apptaller.controlador;
 
 import com.joseluis.apptaller.modelo.dao.EmpleadoDAO;
+import com.joseluis.apptaller.modelo.dao.UsuarioDAO;
 import com.joseluis.apptaller.modelo.vo.EmpleadoVO;
+import com.joseluis.apptaller.modelo.vo.UsuarioVO;
+import com.joseluis.apptaller.util.SeguridadUtil;
 import com.joseluis.apptaller.vista.dialogos.DialogNuevoEmpleado;
 import com.joseluis.apptaller.vista.ventanas.VentanaPrincipal;
 import java.awt.event.ActionEvent;
@@ -56,6 +59,7 @@ public class ControladorEmpleados implements ActionListener{
         vista.getBtnNuevoEmpleado().addActionListener(this);
         vista.getBtnEliminarEmpleado().addActionListener(this);
         vista.getBtnBuscarEmpleado().addActionListener(this);
+        vista.getBtnRecargarEmpleados().addActionListener(this);
         // Escuchamos el doble clic en la tabla para editar
         vista.getTblEmpleado().addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -94,29 +98,60 @@ public class ControladorEmpleados implements ActionListener{
             abrirDialogoNuevoEmpleado();
         } else if (e.getSource() == vista.getBtnEliminarEmpleado()) {
             eliminarEmpleadoSeleccionado();
-        } else if (e.getSource() == vista.getBtnBuscarVehiculo()) {
-            JOptionPane.showMessageDialog(vista, "Búsqueda en construcción...", "Info",
-            JOptionPane.INFORMATION_MESSAGE);
+        } else if (e.getSource() == vista.getBtnBuscarEmpleado()) {
+            buscarEmpleado();
+        } else if (e.getSource() == vista.getBtnRecargarEmpleados()) {
+            cargarEmpleados();
         }
     }
 
     
     private void abrirDialogoNuevoEmpleado() {
-        // Abrimos el dialog
+        // 1. Abrimos el diálogo 
         DialogNuevoEmpleado dialog = new DialogNuevoEmpleado(vista, true);
         dialog.setVisible(true);
-       
-        // Si el usuario pulsó Guardar
+
+        // 2. Si el usuario pulsó "Guardar"
         if (dialog.isGuardado()) {
-            EmpleadoVO nuevoEmpleado = dialog.getEmpleado();
-           
-            if (modeloDAO.insertar(nuevoEmpleado)) {
-                JOptionPane.showMessageDialog(vista, "Empleado registrado con éxito.");
-                cargarEmpleados();
-            } else {
-                JOptionPane.showMessageDialog(vista, "Error al guardar el empleado. Revise si el DNI ya existe.", "Error", JOptionPane.ERROR_MESSAGE);
+            try {
+                // Extraemos los datos del diálogo (Empleado, Usuario y Password)
+                EmpleadoVO nuevoEmp = dialog.getEmpleado();
+                String user = dialog.getTxtUsuario().getText();
+                String pass = new String(dialog.getTxtPassword().getText());
+                
+                String passwordSeguro = SeguridadUtil.generarHash(pass);
+
+                
+                // A. Creamos el Usuario primero
+                UsuarioVO uVO = new UsuarioVO();
+                uVO.setUsername(user);
+                uVO.setPasswordHash(passwordSeguro); // Guardamos el hash
+                String rolElegido = dialog.getRolSeleccionado();
+                uVO.setRol(rolElegido);
+
+                UsuarioDAO uDAO = new UsuarioDAO();
+                int idUsuarioCreado = uDAO.insertarYObtenerId(uVO);
+
+                if (idUsuarioCreado > 0) {
+                    // B. Vinculamos el ID del usuario al empleado
+                    nuevoEmp.setUsuarioId(idUsuarioCreado);
+
+                    // C. Insertamos el empleado físico
+                    if (modeloDAO.insertar(nuevoEmp)) {
+                        JOptionPane.showMessageDialog(vista, "Empleado y acceso creados correctamente.");
+                        cargarEmpleados(); // Refresca la tabla
+                    } else {
+                        JOptionPane.showMessageDialog(vista, "Error al crear el empleado físico.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                } else {
+                    JOptionPane.showMessageDialog(vista, "Error: El nombre de usuario ya existe o es inválido.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(vista, "Error en los datos: " + ex.getMessage());
             }
         }
+    
     }
     
     private void editarEmpleadoSeleccionado() {
@@ -166,5 +201,40 @@ public class ControladorEmpleados implements ActionListener{
         }
     
     }
-    
+
+    private void buscarEmpleado() {
+        String busqueda = vista.getTxtBuscarEmpleado().getText().trim();
+        String placeholder = "Buscar empleado..."; 
+        if (busqueda.isEmpty() || busqueda.equals(placeholder)) {
+            JOptionPane.showMessageDialog(vista,
+                "Por favor, introduzca un término antes de buscar.",
+                "Aviso de Búsqueda",
+                JOptionPane.WARNING_MESSAGE);
+            vista.getTxtBuscarEmpleado().requestFocus();
+            return;
+        }
+        modeloTabla.setRowCount(0);
+        List<EmpleadoVO> lista = modeloDAO.buscarEmpleado(busqueda);
+        
+        if (lista != null && !lista.isEmpty()) {
+            for  (EmpleadoVO e: lista) {
+                Object[] fila = new Object[8];
+                fila[0] = e.getDni();
+                fila[1] = e.getNombre();
+                fila[2] = e.getApellidos();
+                fila[3] = e.getTelefono();
+                fila[4] = e.getEmail();
+                fila[5] = e.getDireccion();
+                fila[6] = e.getCargo();
+                fila[7] = e.getSalario_base() + " €";
+                modeloTabla.addRow(fila);
+            }
+            vista.getTxtBuscarEmpleado().setText("");
+        } else {
+            JOptionPane.showMessageDialog(vista, "No se han encontrado empleados con el parámetro " + busqueda, "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            cargarEmpleados();
+            vista.getTxtBuscarEmpleado().setText("");
+        }
+    }
 }

@@ -19,6 +19,7 @@ public class VehiculoVO {
     private int anioFabricacion; 
     private String color;
     private String dniPropietario; 
+    private String nombrePropietario;
     private boolean activo;
 
     // --- Constructor Vacío ---
@@ -63,6 +64,9 @@ public class VehiculoVO {
 
     public boolean isActivo() { return activo; }
     public void setActivo(boolean activo) { this.activo = activo; }
+
+    public String getNombrePropietario() { return nombrePropietario; }
+    public void setNombrePropietario(String nombrePropietario) { this.nombrePropietario = nombrePropietario; }
 
     @Override
     public String toString() {

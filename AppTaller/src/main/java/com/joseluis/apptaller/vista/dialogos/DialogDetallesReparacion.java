@@ -76,7 +76,6 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
         txtMecanico = new javax.swing.JTextField();
         pnlBotones = new javax.swing.JPanel();
         btnEditarDetalle = new javax.swing.JButton();
-        btnImprimirDetalle = new javax.swing.JButton();
         btnSalirDetalle = new javax.swing.JButton();
         pnlTrabajosRealizados = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -164,7 +163,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
 
         lblCliente.setText("Nombre");
 
-        txtCliente.setColumns(10);
+        txtCliente.setColumns(20);
 
         lblTelefono.setText("Teléfono");
 
@@ -209,7 +208,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
 
         lblMatricula.setText("Matrícula");
 
-        txtMatricula.setColumns(5);
+        txtMatricula.setColumns(10);
 
         javax.swing.GroupLayout pnlVehiculoLayout = new javax.swing.GroupLayout(pnlVehiculo);
         pnlVehiculo.setLayout(pnlVehiculoLayout);
@@ -343,8 +342,6 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
             }
         });
 
-        btnImprimirDetalle.setText("Imprimir");
-
         btnSalirDetalle.setText("Salir");
         btnSalirDetalle.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -372,11 +369,9 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlDatosGeneralesLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(btnEditarDetalle)
-                .addGap(5, 5, 5)
-                .addComponent(btnImprimirDetalle)
-                .addGap(5, 5, 5)
+                .addGap(57, 57, 57)
                 .addComponent(btnSalirDetalle)
-                .addGap(36, 36, 36))
+                .addGap(69, 69, 69))
         );
         pnlDatosGeneralesLayout.setVerticalGroup(
             pnlDatosGeneralesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -387,14 +382,13 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
                 .addComponent(pnlVehiculo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(pmlDetalles, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 15, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(pnlBotones, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addGroup(pnlDatosGeneralesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlDatosGeneralesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnEditarDetalle)
-                    .addComponent(btnImprimirDetalle)
                     .addComponent(btnSalirDetalle))
                 .addGap(508, 508, 508))
         );
@@ -539,7 +533,7 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
             .addGroup(pnlCostosLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(pnlResumen, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(780, Short.MAX_VALUE))
+                .addContainerGap(787, Short.MAX_VALUE))
         );
 
         jTabbedPane2.addTab("Costos", pnlCostos);
@@ -664,7 +658,6 @@ public class DialogDetallesReparacion extends javax.swing.JDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnEditarDetalle;
-    private javax.swing.JButton btnImprimirDetalle;
     private javax.swing.JButton btnSalirDetalle;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;

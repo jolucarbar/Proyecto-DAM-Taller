@@ -1,7 +1,7 @@
 
 package com.joseluis.apptaller.vista.dialogos;
 
-import com.joseluis.apptaller.controlador.ControladorPresupuestos;
+import com.joseluis.apptaller.controlador.ControladorNuevoPresupuesto;
 import com.joseluis.apptaller.modelo.dao.PresupuestoDAO;
 import com.joseluis.apptaller.modelo.vo.DetalleManoObraVO;
 import com.joseluis.apptaller.modelo.vo.DetalleProductoVO;
@@ -21,10 +21,12 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(DialogDetallesPresupuesto.class.getName());
 
-    private ControladorPresupuestos controlador;
+    private ControladorNuevoPresupuesto controlador;
 
-    public void setControlador(ControladorPresupuestos controlador) {
+    public void setControlador(ControladorNuevoPresupuesto controlador) {
         this.controlador = controlador; }
+    
+      
     
     /**
      * Creates new form DialogNuevoPresupuesto
@@ -48,6 +50,8 @@ public class DialogDetallesPresupuesto extends javax.swing.JDialog {
         
         configurarListenersTablas();
     }
+     
+    
 
     /**
      * This method is called from within the constructor to initialize the form.

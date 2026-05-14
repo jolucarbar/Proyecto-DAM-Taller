@@ -24,15 +24,16 @@ import java.util.List;
 public class EmpleadoDAO {
     // Consultas SQL
     private final String SQL_INSERT = "INSERT INTO empleados (usuario_id, dni, nombre, apellidos, telefono, email, "
-            + "direccion, cargo, fecha_alta, fecha_baja, salario_base, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            + "direccion, cargo, usuario, password, fecha_alta, fecha_baja, salario_base, activo) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private final String SQL_SELECT_ALL = "SELECT * FROM empleados WHERE activo = 1";
     private final String SQL_SELECT_BY_DNI = "SELECT * FROM empleados WHERE dni = ? AND activo = 1";
-    private final String SQL_UPDATE = "UPDATE empleados SET usuarios_id=?, dni=?, nombre=?, apellidos=?, telefono=?, email=?, "
+    private final String SQL_UPDATE = "UPDATE empleados SET usuario_id=?, dni=?, nombre=?, apellidos=?, telefono=?, email=?, "
             + "direccion=?, cargo=?, fecha_alta=?, fecha_baja=?, salario_base=?, activo=? WHERE dni=?";
     private final String SQL_DELETE = "UPDATE empleados SET activo = 0 WHERE dni = ?"; // Borrado lógico, no físico
 
     private final String SQL_FILTRAR_MECANICO = "SELECT * FROM empleados WHERE activo = TRUE AND LOWER(cargo) LIKE '%mecánico%'";
     
+    private final String SQL_BUSCAR_EMPLEADO = "SELECT * FROM empleados WHERE dni LIKE ? OR nombre LIKE ? OR apellidos LIKE ? AND activo = 1";
     
      /**
      * Inserta un nuevo empleado en la base de datos.
@@ -44,8 +45,8 @@ public class EmpleadoDAO {
             conn = Conexion.getInstancia().getConnection();
             stmt = conn.prepareStatement(SQL_INSERT);
             // usuario_id: si es mayor que 0 mandamos el ID; si no, mandamos null a MySQL
-            if (empleado.getUsuario_id() > 0) {
-                stmt.setInt(1, empleado.getUsuario_id());
+            if (empleado.getUsuarioId() > 0) {
+                stmt.setInt(1, empleado.getUsuarioId());
             } else {
                 stmt.setNull(1, java.sql.Types.INTEGER);
             }
@@ -56,19 +57,21 @@ public class EmpleadoDAO {
             stmt.setString(6, empleado.getEmail());
             stmt.setString(7, empleado.getDireccion());
             stmt.setString(8, empleado.getCargo());
+            stmt.setString(9, empleado.getUsuario());
+            stmt.setString(10, empleado.getPassword());
             // Fecha alta obligatorio para MySQL
             if (empleado.getFecha_alta() != null) {
-                stmt.setDate(9, java.sql.Date.valueOf(empleado.getFecha_alta()));
+                stmt.setDate(11, java.sql.Date.valueOf(empleado.getFecha_alta()));
             } else {
-                stmt.setDate(9, java.sql.Date.valueOf(java.time.LocalDate.now()));
+                stmt.setDate(11, java.sql.Date.valueOf(java.time.LocalDate.now()));
             }
             if (empleado.getFecha_baja() != null) {
-                stmt.setDate(10, java.sql.Date.valueOf(empleado.getFecha_baja()));
+                stmt.setDate(12, java.sql.Date.valueOf(empleado.getFecha_baja()));
             } else {
-                stmt.setNull(10, java.sql.Types.DATE);
+                stmt.setNull(12, java.sql.Types.DATE);
             }
-            stmt.setFloat(11, empleado.getSalario_base());
-            stmt.setBoolean(12, empleado.isActivo());
+            stmt.setFloat(13, empleado.getSalario_base());
+            stmt.setBoolean(14, empleado.isActivo());
             
             
             int filas = stmt.executeUpdate();
@@ -148,8 +151,8 @@ public class EmpleadoDAO {
             conn = Conexion.getInstancia().getConnection();
             stmt = conn.prepareStatement(SQL_UPDATE);
             
-            if (empleado.getUsuario_id() > 0) {
-                stmt.setInt(1, empleado.getUsuario_id());
+            if (empleado.getUsuarioId() > 0) {
+                stmt.setInt(1, empleado.getUsuarioId());
             } else {
                 stmt.setNull(1, java.sql.Types.INTEGER);
             }
@@ -173,6 +176,7 @@ public class EmpleadoDAO {
             }
             stmt.setFloat(11, empleado.getSalario_base());
             stmt.setBoolean(12, empleado.isActivo());
+            stmt.setString(13, empleado.getDni());
                         
             return stmt.executeUpdate() >= 0;
         } catch (Exception e) {
@@ -255,6 +259,28 @@ public class EmpleadoDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+        return lista;
+    }
+
+    public List<EmpleadoVO> buscarEmpleado(String busqueda) {
+        List<EmpleadoVO> lista = new ArrayList<>();
+        
+        try(Connection conn = Conexion.getInstancia().getConnection();
+                PreparedStatement stmt = conn.prepareStatement(SQL_BUSCAR_EMPLEADO)) {
+            
+            String busquedaFormateada = "%" + busqueda + "%";
+            stmt.setString(1, busquedaFormateada); // para el DNI
+            stmt.setString(2, busquedaFormateada); // para el nombre
+            stmt.setString(3, busquedaFormateada); // para los apellidos
+            
+            try(ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    lista.add(mapearEmpleado(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al buscar por parámetro " + busqueda + ": " + e.getMessage());
         }
         return lista;
     }

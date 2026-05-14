@@ -27,9 +27,7 @@ public class ReparacionDAO {
                     + "fecha_entrada, kilometraje_entrada, nivel_combustible, estado, prioridad, diagnostico, observaciones) "
                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    
-    
-    
+    // Consulta los datos que saldrán en el panel Reparaciones de VentanaPrincipal
     private final String SQL_SELECT_TABLE = 
             "SELECT r.id_reparacion, v.matricula, c.nombre, e.nombre, r.prioridad, r.estado, r.fecha_entrada " +
             "FROM reparaciones r " +
@@ -112,6 +110,25 @@ public class ReparacionDAO {
                     + "SELECT ?, id_producto, cantidad_usada, precio_venta_unitario "
                     + "FROM detalle_productos WHERE id_presupuesto = ?";
    
+   // Cuenta los vehículos que están en el taller
+   private final String SQL_COUNT_EN_TALLER = "SELECT COUNT(*) AS total FROM reparaciones WHERE estado IN ('EN_COLA', 'EN_PROCESO')";
+   
+   // Busca una reparación
+   private final String SQL_BUSCAR_REPARACION = "SELECT r.id_reparacion, v.matricula, c.nombre, e.nombre, r.prioridad, r.estado, r.fecha_entrada " +
+                     "FROM reparaciones r " +
+                     "LEFT JOIN vehiculos v ON r.vehiculo_bastidor = v.bastidor " +
+                     "LEFT JOIN clientes c ON r.cliente_dni = c.dni_cif " +
+                     "LEFT JOIN empleados e ON r.empleado_asignado_id = e.id_empleado " +
+                     "WHERE v.matricula LIKE ? OR c.nombre LIKE ? OR CAST(r.id_reparacion AS CHAR) LIKE ? " +
+                     "ORDER BY r.fecha_entrada DESC";
+   
+   // Consulta para informe de vehículo, con JOIN a empleados para sacar el nombre del mecánico
+    private final String SQL_HISTORIAL_VEHICULO = "SELECT r.id_reparacion, r.fecha_entrada, r.estado, e.nombre AS mecanico, r.diagnostico AS notas "
+                   + "FROM reparaciones AS r "
+                   + "LEFT JOIN empleados AS e ON r.empleado_asignado_id = e.id_empleado "
+                   + "WHERE r.vehiculo_bastidor = ? ORDER BY r.fecha_entrada DESC";
+   
+   
    
    
    
@@ -188,6 +205,11 @@ public class ReparacionDAO {
    
    
 
+   /**
+    * Obtiene los datos necesarios para insertarlos en la tabla del panel 
+    * Reparaciones de VentanaPrincipal
+    * @return datos con los resultados obtenidos
+    */
     public List<Object[]> obtenerListaParaTabla() {
         List<Object[]> datos = new ArrayList<>();
         try (Connection conn = Conexion.getInstancia().getConnection();
@@ -610,4 +632,146 @@ public class ReparacionDAO {
         return new String[]{"", ""}; 
     }
 
+    
+    /**
+     * Cuenta el número de vehículos que están actualmente en el taller.
+     * Se basa en las reparaciones que aún no están finalizadas.
+     * Sirve para la etiqueta del panel de Inicio para ver los vehículos que
+     * están en el taller.
+     * @return El número total de vehículos activos.
+     */
+    public int contarVehiculosEnTaller() {
+        int totalVehiculos = 0;
+        
+        
+        
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL_COUNT_EN_TALLER);
+             ResultSet rs = pstmt.executeQuery()) {
+            
+            if (rs.next()) {
+                totalVehiculos = rs.getInt("total");
+            }
+            
+        } catch (java.sql.SQLException e) {
+            System.err.println("Error al contar los vehículos en taller: " + e.getMessage());
+        }
+        return totalVehiculos;
+    }
+    
+    
+    
+    /**
+    * Recupera la lista de reparaciones activas (En cola o En proceso).
+    * Ideal para la vista de agenda diaria del taller.
+    */
+   public List<ReparacionVO> listarTrabajosPendientes() {
+       List<ReparacionVO> lista = new ArrayList<>();
+
+       // Traemos los datos clave para la agenda
+       String sql = "SELECT r.id_reparacion, v.matricula AS matricula_vehiculo, r.diagnostico, r.estado "
+               + "FROM reparaciones r INNER JOIN vehiculos v "
+               + "ON r.vehiculo_bastidor = v.bastidor"
+               + " WHERE estado IN ('EN_COLA', 'EN_PROCESO') ORDER BY fecha_entrada ASC";
+
+       try (Connection conn = Conexion.getInstancia().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            ResultSet rs = pstmt.executeQuery()) {
+
+           while (rs.next()) {
+               ReparacionVO r = new ReparacionVO();
+               r.setIdReparacion(rs.getInt("id_reparacion"));
+               r.setVehiculoMatricula(rs.getString("matricula_vehiculo"));
+               r.setObservaciones(rs.getString("diagnostico"));
+               r.setEstado(rs.getString("estado"));
+               lista.add(r);
+           }
+       } catch (java.sql.SQLException e) {
+           System.err.println("Error al cargar agenda: " + e.getMessage());
+       }
+       return lista;
+   }
+    
+   
+   /**
+    * Método que busca e inserta en la tabla del panel Reparaciones de VentanaPrincipal.
+    * Como no tengo método de mapear, ni el método obtenerListaParaTabla admite 
+    * parámetros, hago el mapeo en este método.
+    * @param busqueda
+    * @return 
+    */
+   public List<Object[]> buscarReparacion (String busqueda) {
+       List<Object[]> lista = new ArrayList<>();
+       try (Connection conn= Conexion.getInstancia().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(SQL_BUSCAR_REPARACION)) {
+           
+           String busquedaFormateada = "%" + busqueda + "%";
+           stmt.setString(1, busquedaFormateada);
+           stmt.setString(2, busquedaFormateada);
+           stmt.setString(3, busquedaFormateada);
+           
+           try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    // Validación para que no salga "null" en la tabla si no hay mecánico
+                    String mecanico = rs.getString(4);
+                    if (mecanico == null || mecanico.trim().isEmpty()) {
+                        mecanico = "Sin asignar";
+                    }
+                   
+                    // Empaquetamos exactamente igual que en obtenerListaParaTabla()
+                    lista.add(new Object[]{
+                        "REP-" + rs.getInt(1),
+                        rs.getString(2) != null ? rs.getString(2) : "Desconocido",
+                        rs.getString(3) != null ? rs.getString(3) : "Desconocido",
+                        mecanico,
+                        rs.getString(5),
+                        rs.getString(6),
+                        rs.getTimestamp(7)
+                    });
+                }
+            }
+           
+        } catch (SQLException e) {
+           System.err.println("Error al buscar reparación: " + e.getMessage());
+        }
+       return lista;
+   }
+   
+   
+    /**
+     * Obtiene el historial completo de reparaciones de un vehículo específico por su bastidor.
+     * Para el informe del panelVehiculos
+     */
+    public List<Object[]> obtenerHistorialPorBastidor(String bastidor) {
+        List<Object[]> lista = new ArrayList<>();
+               
+        try (Connection conn = Conexion.getInstancia().getConnection();
+             PreparedStatement ps = conn.prepareStatement(SQL_HISTORIAL_VEHICULO)) {
+           
+            ps.setString(1, bastidor);
+           
+            try (ResultSet rs = ps.executeQuery()) {
+                SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd/MM/yyyy");
+               
+                while (rs.next()) {
+                    String fechaLimpia = "N/A";
+                    if (rs.getTimestamp("fecha_entrada") != null) {
+                        fechaLimpia = sdf.format(rs.getTimestamp("fecha_entrada"));
+                    }
+                   
+                    lista.add(new Object[]{
+                        "REP-" + rs.getInt("id_reparacion"),
+                        fechaLimpia,
+                        rs.getString("estado"),
+                        rs.getString("mecanico") != null ? rs.getString("mecanico") : "Sin asignar",
+                        rs.getString("notas") != null ? rs.getString("notas") : ""
+                    });
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al cargar historial por bastidor: " + e.getMessage());
+        }
+        return lista;
+    }
+    
 }

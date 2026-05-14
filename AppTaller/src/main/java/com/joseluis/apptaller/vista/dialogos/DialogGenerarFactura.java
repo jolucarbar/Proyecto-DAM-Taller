@@ -373,23 +373,12 @@ public class DialogGenerarFactura extends javax.swing.JDialog {
             boolean exito = gestorFacturacion.registrarNuevaFactura(facturaEnProceso);
 
             if (exito) {
-                JOptionPane.showMessageDialog(this, "Factura generada y registrada con éxito.", 
-                        "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, 
+                        "Factura generada con éxito.\nYa está disponible para su impresión en el panel de Facturas.", 
+                        "Operación Completada", JOptionPane.INFORMATION_MESSAGE);
 
-                // Preguntamos si desea imprimir el PDF 
-                int respuesta = JOptionPane.showConfirmDialog(this, "¿Desea visualizar/imprimir la factura en PDF?", 
-                        "Imprimir", JOptionPane.YES_NO_OPTION);
-
-                if (respuesta == JOptionPane.YES_OPTION) {
-                    // Obtenemos las líneas reales de la reparación
-                    java.util.List<com.joseluis.apptaller.modelo.vo.DetalleFactura> lineasDetalle = 
-                        gestorFacturacion.obtenerDetallesParaFactura(facturaEnProceso.getIdReparacion());
-
-                    // Imprimimos el PDF con datos
-                    gestorFacturacion.generarInformePDF(facturaEnProceso, lineasDetalle);
-                }
-
-                this.dispose(); // Cerramos el dialog
+                this.dispose(); // Cerramos el dialog de la factura
+                
             } else {
                 JOptionPane.showMessageDialog(this, "Error al guardar la factura en la base de datos.", 
                         "Error", JOptionPane.ERROR_MESSAGE);

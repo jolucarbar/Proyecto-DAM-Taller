@@ -22,7 +22,7 @@ public class EmpleadoDAOTest {
         
         limpiarDatosDePrueba();
 
-        testEmpleado = new EmpleadoVO(2, 0, DNI_TEST, "Juan", "Gómez Pérez", "600123456", "juan@email.com", "Calle Baja", "Mecánico", LocalDate.of(2021, 10, 28), LocalDate.of(2025, 5, 28), (float) 22000.0);
+        testEmpleado = new EmpleadoVO(2, 0, DNI_TEST, "Juan", "Gómez Pérez", "600123456", "juan@email.com", "Calle Baja", "Mecánico", "juangopez", "juangomezperez", LocalDate.of(2021, 10, 28), LocalDate.of(2025, 5, 28), (float) 22000.0);
     }
 
     private void limpiarDatosDePrueba() {

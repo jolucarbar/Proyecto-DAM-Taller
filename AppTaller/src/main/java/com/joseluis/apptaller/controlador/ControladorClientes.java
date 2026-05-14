@@ -11,6 +11,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import com.joseluis.apptaller.vista.dialogos.DialogHistorialCliente;
+import java.util.ArrayList;
 
 /**
  * Clase que gestiona la lógica de negocio de los Clientes.
@@ -59,6 +60,8 @@ public class ControladorClientes implements ActionListener {
         vista.getBtnNuevoCliente().addActionListener(this);
         vista.getBtnEliminarCliente().addActionListener(this);
         vista.getBtnHistorialCliente().addActionListener(this);
+        vista.getBtnBuscarCliente().addActionListener(this);
+        vista.getBtnRecargarClientes().addActionListener(this);
         
         // --- AÑADIMOS EL DOBLE CLIC PARA EDITAR ---
         vista.getTblClientes().addMouseListener(new java.awt.event.MouseAdapter() {
@@ -95,6 +98,10 @@ public class ControladorClientes implements ActionListener {
             eliminarClienteSeleccionado();
         } else if (e.getSource() == vista.getBtnHistorialCliente()) {
             abrirHistorialCliente();
+        } else if (e.getSource() == vista.getBtnBuscarCliente()) {
+            buscarCliente();
+        } else if (e.getSource() == vista.getBtnRecargarClientes()) {
+            cargarClientes();
         }
     }
 
@@ -163,10 +170,10 @@ public class ControladorClientes implements ActionListener {
                     
                     // Mandamos actualizar a MySQL
                     if (modeloDAO.modificar(clienteModificado)) {
-                        javax.swing.JOptionPane.showMessageDialog(vista, "Cliente actualizado con éxito.");
+                        JOptionPane.showMessageDialog(vista, "Cliente actualizado con éxito.");
                         cargarClientes(); // Refrescamos la tabla
                     } else {
-                        javax.swing.JOptionPane.showMessageDialog(vista, "Error al actualizar el cliente.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(vista, "Error al actualizar el cliente.", "Error", javax.swing.JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }
@@ -186,7 +193,43 @@ public class ControladorClientes implements ActionListener {
                 dialog.setVisible(true);
             }
         } else {
-            javax.swing.JOptionPane.showMessageDialog(vista, "Seleccione un cliente en la tabla para ver su historial.", "Aviso", javax.swing.JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(vista, "Seleccione un cliente en la tabla para ver su historial.", "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    public void buscarCliente() {
+        String busqueda = vista.getTxtBuscarCliente().getText().trim();
+        String placeholder = "Buscar cliente..."; 
+        if (busqueda.isEmpty() || busqueda.equals(placeholder)) {
+            JOptionPane.showMessageDialog(vista,
+                "Por favor, introduzca un término antes de buscar.",
+                "Aviso de Búsqueda",
+                JOptionPane.WARNING_MESSAGE);
+            vista.getTxtBuscarCliente().requestFocus();
+            return;
+        }
+        modeloTabla.setRowCount(0); // Limpiamos la tabla antes de rellenar
+        List<ClienteVO> lista = modeloDAO.buscarCliente(busqueda);
+        
+        if (lista != null && !lista.isEmpty()) {
+            for (ClienteVO c : lista) {
+                Object[] fila = new Object[5];
+                fila[0] = c.getDni();
+                fila[1] = c.getNombre();
+                fila[2] = c.getTelefono();
+                fila[3] = c.getEmail();
+                fila[4] = c.getDireccion();
+                modeloTabla.addRow(fila);
+            }
+            vista.getTxtBuscarCliente().setText("");
+        } else {
+            JOptionPane.showMessageDialog(vista, "No se han encontrado clientes con el criterio " + busqueda, "Aviso",
+                    JOptionPane.WARNING_MESSAGE);
+            
+            // Volvemos a cargar la tabla completa para que no se quede vacía
+            cargarClientes();
+            vista.getTxtBuscarCliente().setText("");
         }
     }
     

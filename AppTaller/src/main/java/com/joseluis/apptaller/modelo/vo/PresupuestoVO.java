@@ -31,7 +31,11 @@ public class PresupuestoVO {
     // --- Atributos de Agregación (Las líneas del presupuesto) ---
     private List<DetalleManoObraVO> lineasManoObra;
     private List<DetalleProductoVO> lineasProductos;
+    
+    // --- Atributo para obtener la matrícula para el DialogHistorialCliente
+    private String matriculaVehiculo;
 
+    
     public PresupuestoVO() {
         this.fechaEmision = LocalDate.now();
         this.fechaValidez = LocalDate.now().plusDays(15); // Validez estándar de 15 días
@@ -89,4 +93,8 @@ public class PresupuestoVO {
 
     public List<DetalleProductoVO> getLineasProductos() { return lineasProductos; }
     public void setLineasProductos(List<DetalleProductoVO> lineasProductos) { this.lineasProductos = lineasProductos; }
+
+    public String getMatriculaVehiculo() { return matriculaVehiculo; }
+
+    public void setMatriculaVehiculo(String matriculaVehiculo) {this.matriculaVehiculo = matriculaVehiculo; }
 }

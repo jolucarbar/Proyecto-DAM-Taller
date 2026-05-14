@@ -1,0 +1,125 @@
+<!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
+<jasperReport name="HistorialVehiculo" language="java" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="6109f325-160c-4d9f-a70b-464ce8f271b1">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="Conexion AppTaller"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w1" value="440"/>
+	<property name="com.jaspersoft.studio.property.dataset.dialog.DatasetDialog.sash.w2" value="547"/>
+	<parameter name="PARAM_BASTIDOR" class="java.lang.String"/>
+	<parameter name="LOGO_PATH" class="java.lang.String"/>
+	<query language="sql"><![CDATA[SELECT r.id_reparacion, r.fecha_entrada, r.estado, e.nombre AS mecanico, r.diagnostico AS notas,
+       v.matricula, v.marca, v.modelo
+FROM reparaciones r
+LEFT JOIN empleados e ON r.empleado_asignado_id = e.id_empleado
+LEFT JOIN vehiculos v ON r.vehiculo_bastidor = v.bastidor
+WHERE r.vehiculo_bastidor = $P{PARAM_BASTIDOR}
+ORDER BY r.fecha_entrada DESC]]></query>
+	<field name="id_reparacion" class="java.lang.Integer">
+		<property name="com.jaspersoft.studio.field.name" value="id_reparacion"/>
+		<property name="com.jaspersoft.studio.field.label" value="id_reparacion"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="reparaciones"/>
+	</field>
+	<field name="fecha_entrada" class="java.sql.Timestamp">
+		<property name="com.jaspersoft.studio.field.name" value="fecha_entrada"/>
+		<property name="com.jaspersoft.studio.field.label" value="fecha_entrada"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="reparaciones"/>
+	</field>
+	<field name="estado" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="estado"/>
+		<property name="com.jaspersoft.studio.field.label" value="estado"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="reparaciones"/>
+	</field>
+	<field name="mecanico" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="nombre"/>
+		<property name="com.jaspersoft.studio.field.label" value="mecanico"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="empleados"/>
+	</field>
+	<field name="notas" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="diagnostico"/>
+		<property name="com.jaspersoft.studio.field.label" value="notas"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="reparaciones"/>
+	</field>
+	<field name="matricula" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="matricula"/>
+		<property name="com.jaspersoft.studio.field.label" value="matricula"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="vehiculos"/>
+	</field>
+	<field name="marca" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="marca"/>
+		<property name="com.jaspersoft.studio.field.label" value="marca"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="vehiculos"/>
+	</field>
+	<field name="modelo" class="java.lang.String">
+		<property name="com.jaspersoft.studio.field.name" value="modelo"/>
+		<property name="com.jaspersoft.studio.field.label" value="modelo"/>
+		<property name="com.jaspersoft.studio.field.tree.path" value="vehiculos"/>
+	</field>
+	<background splitType="Stretch"/>
+	<title height="79" splitType="Stretch">
+		<element kind="rectangle" uuid="827c5849-1b53-4caf-9e95-914808dc073c" x="-20" y="0" width="595" height="77" backcolor="#2196F3"/>
+		<element kind="image" uuid="c12db74a-a15a-47aa-bbd3-0480382a87e5" x="-20" y="0" width="93" height="79">
+			<expression><![CDATA[this.getClass().getResourceAsStream("/images/logo_apptaller_small.png")]]></expression>
+		</element>
+		<element kind="staticText" uuid="b8f5f249-55ce-4e26-91cd-797ad2db93c0" x="110" y="20" width="410" height="40" forecolor="#FFFFFF" fontSize="25.0" bold="true">
+			<text><![CDATA[HISTORIAL DE MANTENIMIENTO]]></text>
+		</element>
+	</title>
+	<pageHeader height="42" splitType="Stretch">
+		<element kind="textField" uuid="9e6ec117-2f5e-4198-a22f-f682d638ad66" x="60" y="10" width="100" height="20">
+			<expression><![CDATA[$F{matricula}]]></expression>
+		</element>
+		<element kind="textField" uuid="10051f4f-d9e3-4b75-b6a0-9cb0a3fc4165" x="250" y="10" width="100" height="20">
+			<expression><![CDATA[$F{marca}]]></expression>
+		</element>
+		<element kind="textField" uuid="427c455b-075f-4aab-a21a-ff6d68ceb407" x="420" y="12" width="100" height="18">
+			<expression><![CDATA[$F{modelo}]]></expression>
+		</element>
+		<element kind="staticText" uuid="22f41af7-01cc-4e7c-a02e-898623642785" x="-1" y="10" width="54" height="30">
+			<text><![CDATA[Matrícula: ]]></text>
+		</element>
+		<element kind="staticText" uuid="d3e1ba35-39de-407d-a046-285b3a3708b6" x="175" y="10" width="65" height="20">
+			<text><![CDATA[Marca:]]></text>
+		</element>
+		<element kind="staticText" uuid="232bff8d-50b9-4c01-a597-ecc6fad920c1" x="373" y="12" width="46" height="18">
+			<text><![CDATA[Modelo:]]></text>
+		</element>
+	</pageHeader>
+	<columnHeader height="61" splitType="Stretch">
+		<element kind="staticText" uuid="5546954a-de49-46dc-a9b3-69f433de4b63" x="-20" y="10" width="61" height="30" backcolor="#DBD5D5">
+			<text><![CDATA[Nº Orden]]></text>
+		</element>
+		<element kind="staticText" uuid="58ac3f43-ac27-4c3c-891a-b2bca90844da" x="73" y="11" width="77" height="30" backcolor="#DBD5D5">
+			<text><![CDATA[Fecha]]></text>
+		</element>
+		<element kind="staticText" uuid="17e85527-005e-41f0-926b-c0798ff778cd" x="175" y="10" width="100" height="30" backcolor="#DBD5D5">
+			<text><![CDATA[Mecánico]]></text>
+		</element>
+		<element kind="staticText" uuid="09a42d8d-c0bc-4238-a6f2-c6477c1e7ad8" x="325" y="8" width="100" height="30" backcolor="#DBD5D5">
+			<text><![CDATA[Estado]]></text>
+		</element>
+		<element kind="staticText" uuid="b0454ef3-3515-4eca-b47f-3670b3920866" x="430" y="7" width="100" height="30" backcolor="#DBD5D5">
+			<text><![CDATA[Notas]]></text>
+		</element>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch">
+			<element kind="textField" uuid="4f4ac4f7-7def-4d86-a620-649791081d73" x="-18" y="6" width="68" height="30">
+				<expression><![CDATA[$F{id_reparacion}]]></expression>
+			</element>
+			<element kind="textField" uuid="7a6e70d4-56eb-434a-bfd9-81d0a64b5697" x="73" y="8" width="87" height="30">
+				<expression><![CDATA[$F{fecha_entrada}]]></expression>
+			</element>
+			<element kind="textField" uuid="c265b2de-300e-46cf-a5af-8729692e7fcd" x="175" y="9" width="100" height="30">
+				<expression><![CDATA[$F{mecanico}]]></expression>
+			</element>
+			<element kind="textField" uuid="7bead2b2-abcd-40fb-aba2-289fb65e7f6e" x="319" y="15" width="100" height="30">
+				<expression><![CDATA[$F{estado}]]></expression>
+			</element>
+			<element kind="textField" uuid="1bb6bfb8-b904-4eaf-a74e-27c44c142b24" x="430" y="8" width="100" height="30">
+				<expression><![CDATA[$F{notas}]]></expression>
+			</element>
+		</band>
+	</detail>
+	<columnFooter height="45" splitType="Stretch"/>
+	<pageFooter height="54" splitType="Stretch"/>
+	<summary height="42" splitType="Stretch"/>
+</jasperReport>

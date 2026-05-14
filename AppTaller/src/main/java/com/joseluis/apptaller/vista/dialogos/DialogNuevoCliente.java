@@ -76,12 +76,35 @@ public class DialogNuevoCliente extends javax.swing.JDialog {
         cliente = new ClienteVO();
         cliente.setDni(txtDni.getText().trim());
         cliente.setNombre(txtNombre.getText().trim());
-        cliente.setTelefono(txtTelefono.getText().trim());
-        cliente.setEmail(txtEmail.getText().trim());
-        cliente.setDireccion(txtDireccion.getText().trim());
+        
+        // --- PARCHE PARA MYSQL (Manejo de vacíos a NULL con if/else) ---
+        
+        // 1. El email
+        String emailRecogido = txtEmail.getText().trim();
+        if (emailRecogido.isEmpty()) {
+            cliente.setEmail(null);
+        } else {
+            cliente.setEmail(emailRecogido);
+        }
+        
+        // 2. El teléfono
+        String tlfRecogido = txtTelefono.getText().trim();
+        if (tlfRecogido.isEmpty()) {
+            cliente.setTelefono(null);
+        } else {
+            cliente.setTelefono(tlfRecogido);
+        }
+        
+        // 3. La dirección
+        String dirRecogida = txtDireccion.getText().trim();
+        if (dirRecogida.isEmpty()) {
+            cliente.setDireccion(null);
+        } else {
+            cliente.setDireccion(dirRecogida);
+        }
+
         // Asignamos la fecha actual automáticamente al crear el cliente
         cliente.setFechaRegistro(java.time.LocalDate.now());
-        
         
         // Marcamos como exitoso y cerramos
         this.guardado = true;
